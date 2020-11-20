@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOTM", "LOTM.csproj", "{B19DE33D-64AE-40E7-B1E9-F5AE291B8F59}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B19DE33D-64AE-40E7-B1E9-F5AE291B8F59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B19DE33D-64AE-40E7-B1E9-F5AE291B8F59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B19DE33D-64AE-40E7-B1E9-F5AE291B8F59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B19DE33D-64AE-40E7-B1E9-F5AE291B8F59}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {95060F07-0228-4149-9427-AEE5F6743206}
+	EndGlobalSection
+EndGlobal
