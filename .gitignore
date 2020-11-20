@@ -1,3 +1,7 @@
 .vs/
-obj/
-bin/
+LOTM.Client/bin/
+LOTM.Client/obj/
+LOTM.Server/bin/
+LOTM.Server/obj/
+LOTM.Shared/bin/
+LOTM.Shared/obj/

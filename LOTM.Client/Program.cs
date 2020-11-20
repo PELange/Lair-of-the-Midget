@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LOTM
+namespace LOTM.Client
 {
     class Program
     {
