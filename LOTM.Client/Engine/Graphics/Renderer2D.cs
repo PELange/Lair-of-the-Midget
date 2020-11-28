@@ -1,4 +1,5 @@
-﻿using LOTM.Shared.Engine.Math;
+﻿using GlmNet;
+using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.World;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -63,23 +64,6 @@ namespace LOTM.Client.Engine.Graphics
             Texture2 = Texture2D.FromFile("Game/Assets/Textures/Two.png");
 
             // --------- setup buffers
-            /*var vertices = new float[] {
-                 0,  0,     1.0f, 1.0f, 0.0f, 1.0f,     0.0f, 0.0f,     0.0f,
-                 0, 50,     1.0f, 1.0f, 0.0f, 1.0f,     0.0f, 1.0f,     0.0f,
-                50,  0,     1.0f, 1.0f, 0.0f, 1.0f,     1.0f, 0.0f,     0.0f,
-                50, 50,     1.0f, 1.0f, 0.0f, 1.0f,     1.0f, 1.0f,     0.0f,
-
-               100,  0,     1.0f, 0.0f, 1.0f, 1.0f,     0.0f, 0.0f,     1.0f,
-               100, 50,     1.0f, 0.0f, 1.0f, 1.0f,     0.0f, 1.0f,     1.0f,
-               150,  0,     1.0f, 0.0f, 1.0f, 1.0f,     1.0f, 0.0f,     1.0f,
-               150, 50,     1.0f, 0.0f, 1.0f, 1.0f,     1.0f, 1.0f,     1.0f,
-            };
-            */
-
-            var indices = new uint[] {
-                0, 1, 2, 1, 3, 2,
-                4+0, 4+1, 4+2, 4+1, 4+3, 4+2,
-            };
 
             //Create vertex array
             uint VAO;
@@ -92,8 +76,7 @@ namespace LOTM.Client.Engine.Graphics
             glGenBuffers(1, &VBO);
             VertexBuffer = VBO;
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            //glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 8, vertices, GL_STATIC_DRAW);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * (MAX_QUADS / 4), null, GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_QUADS * 4, null, GL_DYNAMIC_DRAW);
 
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), "Position"));
@@ -108,11 +91,24 @@ namespace LOTM.Client.Engine.Graphics
             glVertexAttribPointer(3, 1, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), "TextureIndex"));
 
             //Create index buffer
+            const int maxIndices = MAX_QUADS * 6;
+            var indices = new uint[maxIndices];
+            for (uint i = 0, offset = 0; i < maxIndices; i += 6, offset += 4)
+            {
+                indices[i + 0] = 0 + offset;
+                indices[i + 1] = 1 + offset;
+                indices[i + 2] = 2 + offset;
+
+                indices[i + 3] = 1 + offset;
+                indices[i + 4] = 3 + offset;
+                indices[i + 5] = 2 + offset;
+            }
+
             uint IBO;
             glGenBuffers(1, &IBO);
             IndexBuffer = IBO;
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * indices.Length, indices, GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * maxIndices, indices, GL_STATIC_DRAW);
 
             //Unbind buffers
             glBindVertexArray(0);
@@ -133,13 +129,54 @@ namespace LOTM.Client.Engine.Graphics
                 new Vertex(new Vector2(100, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 1.0f), 1),
                 new Vertex(new Vector2(150,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f), 1),
                 new Vertex(new Vector2(150, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 1.0f), 1),
+
+                new Vertex(new Vector2(200,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 0.0f), 1),
+                new Vertex(new Vector2(200, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 1.0f), 1),
+                new Vertex(new Vector2(250,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f), 1),
+                new Vertex(new Vector2(250, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 1.0f), 1),
             };
+
+            //for (int i = 0; i < 4; i++)
+            //{
+            //    var data = verticies[i];
+
+            //    //var transform = glm.translate(mat4.identity(), new vec3(data.Position[0], data.Position[1], 0))
+            //    //    * glm.rotate(mat4.identity(), glm.radians(45.0f), new vec3(0, 0, 1))
+            //    //    * glm.scale(mat4.identity(), new vec3(1.5f, 1.5f, 1));
+            //    ////transform = glm.translate(transform, new vec3(-data.Position[0], -data.Position[1], 0));
+
+            //    //var transform = glm.translate(mat4.identity(), new vec3(data.Position[0], data.Position[1], 1))
+            //    //    * glm.rotate(mat4.identity(), glm.radians(45.0f), new vec3(0, 0, 1))
+            //    //    * glm.scale(mat4.identity(), new vec3(1.0f, 1.0f, 1));
+
+            //    //float size = 1;
+            //    //float rotate = 45.0f;
+            //    //var transform = new mat4(1.0f);
+            //    //transform = glm.translate(new mat4(1.0f), new vec3(data.Position[0], data.Position[1], 0.0f));
+            //    //transform = glm.translate(transform, new vec3(0.5f * size, 0.5f * size, 0.0f));
+            //    //transform = glm.rotate(transform, glm.radians(rotate), new vec3(0.0f, 0.0f, 1.0f));
+            //    //transform = glm.translate(transform, new vec3(-0.5f * size, -0.5f * size, 0.0f));
+            //    //transform = glm.scale(transform, new vec3(size, size, 1.0f));
+
+            //    ////var transform = glm.translate(mat4.identity(), new vec3(data.Position[0], data.Position[1], 0.0f));
+            //    ////transform = glm.rotate(transform, glm.radians(45), new vec3(0.0f, 0.0f, 1.0f));
+            //    ////transform = glm.translate(transform, new vec3(-data.Position[0], -data.Position[1], 0));
+
+            //    //var transformedPos = transform * qvp;
+            //    var transformedPos = transform * new vec4(data.Position[0], data.Position[1], 1, 1);
+            //    //var transformedPos = transform * new vec4(10, 10, 1, 1);
+            //    data.Position[0] = transformedPos.x;
+            //    data.Position[1] = transformedPos.y;
+
+            //    verticies.RemoveAt(i);
+            //    verticies.Insert(i, data);
+            //}
 
             //Set dynamic vertex buffer
             glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
             fixed (Vertex* data = verticies.ToArray())
             {
-                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 8, data);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * verticies.Count, data);
             }
 
             Shader.Bind();
@@ -152,7 +189,7 @@ namespace LOTM.Client.Engine.Graphics
 
             glBindVertexArray(VertexArray);
 
-            glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, null);
+            glDrawElements(GL_TRIANGLES, (verticies.Count / 4) * 6, GL_UNSIGNED_INT, null);
 
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
