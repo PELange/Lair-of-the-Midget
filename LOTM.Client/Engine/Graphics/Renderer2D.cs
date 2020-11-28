@@ -18,7 +18,7 @@ namespace LOTM.Client.Engine.Graphics
         {
             Camera = camera;
 
-            Shader = Shader.CameraShader();
+            Shader = Shader.CameraShaderColored();
             Shader.Bind();
             Shader.SetMatrix4("projection", Camera.GetProjectionMatrix());
             Shader.Unbind();
@@ -29,15 +29,15 @@ namespace LOTM.Client.Engine.Graphics
             Shader.Bind();
 
             var vertices = new float[] {
-                100, 100, 0,
-                100, 200, 0,
-                200, 100, 0,
-                200, 200, 0,
+                100, 100, 1.0f, 1.0f, 0.0f, 1.0f,
+                100, 200, 1.0f, 1.0f, 0.0f, 1.0f,
+                200, 100, 1.0f, 1.0f, 0.0f, 1.0f,
+                200, 200, 1.0f, 1.0f, 0.0f, 1.0f,
 
-                200+100, 200+100, 0,
-                200+100, 200+200, 0,
-                200+200, 200+100, 0,
-                200+200, 200+200, 0,
+                200+100, 200+100, 1.0f, 0.0f, 1.0f, 1.0f,
+                200+100, 200+200, 1.0f, 0.0f, 1.0f, 1.0f,
+                200+200, 200+100, 1.0f, 0.0f, 1.0f, 1.0f,
+                200+200, 200+200, 1.0f, 0.0f, 1.0f, 1.0f,
             };
 
             var indices = new uint[] {
@@ -57,7 +57,10 @@ namespace LOTM.Client.Engine.Graphics
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.Length, vertices, GL_STATIC_DRAW);
 
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (void*)0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)0);
+
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(1, 4, GL_FLOAT, false, 6 * sizeof(float), (void*)(sizeof(float) * 2));
 
             //Create index buffer
             uint IBO;
