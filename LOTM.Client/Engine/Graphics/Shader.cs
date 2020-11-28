@@ -196,8 +196,7 @@ namespace LOTM.Client.Engine.Graphics
             return shader;
         }
 
-
-        public static unsafe Shader SpriteShader()
+        public static unsafe Shader CameraShaderTexture()
         {
             var shader = new Shader
             {
@@ -206,31 +205,41 @@ namespace LOTM.Client.Engine.Graphics
 
             var vertexSource = @"
                 #version 330 core
-                layout (location = 0) in vec4 vertex; // <vec2 position, vec2 texCoords>
-
-                out vec2 TexCoords;
-
-                uniform mat4 model;
+                layout (location = 0) in vec2 position;
+                layout (location = 1) in vec4 color;
+                layout (location = 2) in vec2 textureCoord;
+                layout (location = 3) in float textureIndex;
+                
                 uniform mat4 projection;
+
+                out vec4 vertexColor;
+                out vec2 vertexTextureCoord;
+                out float vertexTextureIndex;
 
                 void main()
                 {
-                    TexCoords = vertex.zw;
-                    gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);
+                    gl_Position = projection * vec4(position.x, position.y, 1.0, 1.0);
+                    vertexColor = color;
+                    vertexTextureCoord = textureCoord;
+                    vertexTextureIndex = textureIndex;
                 }
             ";
 
             var fragmentSource = @"
                 #version 330 core
-                in vec2 TexCoords;
                 out vec4 color;
-
-                uniform sampler2D image;
-                uniform vec3 spriteColor;
+  
+                in vec4 vertexColor;
+                in vec2 vertexTextureCoord;
+                in float vertexTextureIndex;
+                
+                uniform sampler2D u_Textures[2];
 
                 void main()
-                {    
-                    color = vec4(spriteColor, 1.0) * texture(image, TexCoords);
+                {
+                    int index = int(vertexTextureIndex);
+                    color = texture(u_Textures[index], vertexTextureCoord);
+                    //color = vertexColor;
                 } 
             ";
 

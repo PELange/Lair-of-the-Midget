@@ -14,30 +14,53 @@ namespace LOTM.Client.Engine.Graphics
 
         public Shader Shader { get; set; }
 
+        public Texture2D Texture1 { get; set; }
+        public Texture2D Texture2 { get; set; }
+
         public Renderer2D(OrthographicCamera camera)
         {
             Camera = camera;
 
-            Shader = Shader.CameraShaderColored();
+            Shader = Shader.CameraShaderTexture();
             Shader.Bind();
+
             Shader.SetMatrix4("projection", Camera.GetProjectionMatrix());
+
+            var samplers = new int[] { 0, 1 };
+            unsafe
+            {
+                fixed (int* data = samplers)
+                {
+                    glUniform1iv(glGetUniformLocation(Shader.ID, "u_Textures"), 2, data);
+                }
+            }
+
             Shader.Unbind();
+
+            Texture1 = Texture2D.FromFile("Game/Assets/Textures/One.png");
+            Texture2 = Texture2D.FromFile("Game/Assets/Textures/Two.png");
         }
 
         public unsafe void Render(GameWorld world)
         {
             Shader.Bind();
 
-            var vertices = new float[] {
-                100, 100, 1.0f, 1.0f, 0.0f, 1.0f,
-                100, 200, 1.0f, 1.0f, 0.0f, 1.0f,
-                200, 100, 1.0f, 1.0f, 0.0f, 1.0f,
-                200, 200, 1.0f, 1.0f, 0.0f, 1.0f,
+            glActiveTexture(GL_TEXTURE0);
+            Texture1.Bind();
 
-                200+100, 200+100, 1.0f, 0.0f, 1.0f, 1.0f,
-                200+100, 200+200, 1.0f, 0.0f, 1.0f, 1.0f,
-                200+200, 200+100, 1.0f, 0.0f, 1.0f, 1.0f,
-                200+200, 200+200, 1.0f, 0.0f, 1.0f, 1.0f,
+            glActiveTexture(GL_TEXTURE1);
+            Texture2.Bind();
+
+            var vertices = new float[] {
+                 0,  0,     1.0f, 1.0f, 0.0f, 1.0f,     0.0f, 0.0f,     0.0f,
+                 0, 50,     1.0f, 1.0f, 0.0f, 1.0f,     0.0f, 1.0f,     0.0f,
+                50,  0,     1.0f, 1.0f, 0.0f, 1.0f,     1.0f, 0.0f,     0.0f,
+                50, 50,     1.0f, 1.0f, 0.0f, 1.0f,     1.0f, 1.0f,     0.0f,
+
+               100,  0,     1.0f, 0.0f, 1.0f, 1.0f,     0.0f, 0.0f,     1.0f,
+               100, 50,     1.0f, 0.0f, 1.0f, 1.0f,     0.0f, 1.0f,     1.0f,
+               150,  0,     1.0f, 0.0f, 1.0f, 1.0f,     1.0f, 0.0f,     1.0f,
+               150, 50,     1.0f, 0.0f, 1.0f, 1.0f,     1.0f, 1.0f,     1.0f,
             };
 
             var indices = new uint[] {
@@ -57,10 +80,16 @@ namespace LOTM.Client.Engine.Graphics
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.Length, vertices, GL_STATIC_DRAW);
 
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, 9 * sizeof(float), (void*)0);
 
             glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 4, GL_FLOAT, false, 6 * sizeof(float), (void*)(sizeof(float) * 2));
+            glVertexAttribPointer(1, 4, GL_FLOAT, false, 9 * sizeof(float), (void*)(sizeof(float) * 2));
+
+            glEnableVertexAttribArray(2);
+            glVertexAttribPointer(2, 2, GL_FLOAT, false, 9 * sizeof(float), (void*)(sizeof(float) * (2 + 4)));
+
+            glEnableVertexAttribArray(3);
+            glVertexAttribPointer(3, 1, GL_FLOAT, false, 9 * sizeof(float), (void*)(sizeof(float) * (2 + 4 + 2)));
 
             //Create index buffer
             uint IBO;

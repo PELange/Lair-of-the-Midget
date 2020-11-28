@@ -4,7 +4,7 @@ using static GLDotNet.GL;
 
 namespace LOTM.Client.Engine.Graphics
 {
-    class Texture2D
+    public class Texture2D
     {
         public uint ID { get; set; }
 
@@ -30,8 +30,8 @@ namespace LOTM.Client.Engine.Graphics
                     // set Texture wrap and filter modes
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (int)GL_REPEAT);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (int)GL_REPEAT);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (int)GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (int)GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (int)GL_NEAREST);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (int)GL_NEAREST);
 
                     // unbind texture
                     glBindTexture(GL_TEXTURE_2D, 0);
