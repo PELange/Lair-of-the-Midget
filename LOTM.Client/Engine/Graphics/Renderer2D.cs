@@ -47,7 +47,7 @@ namespace LOTM.Client.Engine.Graphics
         {
             Camera = camera;
 
-            Shader = Shader.CameraShaderTexture();
+            Shader = Shader.ColoredTexture();
             Shader.Bind();
 
             Shader.SetMatrix4("projection", Camera.GetProjectionMatrix());
@@ -62,6 +62,7 @@ namespace LOTM.Client.Engine.Graphics
 
             Texture1 = Texture2D.FromFile("Game/Assets/Textures/One.png");
             Texture2 = Texture2D.FromFile("Game/Assets/Textures/Two.png");
+            Texture2 = Texture2D.FromColor(new Vector4(0.5, 0.23, 1, 0.23));
 
             // --------- setup buffers
 
@@ -125,20 +126,20 @@ namespace LOTM.Client.Engine.Graphics
                 new Vertex(new Vector2( 250, 200), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 0.0f), 0),
                 new Vertex(new Vector2( 250, 250), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 1.0f), 0),
 
-                //new Vertex(new Vector2(  0,  0), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(0.0f, 0.0f), 0),
-                //new Vertex(new Vector2(  0, 50), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(0.0f, 1.0f), 0),
-                //new Vertex(new Vector2( 50,  0), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 0.0f), 0),
-                //new Vertex(new Vector2( 50, 50), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 1.0f), 0),
+                new Vertex(new Vector2(  0,  0), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(0.0f, 0.0f), 0),
+                new Vertex(new Vector2(  0, 50), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(0.0f, 1.0f), 0),
+                new Vertex(new Vector2( 50,  0), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 0.0f), 0),
+                new Vertex(new Vector2( 50, 50), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 1.0f), 0),
 
-                //new Vertex(new Vector2(100,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 0.0f), 1),
-                //new Vertex(new Vector2(100, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 1.0f), 1),
-                //new Vertex(new Vector2(150,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f), 1),
-                //new Vertex(new Vector2(150, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 1.0f), 1),
+                new Vertex(new Vector2(100,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 0.0f), 1),
+                new Vertex(new Vector2(100, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 1.0f), 1),
+                new Vertex(new Vector2(150,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f), 1),
+                new Vertex(new Vector2(150, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 1.0f), 1),
 
-                //new Vertex(new Vector2(200,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 0.0f), 1),
-                //new Vertex(new Vector2(200, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 1.0f), 1),
-                //new Vertex(new Vector2(250,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f), 1),
-                //new Vertex(new Vector2(250, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 1.0f), 1),
+                new Vertex(new Vector2(200,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 0.0f), 1),
+                new Vertex(new Vector2(200, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 1.0f), 1),
+                new Vertex(new Vector2(250,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f), 1),
+                new Vertex(new Vector2(250, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 1.0f), 1),
             };
 
             for (int i = 0; i < 4; i++)

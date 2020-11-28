@@ -264,5 +264,74 @@ namespace LOTM.Client.Engine.Graphics
 
             return shader;
         }
+
+        public static unsafe Shader ColoredTexture()
+        {
+            var shader = new Shader
+            {
+                ID = glCreateProgram()
+            };
+
+            var vertexSource = @"
+                #version 330 core
+                layout (location = 0) in vec2 position;
+                layout (location = 1) in vec4 color;
+                layout (location = 2) in vec2 textureCoord;
+                layout (location = 3) in float textureIndex;
+                
+                uniform mat4 projection;
+
+                out vec4 vertexColor;
+                out vec2 vertexTextureCoord;
+                out float vertexTextureIndex;
+
+                void main()
+                {
+                    gl_Position = projection * vec4(position.x, position.y, 1.0, 1.0);
+                    vertexColor = color;
+                    vertexTextureCoord = textureCoord;
+                    vertexTextureIndex = textureIndex;
+                }
+            ";
+
+            var fragmentSource = @"
+                #version 330 core
+                out vec4 color;
+  
+                in vec4 vertexColor;
+                in vec2 vertexTextureCoord;
+                in float vertexTextureIndex;
+                
+                uniform sampler2D u_Textures[2];
+
+                void main()
+                {
+                    int index = int(vertexTextureIndex);
+                    color = texture(u_Textures[index], vertexTextureCoord);
+                    //color = vertexColor;
+                } 
+            ";
+
+            //Vertex shader compilation
+            var vertexId = glCreateShader(GL_VERTEX_SHADER);
+            glShaderSource(vertexId, vertexSource);
+            glCompileShader(vertexId);
+            glAttachShader(shader.ID, vertexId);
+
+            //Fragment shader  compilation
+            var fragmentId = glCreateShader(GL_FRAGMENT_SHADER);
+            glShaderSource(fragmentId, fragmentSource);
+            glCompileShader(fragmentId);
+            glAttachShader(shader.ID, fragmentId);
+
+            //Link shaders
+            glLinkProgram(shader.ID);
+
+            //Compilation cleanup
+            glDeleteShader(vertexId);
+            glDeleteShader(fragmentId);
+
+            return shader;
+        }
     }
 }
