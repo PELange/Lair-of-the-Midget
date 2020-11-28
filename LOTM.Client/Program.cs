@@ -1,5 +1,6 @@
-﻿using LOTM.Shared;
-using System;
+﻿using System;
+
+using LOTM.Client.Game;
 
 namespace LOTM.Client
 {
@@ -9,11 +10,13 @@ namespace LOTM.Client
         {
             Console.WriteLine("Hello Client!");
 
-            UDPSocket c = new UDPSocket();
-            c.Client("127.0.0.1", 27000);
-            c.Send("TEST!");
+            //UDPSocket c = new UDPSocket();
+            //c.Client("127.0.0.1", 27000);
+            //c.Send("TEST!");
 
-            if (System.Diagnostics.Debugger.IsAttached) Console.ReadLine();
+            //if (System.Diagnostics.Debugger.IsAttached) Console.ReadLine();
+
+            new LotmGame(500, 500).Start();
         }
     }
 }

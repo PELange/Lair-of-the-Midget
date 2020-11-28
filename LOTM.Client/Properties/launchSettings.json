@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LOTM.Client": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\Arkensor\\Desktop\\GT3\\LOTM\\LOTM.Client"
+    }
+  }
+}
