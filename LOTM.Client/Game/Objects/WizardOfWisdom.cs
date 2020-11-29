@@ -32,6 +32,8 @@ namespace LOTM.Client.Game.Objects
 
             if (GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
             {
+                spriteRenderer.Color = new Vector4(1, 0, 0, 1);
+
                 spriteRenderer.Sprite = AssetManager.GetSprite($"wizzard_m_idle_anim_f{CurrentAnimationPhase}");
             }
         }
