@@ -110,7 +110,7 @@ namespace LOTM.Client.Engine.Graphics
 
             foreach (var worldObject in world.Objects)
             {
-                if (worldObject.GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
+                if (worldObject.GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer && spriteRenderer.Sprite != null)
                 {
                     var textureCoordinates = spriteRenderer.Sprite.TextureCoordinates;
                     var transformation = worldObject.GetComonent<Transformation2D>();

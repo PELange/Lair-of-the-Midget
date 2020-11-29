@@ -10,7 +10,7 @@ namespace LOTM.Client.Engine.Objects
 
         public Vector4 Color { get; set; }
 
-        public SpriteRenderer(Sprite sprite, Vector4 color = null)
+        public SpriteRenderer(Sprite sprite = null, Vector4 color = null)
         {
             Sprite = sprite;
 
