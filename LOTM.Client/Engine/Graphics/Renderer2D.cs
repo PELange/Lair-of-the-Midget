@@ -1,5 +1,7 @@
 ﻿using GlmNet;
+using LOTM.Client.Engine.Objects;
 using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.World;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -14,7 +16,6 @@ namespace LOTM.Client.Engine.Graphics
             public fixed float Position[2];
             public fixed float Color[4];
             public fixed float TextureCoordinates[2];
-            public fixed float TextureIndex[1];
 
             public Vertex(Vector2 position, Vector4 color, Vector2 textureCoordinates, float textureIndex)
             {
@@ -26,7 +27,6 @@ namespace LOTM.Client.Engine.Graphics
                 Color[3] = (float)color.W;
                 TextureCoordinates[0] = (float)textureCoordinates.X;
                 TextureCoordinates[1] = (float)textureCoordinates.Y;
-                TextureIndex[0] = textureIndex;
             }
         }
 
@@ -34,35 +34,15 @@ namespace LOTM.Client.Engine.Graphics
 
         protected OrthographicCamera Camera { get; set; }
 
-        public Shader Shader { get; set; }
+        public Shader WorldObjectShader { get; set; }
         public uint VertexArray { get; set; }
         public uint VertexBuffer { get; set; }
-        public uint IndexBuffer { get; set; }
-
-
-        public Texture2D Texture1 { get; set; }
-        public Texture2D Texture2 { get; set; }
 
         public unsafe Renderer2D(OrthographicCamera camera)
         {
             Camera = camera;
 
-            Shader = Shader.ColoredTexture();
-            Shader.Bind();
-
-            Shader.SetMatrix4("projection", Camera.GetProjectionMatrix());
-
-            var samplers = new int[] { 0, 1 };
-            fixed (int* data = samplers)
-            {
-                glUniform1iv(glGetUniformLocation(Shader.ID, "u_Textures"), 2, data);
-            }
-
-            Shader.Unbind();
-
-            Texture1 = Texture2D.FromFile("Game/Assets/Textures/One.png");
-            Texture2 = Texture2D.FromFile("Game/Assets/Textures/Two.png");
-            Texture2 = Texture2D.FromColor(new Vector4(0.5, 0.23, 1, 0.23));
+            WorldObjectShader = Shader.SpriteShader();
 
             // --------- setup buffers
 
@@ -88,9 +68,6 @@ namespace LOTM.Client.Engine.Graphics
             glEnableVertexAttribArray(2);
             glVertexAttribPointer(2, 2, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), "TextureCoordinates"));
 
-            glEnableVertexAttribArray(3);
-            glVertexAttribPointer(3, 1, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), "TextureIndex"));
-
             //Create index buffer
             const int maxIndices = MAX_QUADS * 6;
             var indices = new uint[maxIndices];
@@ -107,7 +84,6 @@ namespace LOTM.Client.Engine.Graphics
 
             uint IBO;
             glGenBuffers(1, &IBO);
-            IndexBuffer = IBO;
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * maxIndices, indices, GL_STATIC_DRAW);
 
@@ -119,72 +95,80 @@ namespace LOTM.Client.Engine.Graphics
 
         public unsafe void Render(GameWorld world)
         {
-            var verticies = new List<Vertex>
+            WorldObjectShader.Bind();
+
+            //Set current camera projection
+            WorldObjectShader.SetMatrix4("projection", Camera.GetProjectionMatrix());
+
+            //todo refactor use of current texture better. currently hardcoded to texture1 on slot0
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 1);
+            WorldObjectShader.SetInteger("textureSlot", 0);
+
+            //Collect all verticies to be drawn for the current view
+            var verticies = new List<Vertex>();
+
+            foreach (var worldObject in world.Objects)
             {
-                new Vertex(new Vector2( 200, 200), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(0.0f, 0.0f), 0),
-                new Vertex(new Vector2( 200, 250), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(0.0f, 1.0f), 0),
-                new Vertex(new Vector2( 250, 200), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 0.0f), 0),
-                new Vertex(new Vector2( 250, 250), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 1.0f), 0),
+                if (worldObject.GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
+                {
+                    var textureCoordinates = spriteRenderer.Sprite.TextureCoordinates;
+                    var transformation = worldObject.GetComonent<Transformation2D>();
 
-                new Vertex(new Vector2(  0,  0), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(0.0f, 0.0f), 0),
-                new Vertex(new Vector2(  0, 50), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(0.0f, 1.0f), 0),
-                new Vertex(new Vector2( 50,  0), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 0.0f), 0),
-                new Vertex(new Vector2( 50, 50), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 1.0f), 0),
+                    var quad = new List<Vertex>
+                    {
+                        //Top left quad vertex
+                        new Vertex(
+                        new Vector2(transformation.Position.X, transformation.Position.Y),
+                        spriteRenderer.Color,
+                        new Vector2(textureCoordinates.X, textureCoordinates.Y),
+                        spriteRenderer.Sprite.Texture.ID),
 
-                new Vertex(new Vector2(100,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 0.0f), 1),
-                new Vertex(new Vector2(100, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 1.0f), 1),
-                new Vertex(new Vector2(150,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f), 1),
-                new Vertex(new Vector2(150, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 1.0f), 1),
+                        //Top right quad vertex
+                        new Vertex(
+                        new Vector2(transformation.Position.X + transformation.Scale.X, transformation.Position.Y),
+                        spriteRenderer.Color,
+                        new Vector2(textureCoordinates.Z, textureCoordinates.Y),
+                        spriteRenderer.Sprite.Texture.ID),
 
-                new Vertex(new Vector2(200,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 0.0f), 1),
-                new Vertex(new Vector2(200, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 1.0f), 1),
-                new Vertex(new Vector2(250,  0), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f), 1),
-                new Vertex(new Vector2(250, 50), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 1.0f), 1),
-            };
+                        //Bottom left quad vertex
+                        new Vertex(
+                        new Vector2(transformation.Position.X, transformation.Position.Y + transformation.Scale.Y),
+                        spriteRenderer.Color,
+                        new Vector2(textureCoordinates.X, textureCoordinates.W),
+                        spriteRenderer.Sprite.Texture.ID),
 
-            for (int i = 0; i < 4; i++)
-            {
-                var data = verticies[i];
+                        //Bottom right quad vertex
+                        new Vertex(
+                        new Vector2(transformation.Position.X + transformation.Scale.X, transformation.Position.Y + transformation.Scale.Y),
+                        spriteRenderer.Color,
+                        new Vector2(textureCoordinates.Z, textureCoordinates.W),
+                        spriteRenderer.Sprite.Texture.ID)
+                    };
 
-                //var transform = glm.translate(mat4.identity(), new vec3(data.Position[0], data.Position[1], 0))
-                //        * glm.rotate(mat4.identity(), glm.radians(45.0f), new vec3(0, 0, 1))
-                //        * glm.scale(mat4.identity(), new vec3(1.5f, 1.5f, 1));
-                ////transform = glm.translate(transform, new vec3(-data.Position[0], -data.Position[1], 0));
+                    //Apply quad center rotation
+                    for (int nVertex = 0; nVertex < 4; nVertex++)
+                    {
+                        var vertex = quad[nVertex];
 
-                ////var transform = glm.translate(mat4.identity(), new vec3(data.Position[0], data.Position[1], 1))
-                ////    * glm.rotate(mat4.identity(), glm.radians(45.0f), new vec3(0, 0, 1))
-                ////    * glm.scale(mat4.identity(), new vec3(1.0f, 1.0f, 1));
+                        var translate = glm.translate(
+                            mat4.identity(),
+                            new vec3(
+                                (float)(transformation.Position.X + (transformation.Scale.X / 2)),
+                                (float)(transformation.Position.Y + (transformation.Scale.Y / 2)),
+                                0));
 
-                ////float size = 1;
-                ////float rotate = 45.0f;
-                ////var transform = new mat4(1.0f);
-                ////transform = glm.translate(new mat4(1.0f), new vec3(data.Position[0], data.Position[1], 0.0f));
-                ////transform = glm.translate(transform, new vec3(0.5f * size, 0.5f * size, 0.0f));
-                ////transform = glm.rotate(transform, glm.radians(rotate), new vec3(0.0f, 0.0f, 1.0f));
-                ////transform = glm.translate(transform, new vec3(-0.5f * size, -0.5f * size, 0.0f));
-                ////transform = glm.scale(transform, new vec3(size, size, 1.0f));
+                        var rotated = translate
+                            * glm.rotate(glm.radians((float)transformation.Rotation), new vec3(0.0f, 0.0f, 1.0f))
+                            * glm.inverse(translate)
+                            * new vec4(vertex.Position[0], vertex.Position[1], 0.0f, 1.0f);
 
-                //////var transform = glm.translate(mat4.identity(), new vec3(data.Position[0], data.Position[1], 0.0f));
-                //////transform = glm.rotate(transform, glm.radians(45), new vec3(0.0f, 0.0f, 1.0f));
-                //////transform = glm.translate(transform, new vec3(-data.Position[0], -data.Position[1], 0));
+                        vertex.Position[0] = rotated.x;
+                        vertex.Position[1] = rotated.y;
 
-                ////var transformedPos = transform * qvp;
-                //var transformedPos = transform * new vec4(1, 1, 1, 1);
-                ////var transformedPos = transform * new vec4(10, 10, 1, 1);
-                //data.Position[0] = transformedPos.x;
-                //data.Position[1] = transformedPos.y;
-
-                var v4In = new vec4(data.Position[0], data.Position[1], 0.0f, 1.0f);
-                var v4RotCenter = new vec4(225, 225, 0.0f, 1.0f);
-                var v3RotAxis = new vec3(0.0f, 0.0f, 1.0f);
-                var matRot = glm.rotate(glm.radians(45.0f), v3RotAxis);
-                var result = rotateAround(v4In, v4RotCenter, matRot);
-
-                data.Position[0] = result.x;
-                data.Position[1] = result.y;
-
-                verticies.RemoveAt(i);
-                verticies.Insert(i, data);
+                        verticies.Add(vertex);
+                    }
+                }
             }
 
             //Set dynamic vertex buffer
@@ -194,14 +178,6 @@ namespace LOTM.Client.Engine.Graphics
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * verticies.Count, data);
             }
 
-            Shader.Bind();
-
-            glActiveTexture(GL_TEXTURE0);
-            Texture1.Bind();
-
-            glActiveTexture(GL_TEXTURE1);
-            Texture2.Bind();
-
             glBindVertexArray(VertexArray);
 
             glDrawElements(GL_TRIANGLES, (verticies.Count / 4) * 6, GL_UNSIGNED_INT, null);
@@ -209,22 +185,7 @@ namespace LOTM.Client.Engine.Graphics
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
 
-            Shader.Unbind();
-        }
-
-        vec4 rotateAround(vec4 aPointToRotate, vec4 aRotationCenter, mat4 aRotationMatrix)
-        {
-            var translate = glm.translate(new mat4(1.0f), new vec3(aRotationCenter.x, aRotationCenter.y, aRotationCenter.z));
-            var invTranslate = glm.inverse(translate);
-
-            // The idea:
-            // 1) Translate the object to the center
-            // 2) Make the rotation
-            // 3) Translate the object back to its original location
-
-            var transform = translate * aRotationMatrix * invTranslate;
-
-            return transform * aPointToRotate;
+            WorldObjectShader.Unbind();
         }
     }
 }

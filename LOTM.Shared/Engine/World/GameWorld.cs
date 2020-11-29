@@ -1,4 +1,4 @@
-﻿using LOTM.Shared.Engine.Object;
+﻿using LOTM.Shared.Engine.Objects;
 using System.Collections.Generic;
 
 namespace LOTM.Shared.Engine.World

@@ -1,4 +1,4 @@
-﻿namespace LOTM.Shared.Engine.Object
+﻿namespace LOTM.Shared.Engine.Objects
 {
     public interface IComponent
     {

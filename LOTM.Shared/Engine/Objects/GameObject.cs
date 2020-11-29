@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LOTM.Shared.Engine.Object
+namespace LOTM.Shared.Engine.Objects
 {
-    public class GameObject
+    public abstract class GameObject
     {
         public ICollection<IComponent> Components { get; } = new LinkedList<IComponent>();
 
@@ -24,5 +24,9 @@ namespace LOTM.Shared.Engine.Object
         {
             return (T)Components.Where(x => x is T).FirstOrDefault();
         }
+
+        public abstract void OnFixedUpdate(double deltaTime);
+
+        public abstract void OnUpdate(double deltaTime);
     }
 }

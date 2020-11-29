@@ -1,6 +1,6 @@
 ﻿using LOTM.Shared.Engine.Math;
 
-namespace LOTM.Shared.Engine.Object
+namespace LOTM.Shared.Engine.Objects
 {
     public class Transformation2D : IComponent
     {

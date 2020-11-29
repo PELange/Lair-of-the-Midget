@@ -9,9 +9,17 @@ namespace LOTM.Client.Engine.Graphics
     {
         public uint ID { get; set; }
 
+        public uint Width { get; set; }
+
+        public uint Height { get; set; }
+
         public static unsafe Texture2D FromColor(Vector4 color)
         {
-            var texture = new Texture2D();
+            var texture = new Texture2D
+            {
+                Width = 1,
+                Height = 1
+            };
 
             uint texId;
             glGenTextures(1, &texId);
@@ -57,6 +65,9 @@ namespace LOTM.Client.Engine.Graphics
                     uint texId;
                     glGenTextures(1, &texId);
                     texture.ID = texId;
+
+                    texture.Width = (uint)image.Width;
+                    texture.Height = (uint)image.Height;
 
                     // create Texture
                     glBindTexture(GL_TEXTURE_2D, texture.ID);

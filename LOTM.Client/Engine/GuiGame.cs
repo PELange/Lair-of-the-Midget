@@ -16,6 +16,8 @@ namespace LOTM.Client.Engine
 
         private Renderer2D Renderer { get; set; }
 
+        protected OrthographicCamera Camera { get; }
+
         public GuiGame(int windowWidth, int windowHeight, string title)
         {
             WindowWidth = windowWidth;
@@ -51,8 +53,14 @@ namespace LOTM.Client.Engine
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+            //MSAA
+            glEnable(GL_MULTISAMPLE);
+
+            //Setup camera
+            Camera = new OrthographicCamera(new OrthographicCamera.Viewport(Vector2.ZERO, new Vector2(WindowWidth, WindowHeight)));
+
             //Setup renderer
-            Renderer = new Renderer2D(new OrthographicCamera(new OrthographicCamera.Viewport(Vector2.ZERO, new Vector2(WindowWidth, WindowHeight))));
+            Renderer = new Renderer2D(Camera);
         }
 
         protected void Framebuffer_size_callback(IntPtr window, int width, int height)
