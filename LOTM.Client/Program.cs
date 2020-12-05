@@ -1,6 +1,4 @@
-﻿using System;
-
-using LOTM.Client.Game;
+﻿using LOTM.Client.Game;
 
 namespace LOTM.Client
 {
@@ -8,15 +6,29 @@ namespace LOTM.Client
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello Client!");
+            //var timer = new Timer
+            //{
+            //    Interval = 100
+            //};
+            //timer.Elapsed += Timer_Elapsed;
+            //timer.Start();
 
-            //UDPSocket c = new UDPSocket();
-            //c.Client("127.0.0.1", 27000);
-            //c.Send("TEST!");
-
-            //if (System.Diagnostics.Debugger.IsAttached) Console.ReadLine();
-
-            new LotmGame(500, 500).Start();
+            new LotmClient(500, 500).Start();
         }
+
+        //private static void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        //{
+        //    var client = new UdpClient();
+        //    IPEndPoint ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 11000); // endpoint where server is listening
+        //    client.Connect(ep);
+
+        //    // send data
+        //    client.Send(new byte[] { 1, 2, 3, 4, 5 }, 5);
+
+        //    // then receive data
+        //    var receivedData = client.Receive(ref ep);
+
+        //    Console.WriteLine("receive data from " + ep.ToString());
+        //}
     }
 }
