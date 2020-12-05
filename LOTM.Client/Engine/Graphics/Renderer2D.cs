@@ -108,7 +108,13 @@ namespace LOTM.Client.Engine.Graphics
             //Collect all verticies to be drawn for the current view
             var verticies = new List<Vertex>();
 
-            foreach (var worldObject in world.Objects)
+            var viewPort = Camera.GetViewport();
+            var searchRect = new System.Drawing.RectangleF((float)viewPort.TopLeft.X, (float)viewPort.TopLeft.Y, (float)System.Math.Abs(viewPort.BottomRight.X - viewPort.TopLeft.X), (float)System.Math.Abs(viewPort.BottomRight.Y - viewPort.TopLeft.Y));
+
+            var worldObjects = world.Objects.GetObjectsInArea(world.Objects.Bounds);
+            //var worldObjects = world.Objects;
+
+            foreach (var worldObject in worldObjects)
             {
                 if (worldObject.GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer && spriteRenderer.Sprite != null)
                 {

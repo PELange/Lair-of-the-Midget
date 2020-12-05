@@ -5,9 +5,9 @@ using LOTM.Shared.Engine.Math;
 
 namespace LOTM.Client.Game
 {
-    public class LotmGame : GuiGame
+    public class LotmClient : GuiGame
     {
-        public LotmGame(int windowWidth, int windowHeight) : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png")
+        public LotmClient(int windowWidth, int windowHeight) : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png")
         {
         }
 
@@ -25,9 +25,8 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(10, 10, 10, 11), "wizzard_m_idle_anim_f2");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(11, 10, 11, 11), "wizzard_m_idle_anim_f3");
 
-            World.Objects.Add(new DemonBoss(new Vector2(100, 100), 45, new Vector2(32, 32)));
-
-            World.Objects.Add(new WizardOfWisdom(new Vector2(300, 0), 0, new Vector2(16, 16 * 2)));
+            World.Objects.Add(new DemonBoss(new Vector2(10, 10), 45, new Vector2(32, 32)));
+            World.Objects.Add(new WizardOfWisdom(new Vector2(20, 20), 0, new Vector2(16, 16 * 2)));
         }
 
         protected override void OnFixedUpdate(double deltaTime)
