@@ -1,6 +1,5 @@
 ﻿using LOTM.Client.Engine;
 using LOTM.Client.Engine.Controls;
-using LOTM.Client.Engine.Graphics;
 using LOTM.Client.Game.Objects;
 using LOTM.Shared.Engine.Math;
 
@@ -8,7 +7,7 @@ namespace LOTM.Client.Game
 {
     public class LotmGame : GuiGame
     {
-        public LotmGame(int windowWidth, int windowHeight) : base(windowWidth, windowHeight, "Lair of the Midget")
+        public LotmGame(int windowWidth, int windowHeight) : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png")
         {
         }
 

@@ -1,7 +1,9 @@
-﻿using LOTM.Client.Engine.Controls;
+﻿using ImageDotNet;
+using LOTM.Client.Engine.Controls;
 using LOTM.Client.Engine.Graphics;
 using LOTM.Shared.Engine.Math;
 using System;
+using System.Runtime.InteropServices;
 using static GLDotNet.GL;
 using static GLFWDotNet.GLFW;
 
@@ -19,7 +21,7 @@ namespace LOTM.Client.Engine
 
         protected OrthographicCamera Camera { get; }
 
-        public GuiGame(int windowWidth, int windowHeight, string title)
+        public GuiGame(int windowWidth, int windowHeight, string title, string iconPath = null)
         {
             WindowWidth = windowWidth;
             WindowHeight = windowHeight;
@@ -44,6 +46,33 @@ namespace LOTM.Client.Engine
             }
 
             glfwMakeContextCurrent(Window);
+
+            if (!string.IsNullOrEmpty(iconPath))
+            {
+                try
+                {
+                    var image = Image.Load(iconPath);
+
+                    using (var data = image.GetDataPointer())
+                    {
+                        var img = new GLFWimage()
+                        {
+                            width = image.Width,
+                            height = image.Height,
+                            pixels = data.Pointer
+                        };
+
+                        IntPtr unmanagedAddr = Marshal.AllocHGlobal(Marshal.SizeOf(img));
+
+                        Marshal.StructureToPtr(img, unmanagedAddr, true);
+
+                        glfwSetWindowIcon(Window, 1, unmanagedAddr);
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
 
             glInit(glfwGetProcAddress, VersionMajor, VersionMinor);
             glfwSetFramebufferSizeCallback(Window, Framebuffer_size_callback);
