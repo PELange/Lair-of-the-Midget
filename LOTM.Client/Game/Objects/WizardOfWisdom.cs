@@ -2,6 +2,7 @@
 using LOTM.Client.Engine.Objects;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
+using static LOTM.Client.Engine.Controls.InputManager;
 
 namespace LOTM.Client.Game.Objects
 {
@@ -17,10 +18,33 @@ namespace LOTM.Client.Game.Objects
 
         public override void OnFixedUpdate(double deltaTime)
         {
+            //walking prototype
+            var walkSpeed = 100;
+            if (GetComonent<Transformation2D>() is Transformation2D transformation)
+            {
+                if (IsControlPressed(ControlType.WALK_LEFT))
+                {
+                    transformation.Position.X -= walkSpeed * deltaTime;
+                }
+                else if (IsControlPressed(ControlType.WALK_RIGHT))
+                {
+                    transformation.Position.X += walkSpeed * deltaTime;
+                }
+
+                if (IsControlPressed(ControlType.WALK_UP))
+                {
+                    transformation.Position.Y -= walkSpeed * deltaTime;
+                }
+                else if (IsControlPressed(ControlType.WALK_DOWN))
+                {
+                    transformation.Position.Y += walkSpeed * deltaTime;
+                }
+            }
         }
 
         public override void OnUpdate(double deltaTime)
         {
+            //animation prototype
             AnimationTimer += deltaTime;
 
             if (AnimationTimer >= 0.16)

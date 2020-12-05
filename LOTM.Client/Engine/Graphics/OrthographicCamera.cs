@@ -26,6 +26,17 @@ namespace LOTM.Client.Engine.Graphics
             SetViewport(viewport);
         }
 
+        public void PanViewport(Vector2 pan)
+        {
+            View.TopLeft.X += pan.X;
+            View.TopLeft.Y += pan.Y;
+
+            View.BottomRight.X += pan.X;
+            View.BottomRight.Y += pan.Y;
+
+            UpdateProjectionMatrix();
+        }
+
         public void SetViewport(Viewport viewport)
         {
             View = viewport;
@@ -37,7 +48,7 @@ namespace LOTM.Client.Engine.Graphics
             return View;
         }
 
-        public void UpdateProjectionMatrix()
+        protected void UpdateProjectionMatrix()
         {
             ProjectionMatrix = glm.ortho((float)View.TopLeft.X, (float)View.BottomRight.X, (float)View.BottomRight.Y, (float)View.TopLeft.Y, -1.0f, 1.0f);
         }

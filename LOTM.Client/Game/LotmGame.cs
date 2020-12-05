@@ -1,4 +1,6 @@
 ﻿using LOTM.Client.Engine;
+using LOTM.Client.Engine.Controls;
+using LOTM.Client.Engine.Graphics;
 using LOTM.Client.Game.Objects;
 using LOTM.Shared.Engine.Math;
 
@@ -24,17 +26,36 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(10, 10, 10, 11), "wizzard_m_idle_anim_f2");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(11, 10, 11, 11), "wizzard_m_idle_anim_f3");
 
-            World.Objects.Add(new DemonBoss(new Vector2(100, 100), 45, new Vector2(32 * 4, 32 * 4)));
+            World.Objects.Add(new DemonBoss(new Vector2(100, 100), 45, new Vector2(32, 32)));
 
-            World.Objects.Add(new WizardOfWisdom(new Vector2(300, 0), 0, new Vector2(16 * 4, 16 * 2 * 4)));
+            World.Objects.Add(new WizardOfWisdom(new Vector2(300, 0), 0, new Vector2(16, 16 * 2)));
         }
 
         protected override void OnFixedUpdate(double deltaTime)
         {
+            var cameraMovementSpeed = 100;
+            if (InputManager.IsControlPressed(InputManager.ControlType.WALK_LEFT))
+            {
+                Camera.PanViewport(new Vector2(-cameraMovementSpeed * deltaTime, 0));
+            }
+            else if (InputManager.IsControlPressed(InputManager.ControlType.WALK_RIGHT))
+            {
+                Camera.PanViewport(new Vector2(cameraMovementSpeed * deltaTime, 0));
+            }
+
+            if (InputManager.IsControlPressed(InputManager.ControlType.WALK_UP))
+            {
+                Camera.PanViewport(new Vector2(0, -cameraMovementSpeed * deltaTime));
+            }
+            else if (InputManager.IsControlPressed(InputManager.ControlType.WALK_DOWN))
+            {
+                Camera.PanViewport(new Vector2(0, cameraMovementSpeed * deltaTime));
+            }
         }
 
         protected override void OnUpdate(double deltaTime)
         {
+
         }
     }
 }

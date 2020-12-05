@@ -7,7 +7,7 @@ namespace LOTM.Shared.Engine
     {
         private bool ShouldShutdown { get; set; }
 
-        protected float FixedUpdateDeltaTime { get; set; } = 50; //50 ms = 20 fps
+        protected float FixedUpdateDeltaTime { get; set; } = 1 / 60.0f; //60 fps
 
         protected GameWorld World { get; } = new GameWorld();
 
@@ -29,22 +29,22 @@ namespace LOTM.Shared.Engine
 
                 while (accumulator >= FixedUpdateDeltaTime)
                 {
-                    OnFixedUpdate(FixedUpdateDeltaTime);
-
                     foreach (var worldObject in World.Objects)
                     {
                         worldObject.OnFixedUpdate(FixedUpdateDeltaTime);
                     }
 
+                    OnFixedUpdate(FixedUpdateDeltaTime);
+
                     accumulator -= FixedUpdateDeltaTime;
                 }
-
-                OnUpdate(deltaTime);
 
                 foreach (var worldObject in World.Objects)
                 {
                     worldObject.OnUpdate(deltaTime);
                 }
+
+                OnUpdate(deltaTime);
 
                 OnAfterUpdate();
 

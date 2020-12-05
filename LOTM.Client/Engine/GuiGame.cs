@@ -1,4 +1,5 @@
-﻿using LOTM.Client.Engine.Graphics;
+﻿using LOTM.Client.Engine.Controls;
+using LOTM.Client.Engine.Graphics;
 using LOTM.Shared.Engine.Math;
 using System;
 using static GLDotNet.GL;
@@ -47,8 +48,11 @@ namespace LOTM.Client.Engine
             glInit(glfwGetProcAddress, VersionMajor, VersionMinor);
             glfwSetFramebufferSizeCallback(Window, Framebuffer_size_callback);
 
-            // OpenGL configuration
-            // --------------------
+            //Input events
+            glfwSetKeyCallback(Window, InputManager.KeyCallback);
+            glfwSetJoystickCallback(InputManager.JoystickCallback);
+
+            //OpenGL configuration
             glViewport(0, 0, WindowWidth, WindowHeight);
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -63,16 +67,16 @@ namespace LOTM.Client.Engine
             Renderer = new Renderer2D(Camera);
         }
 
-        protected void Framebuffer_size_callback(IntPtr window, int width, int height)
+        public void Framebuffer_size_callback(IntPtr window, int width, int height)
         {
             glViewport(0, 0, width, height);
         }
 
         protected override void OnBeforeUpdate()
         {
-            glfwPollEvents();
-
             if (glfwWindowShouldClose(Window) == GL_TRUE) Shutdown();
+
+            glfwPollEvents();
         }
 
         protected override void OnAfterUpdate()

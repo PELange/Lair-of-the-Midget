@@ -6,7 +6,7 @@ namespace LOTM.Shared.Engine.Objects
 {
     public abstract class GameObject
     {
-        public ICollection<IComponent> Components { get; } = new LinkedList<IComponent>();
+        protected ICollection<IComponent> Components { get; } = new LinkedList<IComponent>();
 
         public GameObject(Vector2 position = null, double rotation = 0, Vector2 scale = null)
         {
