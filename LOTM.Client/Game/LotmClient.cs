@@ -1,6 +1,7 @@
 ﻿using LOTM.Client.Engine;
 using LOTM.Client.Engine.Controls;
 using LOTM.Client.Game.Objects;
+using LOTM.Client.Game.Objects.DungeonRoom;
 using LOTM.Shared.Engine.Math;
 
 namespace LOTM.Client.Game
@@ -25,8 +26,37 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(10, 10, 10, 11), "wizzard_m_idle_anim_f2");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(11, 10, 11, 11), "wizzard_m_idle_anim_f3");
 
-            World.Objects.Add(new DemonBoss(new Vector2(10, 10), 45, new Vector2(32, 32)));
-            World.Objects.Add(new WizardOfWisdom(new Vector2(20, 20), 0, new Vector2(16, 16 * 2)));
+            //Dungeon Room Tiles
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 4, 1, 4), "dungeon_tile_0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 4, 2, 4), "dungeon_tile_1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(3, 4, 3, 4), "dungeon_tile_2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 5, 2, 5), "dungeon_tile_3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 7, 1, 9), "dungeon_wall_left");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(0, 7, 0, 9), "dungeon_wall_right");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 0, 1, 1), "dungeon_wall_standard");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 7, 2, 8), "dungeon_corner_top_left");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(3, 7, 3, 8), "dungeon_corner_top_right");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 9, 2, 10), "dungeon_corner_bottom_left");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(3, 9, 3, 10), "dungeon_corner_bottom_right");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 14, 3, 15), "dungeon_door_closed");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 15, 6, 15), "dungeon_door_opened_bottom");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 14, 6, 14), "dungeon_door_opened_top");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 13, 3, 13), "dungeon_door_arch");
+
+
+
+            DungeonRoom dungeonRoom = new DungeonRoom(new Vector2(64, 64), 10, 10, 0);
+
+
+
+
+            foreach (DungeonTile tile in dungeonRoom.tileList)
+            {
+                World.Objects.Add(tile);
+            }
+            World.Objects.Add(new DemonBoss(new Vector2(160, 160), 45, new Vector2(32, 32)));
+            World.Objects.Add(new WizardOfWisdom(new Vector2(128, 128), 0, new Vector2(16, 16 * 2)));
+
         }
 
         protected override void OnFixedUpdate(double deltaTime)

@@ -27,8 +27,8 @@ namespace LOTM.Shared.Engine
 
                 OnBeforeUpdate();
 
-                var worldObjects = World.Objects.GetObjectsInArea(World.Objects.Bounds);
-                //var worldObjects = World.Objects;
+                //var worldObjects = World.Objects.GetObjectsInArea(World.Objects.Bounds);
+                var worldObjects = World.Objects;
 
                 while (accumulator >= FixedUpdateDeltaTime)
                 {
