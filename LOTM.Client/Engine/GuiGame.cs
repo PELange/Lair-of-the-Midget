@@ -91,7 +91,7 @@ namespace LOTM.Client.Engine
 
             //Setup camera
             //Camera = new OrthographicCamera(new OrthographicCamera.Viewport(Vector2.ZERO, new Vector2(WindowWidth, WindowHeight)));
-            Camera = new OrthographicCamera(new OrthographicCamera.Viewport(Vector2.ZERO, new Vector2(12 * 16, 12 * 16)));
+            Camera = new OrthographicCamera(new OrthographicCamera.Viewport(Vector2.ZERO, new Vector2(15 * 16, 15 * 16)));
 
             //Setup renderer
             Renderer = new Renderer2D(Camera);

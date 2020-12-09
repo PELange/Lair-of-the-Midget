@@ -43,15 +43,34 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 14, 6, 14), "dungeon_door_opened_top");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 13, 3, 13), "dungeon_door_arch");
 
-            var seed = System.Guid.NewGuid().GetHashCode();
-            DungeonRoom dungeonRoom = new DungeonRoom(new Vector2(16, 16), 10, 10, seed);
+            //PickUps
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 14, 18, 14), "pickup_pot_orange_big");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 15, 18, 15), "pickup_pot_orange_small");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(19, 14, 19, 14), "pickup_pot_blue_big");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(19, 15, 19, 15), "pickup_pot_blue_small");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(20, 14, 20, 14), "pickup_pot_green_big");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(20, 15, 20, 15), "pickup_pot_green_small");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 14, 21, 14), "pickup_pot_yellow_big");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 15, 21, 15), "pickup_pot_yellow_small");
 
-            foreach (var tile in dungeonRoom.tileList)
+
+            //var seed = System.Guid.NewGuid().GetHashCode();
+            var seed = 125;
+            int roomCount = 1;
+            for (int i = 0; i < roomCount; i++)
             {
-                World.Objects.Add(tile);
+                DungeonRoom dungeonRoom = new DungeonRoom(new Vector2(32, 32), 10, 10, seed);
+
+                foreach (var tile in dungeonRoom.TileList)
+                {
+                    World.Objects.Add(tile);
+                }
             }
+
+
+            
             //World.Objects.Add(new DemonBoss(new Vector2(160, 160), 45, new Vector2(32, 32)));
-            World.Objects.Add(new WizardOfWisdom(new Vector2(5 * 16, 5 * 16), 0, new Vector2(16, 16 * 2)));
+            World.Objects.Add(new WizardOfWisdom(new Vector2(6 * 16, 6 * 16), 0, new Vector2(16, 16 * 2)));
 
         }
 

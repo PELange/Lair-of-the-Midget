@@ -11,11 +11,11 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 {
     class DungeonTile : GameObject
     {
-        Random rnd = new Random();
 
-        public DungeonTile(TileType tileType, Vector2 position = null, double rotation = 0, Vector2 scale = null) : base(position, rotation, scale)
+        public DungeonTile(TileType tileType, Random random, Vector2 position = null, double rotation = 0, Vector2 scale = null) : base(position, rotation, scale)
         {
             string tileName;
+            Random rnd = random;
             switch (tileType)
             {
                 case TileType.Ground:
@@ -30,7 +30,7 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 case TileType.LeftWall:
                     tileName = "dungeon_wall_left";
                     break;
-
+                    
                 case TileType.RightWall:
                     tileName = "dungeon_wall_right";
                     break;
