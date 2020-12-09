@@ -30,14 +30,19 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         Vector2 startCoords;
         int width;
         int height;
-        int seed;
+
+        public Random Random { get; set; }
 
         public DungeonRoom(Vector2 startCoords, int width, int height, int seed)
         {
             this.startCoords = startCoords;
             this.width = width;
             this.height = height;
-            this.seed = seed;
+
+            seed = (seed + (int)(startCoords.X) + (int)(startCoords.Y)) % int.MaxValue;
+
+            Random = new Random(seed);
+
             this.createRoom();
         }
 
@@ -46,7 +51,7 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             // Create ground tiles
             for (int i = 0; i < height; i++)
             {
-                for(int j = 0; j < width; j++)
+                for (int j = 0; j < width; j++)
                 {
                     tileList.Add(new DungeonTile(TileType.Ground, new Vector2(startCoords.X + (j * 16), startCoords.Y + (i * 16)), 0, new Vector2(16, 16)));
                 }
@@ -90,6 +95,12 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
             this.createDoor(true, false);
             this.createDoor(false, true);
+
+
+            for (int i = 0; i < 5; i++)
+            {
+                tileList.Add(new DemonBoss(new Vector2(Random.Next((int)startCoords.X, (int)(startCoords.X + (width * 16))), Random.Next((int)startCoords.Y, (int)(startCoords.Y + (height * 16)))), 0, new Vector2(32, 32)));
+            }
         }
 
         public void createDoor(bool top, bool open)
@@ -102,12 +113,13 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 tileList.Add(new DungeonTile(TileType.DoorOpenedBottom, new Vector2(xCoord, yCoord), 0, new Vector2(32, 16)));
                 tileList.Add(new DungeonTile(TileType.DoorOpenedTop, new Vector2(xCoord, yCoord - 16), 0, new Vector2(32, 16)));
                 tileList.Add(new DungeonTile(TileType.DoorArch, new Vector2(xCoord, yCoord - 32), 0, new Vector2(32, 16)));
-            } else
+            }
+            else
             {
                 tileList.Add(new DungeonTile(TileType.DoorClosed, new Vector2(xCoord, yCoord - 16), 0, new Vector2(32, 32)));
                 tileList.Add(new DungeonTile(TileType.DoorArch, new Vector2(xCoord, yCoord - 32), 0, new Vector2(32, 16)));
             }
-            
+
         }
     }
 }

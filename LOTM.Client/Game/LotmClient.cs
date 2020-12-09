@@ -43,19 +43,15 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 14, 6, 14), "dungeon_door_opened_top");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 13, 3, 13), "dungeon_door_arch");
 
+            var seed = System.Guid.NewGuid().GetHashCode();
+            DungeonRoom dungeonRoom = new DungeonRoom(new Vector2(16, 16), 10, 10, seed);
 
-
-            DungeonRoom dungeonRoom = new DungeonRoom(new Vector2(64, 64), 10, 10, 0);
-
-
-
-
-            foreach (DungeonTile tile in dungeonRoom.tileList)
+            foreach (var tile in dungeonRoom.tileList)
             {
                 World.Objects.Add(tile);
             }
-            World.Objects.Add(new DemonBoss(new Vector2(160, 160), 45, new Vector2(32, 32)));
-            World.Objects.Add(new WizardOfWisdom(new Vector2(128, 128), 0, new Vector2(16, 16 * 2)));
+            //World.Objects.Add(new DemonBoss(new Vector2(160, 160), 45, new Vector2(32, 32)));
+            World.Objects.Add(new WizardOfWisdom(new Vector2(5 * 16, 5 * 16), 0, new Vector2(16, 16 * 2)));
 
         }
 

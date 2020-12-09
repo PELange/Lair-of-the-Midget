@@ -90,7 +90,8 @@ namespace LOTM.Client.Engine
             glEnable(GL_MULTISAMPLE);
 
             //Setup camera
-            Camera = new OrthographicCamera(new OrthographicCamera.Viewport(Vector2.ZERO, new Vector2(WindowWidth, WindowHeight)));
+            //Camera = new OrthographicCamera(new OrthographicCamera.Viewport(Vector2.ZERO, new Vector2(WindowWidth, WindowHeight)));
+            Camera = new OrthographicCamera(new OrthographicCamera.Viewport(Vector2.ZERO, new Vector2(12 * 16, 12 * 16)));
 
             //Setup renderer
             Renderer = new Renderer2D(Camera);
