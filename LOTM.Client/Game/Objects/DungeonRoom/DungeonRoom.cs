@@ -26,7 +26,9 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             DoorArch
         };
 
-        public List<GameObject> ObjectList = new List<GameObject>();
+        public List<GameObject> DungeonObjectList = new List<GameObject>();
+
+        public List<Vector2> ObjectCoordList = new List<Vector2>();
 
         public Vector2 DefaultScaleVector = new Vector2(16, 16);
         public Vector2 StartCoords { get; set; }
@@ -35,14 +37,16 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         public int Width { get; set; }
         public int Height { get; set; }
         public int TunnelLength { get; set; }
+        public int PlayerCount { get; set; }
         public Random Random { get; set; }
 
-        public DungeonRoom(Vector2 startCoords, int width, int height, int tunnelLength, int seed)
+        public DungeonRoom(Vector2 startCoords, int width, int height, int tunnelLength, int playerCount, int seed)
         {
             this.StartCoords = startCoords;
             this.Width = width;
             this.Height = height;
             this.TunnelLength = tunnelLength;
+            this.PlayerCount = playerCount;
             this.xDoorLeft = (int)Width / 2 - 1;
             this.xDoorRight = xDoorLeft + 1;
 
@@ -60,55 +64,54 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             {
                 for (int j = 0; j < Width; j++)
                 {
-                    ObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (j * 16), StartCoords.Y + (i * 16)), 0, DefaultScaleVector));
+                    DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (j * 16), StartCoords.Y + (i * 16)), 0, DefaultScaleVector));
                     
                 }
             }
 
-            // Create ground tiles under doors
-            // Top door
-            //ObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (xDoorLeft * 16), StartCoords.Y), 0, DefaultScaleVector));
-            //ObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (xDoorRight * 16), StartCoords.Y), 0, DefaultScaleVector));
+            // Create ground tiles under bottom doors
             //// Bottom door
-            ObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (xDoorLeft * 16), StartCoords.Y + (Height * 16)), 0, DefaultScaleVector));
-            ObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (xDoorRight * 16), StartCoords.Y + (Height * 16)), 0, DefaultScaleVector));
+            DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (xDoorLeft * 16), StartCoords.Y + (Height * 16)), 0, DefaultScaleVector));
+            DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (xDoorRight * 16), StartCoords.Y + (Height * 16)), 0, DefaultScaleVector));
 
-            this.CreatePickups(5, 11);
+            this.CreatePickups();
             //this.CreatePickupsEverywhere();
 
             // Create top corners
-            ObjectList.Add(new DungeonTile(TileType.TopLeftCorner, Random, new Vector2(StartCoords.X, StartCoords.Y - 16), 0, new Vector2(16, 32)));
-            ObjectList.Add(new DungeonTile(TileType.TopRightCorner, Random, new Vector2(StartCoords.X + ((Width - 1) * 16), StartCoords.Y - 16), 0, new Vector2(16, 32)));
+            DungeonObjectList.Add(new DungeonTile(TileType.TopLeftCorner, Random, new Vector2(StartCoords.X, StartCoords.Y - 16), 0, new Vector2(16, 32)));
+            DungeonObjectList.Add(new DungeonTile(TileType.TopRightCorner, Random, new Vector2(StartCoords.X + ((Width - 1) * 16), StartCoords.Y - 16), 0, new Vector2(16, 32)));
 
             // Create top walls
             for (int i = 1; i < Width - 1; i++)
             {
                 if (i == xDoorLeft || i == xDoorRight) continue; // Skip walls that would be at upper door position
-                ObjectList.Add(new DungeonTile(TileType.StandardWall, Random, new Vector2(StartCoords.X + (i * 16), StartCoords.Y - 16), 0, new Vector2(16, 32)));
+                DungeonObjectList.Add(new DungeonTile(TileType.StandardWall, Random, new Vector2(StartCoords.X + (i * 16), StartCoords.Y - 16), 0, new Vector2(16, 32)));
             }
 
             // Create left and right walls
             for (int i = 1; i < Height - 1; i++)
             {
-                ObjectList.Add(new DungeonTile(TileType.LeftWall, Random, new Vector2(StartCoords.X, StartCoords.Y + (i * 16)), 0, DefaultScaleVector));
-                ObjectList.Add(new DungeonTile(TileType.RightWall, Random, new Vector2(StartCoords.X + ((Width - 1) * 16), StartCoords.Y + (i * 16)), 0, DefaultScaleVector));
+                DungeonObjectList.Add(new DungeonTile(TileType.LeftWall, Random, new Vector2(StartCoords.X, StartCoords.Y + (i * 16)), 0, DefaultScaleVector));
+                DungeonObjectList.Add(new DungeonTile(TileType.RightWall, Random, new Vector2(StartCoords.X + ((Width - 1) * 16), StartCoords.Y + (i * 16)), 0, DefaultScaleVector));
             }
 
             // Create Bottom corners
-            ObjectList.Add(new DungeonTile(TileType.BottomLeftCorner, Random, new Vector2(StartCoords.X, StartCoords.Y + ((Height - 1) * 16)), 0, new Vector2(16, 32)));
-            ObjectList.Add(new DungeonTile(TileType.BottomRightCorner, Random, new Vector2(StartCoords.X + ((Width - 1) * 16), StartCoords.Y + ((Height - 1) * 16)), 0, new Vector2(16, 32)));
+            DungeonObjectList.Add(new DungeonTile(TileType.BottomLeftCorner, Random, new Vector2(StartCoords.X, StartCoords.Y + ((Height - 1) * 16)), 0, new Vector2(16, 32)));
+            DungeonObjectList.Add(new DungeonTile(TileType.BottomRightCorner, Random, new Vector2(StartCoords.X + ((Width - 1) * 16), StartCoords.Y + ((Height - 1) * 16)), 0, new Vector2(16, 32)));
 
             // Create bottom walls
             for (int i = 1; i < Width - 1; i++)
             {
                 if (i == xDoorLeft || i == xDoorRight) continue; // Skip walls that would be at lower door position
-                ObjectList.Add(new DungeonTile(TileType.StandardWall, Random, new Vector2(StartCoords.X + (i * 16), StartCoords.Y + ((Height - 1) * 16)), 0, new Vector2(16, 32)));
+                DungeonObjectList.Add(new DungeonTile(TileType.StandardWall, Random, new Vector2(StartCoords.X + (i * 16), StartCoords.Y + ((Height - 1) * 16)), 0, new Vector2(16, 32)));
             }
 
             this.CreateRoomConnection();
 
             this.CreateDoor(true, true);
             this.CreateDoor(false, true);
+
+            this.CreateEnemies();
         }
 
         public void CreateDoor(bool top, bool open)
@@ -118,14 +121,14 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
             if (open)
             {
-                ObjectList.Add(new DungeonTile(TileType.DoorOpenedBottom, Random, new Vector2(xCoord, yCoord), 0, new Vector2(32, 16)));
-                ObjectList.Add(new DungeonTile(TileType.DoorOpenedTop, Random, new Vector2(xCoord, yCoord - 16), 0, new Vector2(32, 16)));
-                ObjectList.Add(new DungeonTile(TileType.DoorArch, Random, new Vector2(xCoord, yCoord - 32), 0, new Vector2(32, 16)));
+                DungeonObjectList.Add(new DungeonTile(TileType.DoorOpenedBottom, Random, new Vector2(xCoord, yCoord), 0, new Vector2(32, 16)));
+                DungeonObjectList.Add(new DungeonTile(TileType.DoorOpenedTop, Random, new Vector2(xCoord, yCoord - 16), 0, new Vector2(32, 16)));
+                DungeonObjectList.Add(new DungeonTile(TileType.DoorArch, Random, new Vector2(xCoord, yCoord - 32), 0, new Vector2(32, 16)));
             }
             else
             {
-                ObjectList.Add(new DungeonTile(TileType.DoorClosed, Random, new Vector2(xCoord, yCoord - 16), 0, new Vector2(32, 32)));
-                ObjectList.Add(new DungeonTile(TileType.DoorArch, Random, new Vector2(xCoord, yCoord - 32), 0, new Vector2(32, 16)));
+                DungeonObjectList.Add(new DungeonTile(TileType.DoorClosed, Random, new Vector2(xCoord, yCoord - 16), 0, new Vector2(32, 32)));
+                DungeonObjectList.Add(new DungeonTile(TileType.DoorArch, Random, new Vector2(xCoord, yCoord - 32), 0, new Vector2(32, 16)));
             }
 
         }
@@ -134,15 +137,15 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         {
             for (int i = 1; i < TunnelLength; i++)
             {
-                ObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + xDoorLeft * 16, StartCoords.Y - i * 16), 0, DefaultScaleVector));
-                ObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + xDoorRight * 16, StartCoords.Y - i * 16), 0, DefaultScaleVector));
+                DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + xDoorLeft * 16, StartCoords.Y - i * 16), 0, DefaultScaleVector));
+                DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + xDoorRight * 16, StartCoords.Y - i * 16), 0, DefaultScaleVector));
                 
             }
 
             for (int j = 0; j < TunnelLength; j++)
             {
-                ObjectList.Add(new DungeonTile(TileType.LeftWall, Random, new Vector2(StartCoords.X + xDoorLeft * 16, StartCoords.Y - j * 16), 0, DefaultScaleVector));
-                ObjectList.Add(new DungeonTile(TileType.RightWall, Random, new Vector2(StartCoords.X + xDoorRight * 16, StartCoords.Y - j * 16), 0, DefaultScaleVector));
+                DungeonObjectList.Add(new DungeonTile(TileType.LeftWall, Random, new Vector2(StartCoords.X + xDoorLeft * 16, StartCoords.Y - j * 16), 0, DefaultScaleVector));
+                DungeonObjectList.Add(new DungeonTile(TileType.RightWall, Random, new Vector2(StartCoords.X + xDoorRight * 16, StartCoords.Y - j * 16), 0, DefaultScaleVector));
             }
         }
 
@@ -154,40 +157,26 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         {
             for (int i = Height + 1; i < 20 + Height; i++)
             {
-                ObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + xDoorLeft * 16, StartCoords.Y + i * 16), 0, DefaultScaleVector));
-                ObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + xDoorRight * 16, StartCoords.Y + i * 16), 0, DefaultScaleVector));
+                DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + xDoorLeft * 16, StartCoords.Y + i * 16), 0, DefaultScaleVector));
+                DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + xDoorRight * 16, StartCoords.Y + i * 16), 0, DefaultScaleVector));
 
-                ObjectList.Add(new DungeonTile(TileType.LeftWall, Random, new Vector2(StartCoords.X + xDoorLeft * 16, StartCoords.Y + i * 16), 0, DefaultScaleVector));
-                ObjectList.Add(new DungeonTile(TileType.RightWall, Random, new Vector2(StartCoords.X + xDoorRight * 16, StartCoords.Y + i * 16), 0, DefaultScaleVector));
+                DungeonObjectList.Add(new DungeonTile(TileType.LeftWall, Random, new Vector2(StartCoords.X + xDoorLeft * 16, StartCoords.Y + i * 16), 0, DefaultScaleVector));
+                DungeonObjectList.Add(new DungeonTile(TileType.RightWall, Random, new Vector2(StartCoords.X + xDoorRight * 16, StartCoords.Y + i * 16), 0, DefaultScaleVector));
             }
         }
 
         /// <summary>
         /// Create a random amount of pickups on random positions, based on seed
         /// </summary>
-        /// <param name="minPickups"></param>
-        /// <param name="maxPickups"></param>
-        public void CreatePickups(int minPickups, int maxPickups)
+        public void CreatePickups()
         {
-            int pickupCount = Random.Next(minPickups, maxPickups);
-            List<Vector2> pickupCoordList = new List<Vector2>();
-            while(pickupCount > -1)
+            int pickupCount = Random.Next(PlayerCount / 2, PlayerCount + 1);
+            while(pickupCount > 0)
             {
-                int pickupX = Random.Next(0, Width  - 1);
-                int pickupY = Random.Next(1, Height - 1);
-                Vector2 pickupCoords = new Vector2(StartCoords.X + pickupX * 16, StartCoords.Y + pickupY * 16);
-                bool coordsOccupied = ListContainsVector(pickupCoordList, pickupCoords);
-                
-                // Create new coords for pickup until they are not in front of a door and there is a free cell
-                while (coordsOccupied || ((pickupX == xDoorLeft || pickupX == xDoorRight) && (pickupY == Height - 1 || pickupY == 1))) {
-                    pickupX = Random.Next(0, Width - 1);
-                    pickupY = Random.Next(0, Height - 1);
-                    pickupCoords = new Vector2(StartCoords.X + pickupX * 16, StartCoords.Y + pickupY * 16);
-                    coordsOccupied = ListContainsVector(pickupCoordList, pickupCoords);
-                }
-                pickupCoordList.Add(pickupCoords);
+                Vector2 pickupCoords = GetFreeObjectCoords();
+                ObjectCoordList.Add(pickupCoords);
 
-                ObjectList.Add(new Pickup(Random, pickupCoords, 0, DefaultScaleVector));
+                DungeonObjectList.Add(new Pickup(Random, pickupCoords, 0, DefaultScaleVector));
                 pickupCount--;
             }
 
@@ -204,21 +193,61 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 {
                     if (!((j == xDoorLeft || j == xDoorRight) && (i == Height - 1 || i == 1)))
                     {
-                        ObjectList.Add(new Pickup(Random, new Vector2(StartCoords.X + (j * 16), StartCoords.Y + (i * 16)), 0, DefaultScaleVector));
+                        DungeonObjectList.Add(new Pickup(Random, new Vector2(StartCoords.X + (j * 16), StartCoords.Y + (i * 16)), 0, DefaultScaleVector));
                     }
                 }
             }
         }
 
+        public void CreateEnemies()
+        {
+            int maxEnemyCount = PlayerCount * 2;
+            int enemyCount = Random.Next(maxEnemyCount / 2, maxEnemyCount + 1);
+            while (enemyCount > 0)
+            {
+                Vector2 enemyCoords = GetFreeObjectCoords();
+                ObjectCoordList.Add(enemyCoords);
+
+                int enemyType = Random.Next(3, 4);
+                // TODO switch between enemyTypes
+
+                DungeonObjectList.Add(new SkeletonSmall(enemyCoords, 0, DefaultScaleVector));
+                enemyCount--;
+            }
+        }
+
         /// <summary>
-        /// Check if a list of vectors contains a vector with the same coordinates of the given vector
+        /// Gets a free cell in the room where a object can be placed
+        /// </summary>
+        /// <returns></returns>
+        public Vector2 GetFreeObjectCoords()
+        {
+            int objectX = Random.Next(0, Width - 1);
+            int objectY = Random.Next(1, Height - 1);
+            Vector2 objectCoords = new Vector2(StartCoords.X + objectX * 16, StartCoords.Y + objectY * 16);
+            bool coordsOccupied = ListContainsVector(objectCoords);
+
+            // Create new coords for pickup until they are not in front of a door and there is a free cell
+            while (coordsOccupied || ((objectX == xDoorLeft || objectX == xDoorRight) && (objectY == Height - 1 || objectY == 1)))
+            {
+                objectX = Random.Next(0, Width - 1);
+                objectY = Random.Next(0, Height - 1);
+                objectCoords = new Vector2(StartCoords.X + objectX * 16, StartCoords.Y + objectY * 16);
+                coordsOccupied = ListContainsVector(objectCoords);
+            }
+
+            return objectCoords;
+        }
+
+        /// <summary>
+        /// Check if the objectCoordsList contains a vector with the same coordinates of the given vector
         /// </summary>
         /// <param name="vectorList"></param>
         /// <param name="vector"></param>
         /// <returns></returns>
-        public bool ListContainsVector(List<Vector2> vectorList, Vector2 vector)
+        public bool ListContainsVector(Vector2 vector)
         {
-            foreach (Vector2 vec in vectorList)
+            foreach (Vector2 vec in ObjectCoordList)
             {
                 if (vec.X == vector.X && vec.Y == vector.Y) return true;
             }

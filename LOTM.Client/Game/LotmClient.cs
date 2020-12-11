@@ -23,6 +23,12 @@ namespace LOTM.Client.Game
             //Register indivual sprites on the atlas using 16x16 grid indices
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 23, 2, 24), "demonboss_idle_0");
 
+            //Small Skeleton
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 23, 5, 23), "skeleton_small_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 24, 5, 24), "skeleton_small_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 25, 5, 25), "skeleton_small_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 26, 5, 26), "skeleton_small_m_idle_anim_f3");
+
             //Wizard
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(8, 10, 8, 11), "wizzard_m_idle_anim_f0");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(9, 10, 9, 11), "wizzard_m_idle_anim_f1");
@@ -34,8 +40,6 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 4, 2, 4), "dungeon_tile_1");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(3, 4, 3, 4), "dungeon_tile_2");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 5, 2, 5), "dungeon_tile_3");
-            //AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 7, 1, 9), "dungeon_wall_left");
-            //AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(0, 7, 0, 9), "dungeon_wall_right");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 8, 1, 8), "dungeon_wall_left");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(0, 8, 0, 8), "dungeon_wall_right");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 0, 1, 1), "dungeon_wall_standard");
@@ -60,22 +64,22 @@ namespace LOTM.Client.Game
 
 
             //var seed = System.Guid.NewGuid().GetHashCode();
-            var seed = 125;
-            // TODO When roomCount > 5, nothing gets rendered? No Exception thrown
-            int roomCount = 5;
-            int roomWidth = 10;
-            int roomHeight = 10;
+            var seed = 120;
+            int playerCount = 4; // Get num of connected players to spawn more or less pickups and enemys
+            int roomCount = 3;
+            int roomWidth = 15;
+            int roomHeight = 15;
             int tunnelLength = 5;
             Vector2 roomCoords;
             // Create rooms
             for (int i = 0; i < roomCount; i++)
             {
-                roomCoords = new Vector2(32, -i * (roomHeight + tunnelLength) * 16 + 32);
+                roomCoords = new Vector2(0, -i * (roomHeight + tunnelLength) * 16 + 32);
                 RoomCoordsList.Add(roomCoords);
-                DungeonRoom dungeonRoom = new DungeonRoom(roomCoords, roomWidth, roomHeight, tunnelLength, seed);
+                DungeonRoom dungeonRoom = new DungeonRoom(roomCoords, roomWidth, roomHeight, tunnelLength, playerCount, seed);
                 if (i == 0) dungeonRoom.CreateDungeonEntrance();
 
-                foreach (var tile in dungeonRoom.ObjectList)
+                foreach (var tile in dungeonRoom.DungeonObjectList)
                 {
                     World.Objects.Add(tile);
                 }
