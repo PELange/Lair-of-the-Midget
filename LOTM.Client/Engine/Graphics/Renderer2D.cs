@@ -30,7 +30,7 @@ namespace LOTM.Client.Engine.Graphics
             }
         }
 
-        protected const int MAX_QUADS = 1000;
+        protected const int MAX_QUADS = 25000;
 
         protected OrthographicCamera Camera { get; set; }
 
