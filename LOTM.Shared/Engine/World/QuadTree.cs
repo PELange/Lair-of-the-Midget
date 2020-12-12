@@ -25,7 +25,7 @@ namespace LOTM.Shared.Engine.World
         public Func<T, RectangleF> GetBounds { get; set; }
 
         // Get count of the content of rootNode and all subnodes
-        public int Count { get { return rootNode.Count; } }
+        //public int Count { get { return rootNode.Count; } }
 
         public QuadTree(RectangleF bounds)
         {
@@ -34,13 +34,25 @@ namespace LOTM.Shared.Engine.World
         }
 
         // Get all nodes starting at rootNode
+        //public IEnumerable<QuadTreeNode<T>> SubNodes
+        //{
+        //    get
+        //    {
+        //        yield return rootNode;
+        //        foreach (var node in rootNode.SubTreeNodes)
+        //            yield return node;
+        //    }
+        //}
+
         public IEnumerable<QuadTreeNode<T>> SubNodes
         {
             get
             {
-                yield return rootNode;
-                foreach (var node in rootNode.SubTreeNodes)
-                    yield return node;
+                var list = new List<QuadTreeNode<T>>();
+                list.Add(rootNode);
+                foreach (var node in rootNode.SubTreeNodes())
+                    list.Add(node);
+                return list;
             }
         }
 
