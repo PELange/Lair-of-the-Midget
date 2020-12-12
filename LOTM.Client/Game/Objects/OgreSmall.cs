@@ -5,16 +5,15 @@ using LOTM.Shared.Engine.Objects;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using static LOTM.Client.Engine.Controls.InputManager;
 
 namespace LOTM.Client.Game.Objects
 {
-    class SkeletonSmall : GameObject
+    class OgreSmall : GameObject
     {
         protected int CurrentAnimationPhase { get; set; }
         protected double AnimationTimer { get; set; }
 
-        public SkeletonSmall(Vector2 position = null, double rotation = 0, Vector2 scale = null) : base(position, rotation, scale)
+        public OgreSmall(Vector2 position = null, double rotation = 0, Vector2 scale = null) : base(position, rotation, scale)
         {
             Components.Add(new SpriteRenderer());
         }
@@ -38,7 +37,7 @@ namespace LOTM.Client.Game.Objects
             if (GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
             {
 
-                spriteRenderer.Sprite = AssetManager.GetSprite($"skeleton_small_m_idle_anim_f{CurrentAnimationPhase}");
+                spriteRenderer.Sprite = AssetManager.GetSprite($"ogre_small_m_idle_anim_f{CurrentAnimationPhase}");
             }
         }
     }

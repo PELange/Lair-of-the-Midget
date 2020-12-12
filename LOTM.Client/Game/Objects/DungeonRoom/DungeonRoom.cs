@@ -26,6 +26,12 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             DoorArch
         };
 
+        public enum EnemyType
+        {
+            SkeletonSmall,
+            OgreSmall
+        }
+
         public List<GameObject> DungeonObjectList = new List<GameObject>();
 
         public List<Vector2> ObjectCoordList = new List<Vector2>();
@@ -203,16 +209,32 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         {
             int maxEnemyCount = PlayerCount * 2;
             int enemyCount = Random.Next(maxEnemyCount / 2, maxEnemyCount + 1);
+            
             while (enemyCount > 0)
             {
                 Vector2 enemyCoords = GetFreeObjectCoords();
                 ObjectCoordList.Add(enemyCoords);
 
-                int enemyType = Random.Next(3, 4);
+                
                 // TODO switch between enemyTypes
-
-                DungeonObjectList.Add(new SkeletonSmall(enemyCoords, 0, DefaultScaleVector));
+                DungeonObjectList.Add(GetRandomEnemy(enemyCoords));
                 enemyCount--;
+            }
+        }
+
+        public GameObject GetRandomEnemy(Vector2 enemyCoords)
+        {
+            Array enemyTypes = Enum.GetValues(typeof(EnemyType));
+            EnemyType enemyType = (EnemyType)enemyTypes.GetValue(Random.Next(enemyTypes.Length));
+            switch (enemyType)
+            {
+                case EnemyType.SkeletonSmall:
+                    return new SkeletonSmall(enemyCoords, 0, DefaultScaleVector);
+                case EnemyType.OgreSmall:
+                    return new OgreSmall(enemyCoords, 0, DefaultScaleVector);
+                default:
+                    return null;
+                        
             }
         }
 
