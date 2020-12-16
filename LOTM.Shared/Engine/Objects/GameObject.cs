@@ -8,8 +8,11 @@ namespace LOTM.Shared.Engine.Objects
     {
         protected ICollection<IComponent> Components { get; } = new LinkedList<IComponent>();
 
+        public Vector2 position { get; set; }
+
         public GameObject(Vector2 position = null, double rotation = 0, Vector2 scale = null)
         {
+            this.position = position;
             var transform = new Transformation2D
             {
                 Position = position ?? Vector2.ZERO,
