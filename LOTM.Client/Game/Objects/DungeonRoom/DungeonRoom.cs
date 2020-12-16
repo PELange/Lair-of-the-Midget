@@ -31,7 +31,8 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         public enum EnemyType
         {
             SkeletonSmall,
-            OgreSmall
+            OgreSmall,
+            BlobGreen
         }
 
         public List<GameObject> DungeonObjectList = new List<GameObject>();
@@ -65,6 +66,9 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             this.CreateRoom();
         }
 
+        /// <summary>
+        /// Creates the dungeon room
+        /// </summary>
         public void CreateRoom()
         {
             // Create ground tiles
@@ -79,7 +83,6 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             CreateHoles();
 
             // Create ground tiles under bottom doors
-            //// Bottom door
             DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (xDoorLeft * 16), StartCoords.Y + (Height * 16)), 0, DefaultScaleVector));
             DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (xDoorRight * 16), StartCoords.Y + (Height * 16)), 0, DefaultScaleVector));
 
@@ -122,6 +125,11 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             this.CreateEnemies();
         }
 
+        /// <summary>
+        /// Creates an open/closed door at the top or bottom of a room
+        /// </summary>
+        /// <param name="top"></param>
+        /// <param name="open"></param>
         public void CreateDoor(bool top, bool open)
         {
             int xCoord = (int)StartCoords.X + (16 * xDoorLeft);
@@ -194,7 +202,7 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         }
 
         /// <summary>
-        /// Create pickups on every free tile except
+        /// Create pickups on every free tile except in front of doors
         /// </summary>
         public void CreatePickupsEverywhere()
         {
@@ -278,9 +286,10 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                     return new SkeletonSmall(enemyCoords, 0, DefaultScaleVector);
                 case EnemyType.OgreSmall:
                     return new OgreSmall(enemyCoords, 0, DefaultScaleVector);
+                case EnemyType.BlobGreen:
+                    return new BlobGreen(enemyCoords, 0, DefaultScaleVector);
                 default:
                     return null;
-                        
             }
         }
 

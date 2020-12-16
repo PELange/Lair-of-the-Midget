@@ -36,6 +36,13 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 13, 25, 13), "ogre_small_m_idle_anim_f3");
 
 
+            // Green Blob
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 7, 27, 7), "blob_green_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 7, 28, 7), "blob_green_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 7, 29, 7), "blob_green_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 7, 30, 7), "blob_green_m_idle_anim_f3");
+
+
             //Wizard
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(8, 10, 8, 11), "wizzard_m_idle_anim_f0");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(9, 10, 9, 11), "wizzard_m_idle_anim_f1");
