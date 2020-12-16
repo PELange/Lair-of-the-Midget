@@ -4,6 +4,7 @@ using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.World;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using static GLDotNet.GL;
 
@@ -28,6 +29,12 @@ namespace LOTM.Client.Engine.Graphics
                 TextureCoordinates[0] = (float)textureCoordinates.X;
                 TextureCoordinates[1] = (float)textureCoordinates.Y;
             }
+        }
+
+        class LayeredVertex
+        {
+            public Vertex Vertex { get; set; }
+            public int Layer { get; set; }
         }
 
         protected const int MAX_QUADS = 25000;
@@ -106,76 +113,92 @@ namespace LOTM.Client.Engine.Graphics
             WorldObjectShader.SetInteger("textureSlot", 0);
 
             //Collect all verticies to be drawn for the current view
-            var verticies = new List<Vertex>();
-
             var viewPort = Camera.GetViewport();
             var searchRect = new System.Drawing.RectangleF((float)viewPort.TopLeft.X, (float)viewPort.TopLeft.Y, (float)System.Math.Abs(viewPort.BottomRight.X - viewPort.TopLeft.X), (float)System.Math.Abs(viewPort.BottomRight.Y - viewPort.TopLeft.Y));
 
             //var worldObjects = world.Objects.GetObjectsInArea(world.Objects.Bounds);
             var worldObjects = world.Objects;
 
+            var layeredVerticies = new List<LayeredVertex>();
+
             foreach (var worldObject in worldObjects)
             {
-                if (worldObject.GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer && spriteRenderer.Sprite != null)
+                if (worldObject.GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
                 {
-                    var textureCoordinates = spriteRenderer.Sprite.TextureCoordinates;
-                    var transformation = worldObject.GetComonent<Transformation2D>();
-
-                    var quad = new List<Vertex>
+                    foreach (var segment in spriteRenderer.Segments)
                     {
-                        //Top left quad vertex
-                        new Vertex(
-                        new Vector2(transformation.Position.X, transformation.Position.Y),
-                        spriteRenderer.Color,
-                        new Vector2(textureCoordinates.X, textureCoordinates.Y),
-                        spriteRenderer.Sprite.Texture.ID),
+                        var textureCoordinates = segment.Sprite.TextureCoordinates;
+                        var transformation = worldObject.GetComonent<Transformation2D>();
 
-                        //Top right quad vertex
-                        new Vertex(
-                        new Vector2(transformation.Position.X + transformation.Scale.X, transformation.Position.Y),
-                        spriteRenderer.Color,
-                        new Vector2(textureCoordinates.Z, textureCoordinates.Y),
-                        spriteRenderer.Sprite.Texture.ID),
+                        var width = (segment.Sprite.TextureCoordinates.Z * segment.Sprite.Texture.Width) - (segment.Sprite.TextureCoordinates.X * segment.Sprite.Texture.Width);
+                        var height = (segment.Sprite.TextureCoordinates.W * segment.Sprite.Texture.Height) - (segment.Sprite.TextureCoordinates.Y * segment.Sprite.Texture.Height);
 
-                        //Bottom left quad vertex
-                        new Vertex(
-                        new Vector2(transformation.Position.X, transformation.Position.Y + transformation.Scale.Y),
-                        spriteRenderer.Color,
-                        new Vector2(textureCoordinates.X, textureCoordinates.W),
-                        spriteRenderer.Sprite.Texture.ID),
+                        var offsetX = transformation.Scale.X * segment.Offset.X;
+                        var offsetY = transformation.Scale.Y * segment.Offset.Y;
 
-                        //Bottom right quad vertex
-                        new Vertex(
-                        new Vector2(transformation.Position.X + transformation.Scale.X, transformation.Position.Y + transformation.Scale.Y),
-                        spriteRenderer.Color,
-                        new Vector2(textureCoordinates.Z, textureCoordinates.W),
-                        spriteRenderer.Sprite.Texture.ID)
-                    };
+                        var quad = new List<Vertex>
+                        {
+                            //Top left quad vertex
+                            new Vertex(
+                                new Vector2(transformation.Position.X + offsetX, transformation.Position.Y + offsetY),
+                                segment.Color,
+                                new Vector2(textureCoordinates.X, textureCoordinates.Y),
+                                segment.Sprite.Texture.ID),
 
-                    //Apply quad center rotation
-                    for (int nVertex = 0; nVertex < 4; nVertex++)
-                    {
-                        var vertex = quad[nVertex];
+                            //Top right quad vertex
+                            new Vertex(
+                                new Vector2(transformation.Position.X + offsetX + transformation.Scale.X * segment.Size.X, transformation.Position.Y + offsetY),
+                                segment.Color,
+                                new Vector2(textureCoordinates.Z, textureCoordinates.Y),
+                                segment.Sprite.Texture.ID),
 
-                        var translate = glm.translate(
-                            mat4.identity(),
-                            new vec3(
-                                (float)(transformation.Position.X + (transformation.Scale.X / 2)),
-                                (float)(transformation.Position.Y + (transformation.Scale.Y / 2)),
-                                0));
+                            //Bottom left quad vertex
+                            new Vertex(
+                                new Vector2(transformation.Position.X + offsetX, transformation.Position.Y + offsetY + transformation.Scale.Y * segment.Size.Y),
+                                segment.Color,
+                                new Vector2(textureCoordinates.X, textureCoordinates.W),
+                                segment.Sprite.Texture.ID),
 
-                        var rotated = translate
-                            * glm.rotate(glm.radians((float)transformation.Rotation), new vec3(0.0f, 0.0f, 1.0f))
-                            * glm.inverse(translate)
-                            * new vec4(vertex.Position[0], vertex.Position[1], 0.0f, 1.0f);
+                            //Bottom right quad vertex
+                            new Vertex(
+                                new Vector2(transformation.Position.X + offsetX + transformation.Scale.X * segment.Size.X, transformation.Position.Y + offsetY + transformation.Scale.Y * segment.Size.Y),
+                                segment.Color,
+                                new Vector2(textureCoordinates.Z, textureCoordinates.W),
+                                segment.Sprite.Texture.ID)
+                        };
 
-                        vertex.Position[0] = rotated.x;
-                        vertex.Position[1] = rotated.y;
+                        //Apply quad center rotation
+                        for (int nVertex = 0; nVertex < 4; nVertex++)
+                        {
+                            var vertex = quad[nVertex];
 
-                        verticies.Add(vertex);
+                            var translate = glm.translate(
+                                mat4.identity(),
+                                new vec3(
+                                    (float)(transformation.Position.X + (transformation.Scale.X / 2)),
+                                    (float)(transformation.Position.Y + (transformation.Scale.Y / 2)),
+                                    0));
+
+                            var rotated = translate
+                                * glm.rotate(glm.radians((float)transformation.Rotation), new vec3(0.0f, 0.0f, 1.0f))
+                                * glm.inverse(translate)
+                                * new vec4(vertex.Position[0], vertex.Position[1], 0.0f, 1.0f);
+
+                            vertex.Position[0] = rotated.x;
+                            vertex.Position[1] = rotated.y;
+
+                            layeredVerticies.Add(new LayeredVertex
+                            {
+                                Vertex = vertex,
+                                Layer = segment.RenderLayer
+                            });
+                        }
                     }
                 }
             }
+
+            //Sort layers and select the result verticies again
+            var verticies = layeredVerticies.OrderBy(x => x.Layer).Select(x => x.Vertex).ToList();
 
             //Set dynamic vertex buffer
             glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);

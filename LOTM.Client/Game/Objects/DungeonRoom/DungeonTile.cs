@@ -81,8 +81,10 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
             }
 
-            Components.Add(new SpriteRenderer(AssetManager.GetSprite(tileName)));
-
+            Components.Add(new SpriteRenderer(new List<SpriteRenderer.Segment>
+            {
+                new SpriteRenderer.Segment(AssetManager.GetSprite(tileName))
+            }));
         }
 
         public override void OnFixedUpdate(double deltaTime)

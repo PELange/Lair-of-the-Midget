@@ -44,7 +44,10 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
             string pickupName = "pickup_pot_" + color + "_" + size;
 
-            Components.Add(new SpriteRenderer(AssetManager.GetSprite(pickupName)));
+            Components.Add(new SpriteRenderer(new List<SpriteRenderer.Segment>
+            {
+                new SpriteRenderer.Segment(AssetManager.GetSprite(pickupName))
+            }));
         }
 
         public override void OnFixedUpdate(double deltaTime)

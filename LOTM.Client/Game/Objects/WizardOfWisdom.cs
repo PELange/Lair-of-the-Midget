@@ -2,6 +2,7 @@
 using LOTM.Client.Engine.Objects;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
+using System.Collections.Generic;
 using static LOTM.Client.Engine.Controls.InputManager;
 
 namespace LOTM.Client.Game.Objects
@@ -13,7 +14,10 @@ namespace LOTM.Client.Game.Objects
 
         public WizardOfWisdom(Vector2 position = null, double rotation = 0, Vector2 scale = null) : base(position, rotation, scale)
         {
-            Components.Add(new SpriteRenderer());
+            Components.Add(new SpriteRenderer(new List<SpriteRenderer.Segment>
+            {
+                new SpriteRenderer.Segment(AssetManager.GetSprite($"wizzard_m_idle_anim_f{0}"))
+            }));
         }
 
         public override void OnFixedUpdate(double deltaTime)
@@ -56,9 +60,8 @@ namespace LOTM.Client.Game.Objects
 
             if (GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
             {
-                spriteRenderer.Color = new Vector4(1, 0, 0, 1);
-
-                spriteRenderer.Sprite = AssetManager.GetSprite($"wizzard_m_idle_anim_f{CurrentAnimationPhase}");
+                spriteRenderer.Segments[0].Color = new Vector4(1, 0, 0, 1);
+                spriteRenderer.Segments[0].Sprite = AssetManager.GetSprite($"wizzard_m_idle_anim_f{CurrentAnimationPhase}");
             }
         }
     }

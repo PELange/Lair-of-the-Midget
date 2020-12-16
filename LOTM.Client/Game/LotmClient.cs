@@ -21,7 +21,10 @@ namespace LOTM.Client.Game
             AssetManager.RegisterTexture("Game/Assets/Textures/0x72_DungeonTilesetII_v1.3.png", "dungeonTiles");
 
             //Register indivual sprites on the atlas using 16x16 grid indices
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 23, 2, 24), "demonboss_idle_0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 23, 1, 23), "demonboss_idle_0_1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 23, 2, 23), "demonboss_idle_0_2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 24, 1, 24), "demonboss_idle_0_3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 24, 2, 24), "demonboss_idle_0_4");
 
             //Small Skeleton
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 5, 23, 5), "skeleton_small_m_idle_anim_f0");

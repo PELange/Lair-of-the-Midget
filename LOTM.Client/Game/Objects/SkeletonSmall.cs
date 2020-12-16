@@ -16,7 +16,10 @@ namespace LOTM.Client.Game.Objects
 
         public SkeletonSmall(Vector2 position = null, double rotation = 0, Vector2 scale = null) : base(position, rotation, scale)
         {
-            Components.Add(new SpriteRenderer());
+            Components.Add(new SpriteRenderer(new List<SpriteRenderer.Segment>
+            {
+                new SpriteRenderer.Segment(AssetManager.GetSprite($"skeleton_small_m_idle_anim_f{0}"))
+            }));
         }
 
         public override void OnFixedUpdate(double deltaTime)
@@ -38,7 +41,7 @@ namespace LOTM.Client.Game.Objects
             if (GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
             {
 
-                spriteRenderer.Sprite = AssetManager.GetSprite($"skeleton_small_m_idle_anim_f{CurrentAnimationPhase}");
+                spriteRenderer.Segments[0].Sprite = AssetManager.GetSprite($"skeleton_small_m_idle_anim_f{CurrentAnimationPhase}");
             }
         }
     }
