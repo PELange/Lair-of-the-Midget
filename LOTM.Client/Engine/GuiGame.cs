@@ -53,21 +53,19 @@ namespace LOTM.Client.Engine
                 {
                     var image = Image.Load(iconPath);
 
-                    using (var data = image.GetDataPointer())
+                    using var data = image.GetDataPointer();
+                    var img = new GLFWimage()
                     {
-                        var img = new GLFWimage()
-                        {
-                            width = image.Width,
-                            height = image.Height,
-                            pixels = data.Pointer
-                        };
+                        width = image.Width,
+                        height = image.Height,
+                        pixels = data.Pointer
+                    };
 
-                        IntPtr unmanagedAddr = Marshal.AllocHGlobal(Marshal.SizeOf(img));
+                    IntPtr unmanagedAddr = Marshal.AllocHGlobal(Marshal.SizeOf(img));
 
-                        Marshal.StructureToPtr(img, unmanagedAddr, true);
+                    Marshal.StructureToPtr(img, unmanagedAddr, true);
 
-                        glfwSetWindowIcon(Window, 1, unmanagedAddr);
-                    }
+                    glfwSetWindowIcon(Window, 1, unmanagedAddr);
                 }
                 catch (Exception)
                 {
