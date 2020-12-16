@@ -23,6 +23,10 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                     tileName = "dungeon_tile_" + tileNum;
                     break;
 
+                case TileType.Hole:
+                    tileName = "dungeon_tile_hole";
+                    break;
+
                 case TileType.StandardWall:
                     tileName = "dungeon_wall_standard";
                     break;
@@ -65,6 +69,10 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
                 case TileType.DoorArch:
                     tileName = "dungeon_door_arch";
+                    break;
+
+                case TileType.Pillar:
+                    tileName = "dungeon_pillar";
                     break;
 
                 default:

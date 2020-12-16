@@ -13,6 +13,7 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         public enum TileType
         {
             Ground,
+            Hole,
             StandardWall,
             LeftWall,
             RightWall,
@@ -23,7 +24,8 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             DoorClosed,
             DoorOpenedBottom,
             DoorOpenedTop,
-            DoorArch
+            DoorArch,
+            Pillar
         };
 
         public enum EnemyType
@@ -71,9 +73,10 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 for (int j = 0; j < Width; j++)
                 {
                     DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (j * 16), StartCoords.Y + (i * 16)), 0, DefaultScaleVector));
-                    
                 }
             }
+
+            CreateHoles();
 
             // Create ground tiles under bottom doors
             //// Bottom door
@@ -81,7 +84,6 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (xDoorRight * 16), StartCoords.Y + (Height * 16)), 0, DefaultScaleVector));
 
             this.CreatePickups();
-            //this.CreatePickupsEverywhere();
 
             // Create top corners
             DungeonObjectList.Add(new DungeonTile(TileType.TopLeftCorner, Random, new Vector2(StartCoords.X, StartCoords.Y - 16), 0, new Vector2(16, 32)));
@@ -139,6 +141,9 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
         }
 
+        /// <summary>
+        /// Creates a tunnel between two rooms
+        /// </summary>
         public void CreateRoomConnection()
         {
             for (int i = 1; i < TunnelLength; i++)
@@ -205,6 +210,44 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             }
         }
 
+        public void CreatePillars()
+        {
+            int maxPillarCount = (Width * Height) / 20;
+            int pillarCount = Random.Next(maxPillarCount / 2, maxPillarCount + 1);
+
+            while (pillarCount > 0)
+            {
+                Vector2 pillarCoords = GetFreeObjectCoords("pillar");
+                ObjectCoordList.Add(pillarCoords);
+
+                DungeonObjectList.Add(new DungeonTile(TileType.Pillar, Random, pillarCoords, 0, new Vector2(16, 48)));
+                pillarCount--;
+            }
+        }
+
+        /// <summary>
+        /// Create non passable holes and delete the ground tiles at those positions
+        /// </summary>
+        public void CreateHoles()
+        {
+            int maxHoleCount = (Width * Height) / 10;
+            int holeCount = Random.Next(maxHoleCount / 2, maxHoleCount + 1);
+
+            while(holeCount > 0)
+            {
+                Vector2 holeCoords = GetFreeObjectCoords();
+                ObjectCoordList.Add(holeCoords);
+
+                RemoveObjectAtPosition(holeCoords);
+
+                DungeonObjectList.Add(new DungeonTile(TileType.Hole, Random, holeCoords, 0, DefaultScaleVector));
+                holeCount--;
+            }
+        }
+
+        /// <summary>
+        /// Create random amount of enemys and place them on free tiles
+        /// </summary>
         public void CreateEnemies()
         {
             int maxEnemyCount = PlayerCount * 2;
@@ -215,13 +258,16 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 Vector2 enemyCoords = GetFreeObjectCoords();
                 ObjectCoordList.Add(enemyCoords);
 
-                
-                // TODO switch between enemyTypes
                 DungeonObjectList.Add(GetRandomEnemy(enemyCoords));
                 enemyCount--;
             }
         }
 
+        /// <summary>
+        /// Get a random enemy from enemy collection
+        /// </summary>
+        /// <param name="enemyCoords"></param>
+        /// <returns></returns>
         public GameObject GetRandomEnemy(Vector2 enemyCoords)
         {
             Array enemyTypes = Enum.GetValues(typeof(EnemyType));
@@ -242,7 +288,7 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         /// Gets a free cell in the room where a object can be placed
         /// </summary>
         /// <returns></returns>
-        public Vector2 GetFreeObjectCoords()
+        public Vector2 GetFreeObjectCoords(String objectType = null)
         {
             int objectX = Random.Next(0, Width - 1);
             int objectY = Random.Next(1, Height - 1);
@@ -274,6 +320,22 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 if (vec.X == vector.X && vec.Y == vector.Y) return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Removes an object from the DungeonObjectList by given position
+        /// </summary>
+        /// <param name="vector"></param>
+        public void RemoveObjectAtPosition(Vector2 vector)
+        {
+            foreach (GameObject gameObj in DungeonObjectList)
+            {
+                if (vector.X == gameObj.position.X && vector.Y == gameObj.position.Y)
+                {
+                    DungeonObjectList.Remove(gameObj);
+                    break;
+                }
+            }
         }
     }
 }
