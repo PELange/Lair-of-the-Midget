@@ -80,7 +80,8 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 }
             }
 
-            CreateHoles();
+            //CreateHoles();
+            CreatePillars();
 
             // Create ground tiles under bottom doors
             DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (XDoorLeft * 16), StartCoords.Y + (Height * 16)), 0, DefaultScaleVector));
@@ -228,7 +229,7 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 Vector2 pillarCoords = GetFreeObjectCoords("pillar");
                 ObjectCoordList.Add(pillarCoords);
 
-                DungeonObjectList.Add(new DungeonTile(TileType.Pillar, Random, pillarCoords, 0, new Vector2(16, 48)));
+                DungeonObjectList.Add(new DungeonTile(TileType.Pillar, Random, pillarCoords, 0, new Vector2(16, 32)));
                 pillarCount--;
             }
         }
@@ -297,23 +298,33 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         /// Gets a free cell in the room where a object can be placed
         /// </summary>
         /// <returns></returns>
-        public Vector2 GetFreeObjectCoords(String objectType = null)
+        public Vector2 GetFreeObjectCoords(string objectType = null)
         {
-            int objectX = Random.Next(0, Width - 1);
-            int objectY = Random.Next(1, Height - 1);
-            Vector2 objectCoords = new Vector2(StartCoords.X + objectX * 16, StartCoords.Y + objectY * 16);
-            bool coordsOccupied = ListContainsVector(objectCoords);
-
-            // Create new coords for pickup until they are not in front of a door and there is a free cell
-            while (coordsOccupied || ((objectX == XDoorLeft || objectX == XDoorRight) && (objectY == Height - 1 || objectY == 1)))
+            for (int nIteration = 0; nIteration < 100000; nIteration++)
             {
-                objectX = Random.Next(0, Width - 1);
-                objectY = Random.Next(0, Height - 1);
-                objectCoords = new Vector2(StartCoords.X + objectX * 16, StartCoords.Y + objectY * 16);
-                coordsOccupied = ListContainsVector(objectCoords);
+                var objectX = Random.Next(0, Width - 1);
+                var objectY = Random.Next(1, Height - 1);
+
+                var objectCoords = new Vector2(StartCoords.X + objectX * 16, StartCoords.Y + objectY * 16);
+
+                //Field already contains something
+                if (ListContainsVector(objectCoords)) continue;
+
+                //Do not place in front of door
+                if ((objectX == XDoorLeft || objectX == XDoorRight) && (objectY == Height - 1 || objectY == 1)) continue;
+
+                if (objectType == "pillar")
+                {
+                    if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X, objectCoords.Y + 16))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X, objectCoords.Y - 16))) continue;
+                }
+
+                return objectCoords;
             }
 
-            return objectCoords;
+            return null;
         }
 
         /// <summary>
