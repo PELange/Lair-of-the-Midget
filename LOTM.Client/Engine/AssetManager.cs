@@ -23,8 +23,8 @@ namespace LOTM.Client.Engine
             atlasCoordinats.X = gridsize * textureCoordinates.X;
             atlasCoordinats.Y = gridsize * textureCoordinates.Y;
 
-            atlasCoordinats.Z = (gridsize * textureCoordinates.Z) + gridsize - 1;
-            atlasCoordinats.W = (gridsize * textureCoordinates.W) + gridsize - 1;
+            atlasCoordinats.Z = (gridsize * textureCoordinates.Z) + gridsize;
+            atlasCoordinats.W = (gridsize * textureCoordinates.W) + gridsize;
 
             atlasCoordinats.X /= texture.Width;
             atlasCoordinats.Z /= texture.Width;
