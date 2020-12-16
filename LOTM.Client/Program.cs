@@ -7,9 +7,15 @@ namespace LOTM.Client
         /// <summary>
         /// Lair of the Midget dedicated server
         /// </summary>
+        /// <param name="name">Name of your player that appears in multiplayer. Default is Player</param>
         /// <param name="connect">Host ip:port. Default is 127.0.0.1:4297</param>
-        static void Main(string connect)
+        static void Main(string name, string connect)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                connect = "Player";
+            }
+
             if (string.IsNullOrEmpty(connect))
             {
                 connect = "127.0.0.1:4297";
