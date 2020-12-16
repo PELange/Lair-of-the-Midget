@@ -228,6 +228,7 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             {
                 Vector2 pillarCoords = GetFreeObjectCoords("pillar");
                 ObjectCoordList.Add(pillarCoords);
+                ObjectCoordList.Add(new Vector2(pillarCoords.X, pillarCoords.Y + 16));
 
                 DungeonObjectList.Add(new DungeonTile(TileType.Pillar, Random, pillarCoords, 0, new Vector2(16, 32)));
                 pillarCount--;

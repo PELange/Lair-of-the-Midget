@@ -85,7 +85,7 @@ namespace LOTM.Client.Game
 
 
             //var seed = System.Guid.NewGuid().GetHashCode();
-            var seed = 126;
+            var seed = 130;
             int playerCount = 4; // Get num of connected players to spawn more or less pickups and enemys
             int roomCount = 3;
             int roomWidth = 15;
