@@ -3,11 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOTM.Client", "LOTM.Client\LOTM.Client.csproj", "{C0F4A8B2-FC5A-43DE-B38B-EA5E18EDF4AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOTM.Client", "LOTM.Client\LOTM.Client.csproj", "{C0F4A8B2-FC5A-43DE-B38B-EA5E18EDF4AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOTM.Server", "LOTM.Server\LOTM.Server.csproj", "{65A8D24B-9A89-4DEA-920F-EC107CE9CD6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOTM.Server", "LOTM.Server\LOTM.Server.csproj", "{65A8D24B-9A89-4DEA-920F-EC107CE9CD6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOTM.Shared", "LOTM.Shared\LOTM.Shared.csproj", "{F08F8E9C-8464-47A5-B281-5B26D9D338A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LOTM.Shared", "LOTM.Shared\LOTM.Shared.csproj", "{F08F8E9C-8464-47A5-B281-5B26D9D338A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{60B1455C-FEEC-4C25-9237-B23550A1F0FB}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
