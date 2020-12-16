@@ -4,8 +4,17 @@ namespace LOTM.Client
 {
     class Program
     {
-        static void Main(string[] args)
+        /// <summary>
+        /// Lair of the Midget dedicated server
+        /// </summary>
+        /// <param name="connect">Host ip:port. Default is 127.0.0.1:4297</param>
+        static void Main(string connect)
         {
+            if (string.IsNullOrEmpty(connect))
+            {
+                connect = "127.0.0.1:4297";
+            }
+
             //var timer = new Timer
             //{
             //    Interval = 100
@@ -13,7 +22,7 @@ namespace LOTM.Client
             //timer.Elapsed += Timer_Elapsed;
             //timer.Start();
 
-            new LotmClient(500, 500).Start();
+            new LotmClient(500, 500, connect).Start();
         }
 
         //private static void Timer_Elapsed(object sender, ElapsedEventArgs e)

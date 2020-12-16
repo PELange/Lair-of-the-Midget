@@ -11,7 +11,7 @@ namespace LOTM.Client.Game
     {
         public List<Vector2> RoomCoordsList = new List<Vector2>();
 
-        public LotmClient(int windowWidth, int windowHeight) : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png")
+        public LotmClient(int windowWidth, int windowHeight, string connectionString) : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", connectionString)
         {
         }
 

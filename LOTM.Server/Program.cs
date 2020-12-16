@@ -1,38 +1,32 @@
-﻿using LOTM.Shared;
-using System;
-using System.Timers;
+﻿using LOTM.Server.Game;
+using LOTM.Shared.Engine.Math;
 
 namespace LOTM.Server
 {
     class Program
     {
-        static void Main(string[] args)
+        /// <summary>
+        /// Lair of the Midget dedicated server
+        /// </summary>
+        /// <param name="port">The port that the server will listen on. Default is 4297</param>
+        static void Main(uint port)
         {
-            var timer = new Timer();
-            timer.Interval = 100;
-            timer.Elapsed += Timer_Elapsed;
-            timer.Start();
+            if (port == 0)
+            {
+                port = 4297;
+            }
 
-            Console.WriteLine("Hello Server!");
+            new LotmServer(new Vector2(0, 0), $"0.0.0.0:{port}").Start();
 
-            Console.WriteLine(System.Threading.Thread.CurrentThread.ManagedThreadId);
+            //UdpClient udpServer = new UdpClient(11000);
 
-            UDPSocket s = new UDPSocket();
-            s.Server("127.0.0.1", 27000);
-
-            if (System.Diagnostics.Debugger.IsAttached) Console.ReadLine();
-        }
-
-        private static void Timer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            //Console.WriteLine("lloyd");
-
-            //if (sender is Timer timer)
+            //while (true)
             //{
-            //    timer.Stop();
+            //    var remoteEP = new IPEndPoint(IPAddress.Any, 11000);
+            //    var data = udpServer.Receive(ref remoteEP); // listen on port 11000
+            //    Console.WriteLine("receive data from " + remoteEP.ToString());
+            //    udpServer.Send(new byte[] { 1 }, 1, remoteEP); // reply back
             //}
-
-            Console.WriteLine(System.Threading.Thread.CurrentThread.ManagedThreadId);
         }
     }
 }

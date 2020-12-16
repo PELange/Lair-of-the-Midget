@@ -1,4 +1,6 @@
-﻿using LOTM.Shared.Engine.World;
+﻿using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Network;
+using LOTM.Shared.Engine.World;
 using System;
 
 namespace LOTM.Shared.Engine
@@ -7,9 +9,19 @@ namespace LOTM.Shared.Engine
     {
         private bool ShouldShutdown { get; set; }
 
-        protected float FixedUpdateDeltaTime { get; set; } = 1 / 60.0f; //60 fps
+        protected float FixedUpdateDeltaTime { get; }
 
-        protected GameWorld World { get; } = new GameWorld(1000, 1000);
+        protected GameWorld World { get; }
+
+        protected NetworkManager NetworkManager { get; }
+
+        public Game(Vector2 worldDimensions, string networkAddress)
+        {
+            FixedUpdateDeltaTime = 1 / 60.0f; //60 fps
+
+            World = new GameWorld(worldDimensions);
+            NetworkManager = new NetworkManager(networkAddress);
+        }
 
         public void Start()
         {

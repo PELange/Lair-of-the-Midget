@@ -1,4 +1,5 @@
-﻿using LOTM.Shared.Engine.Objects;
+﻿using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Objects;
 using System.Collections.Generic;
 
 namespace LOTM.Shared.Engine.World
@@ -9,7 +10,7 @@ namespace LOTM.Shared.Engine.World
 
         //public QuadTree<GameObject> Objects { get; set; }
 
-        public GameWorld(int width, int height)
+        public GameWorld(Vector2 dimensions)
         {
             //Objects = new QuadTree<GameObject>(new System.Drawing.RectangleF(-width, -height, width * 2, height * 2))
             //{

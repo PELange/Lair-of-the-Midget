@@ -21,7 +21,7 @@ namespace LOTM.Client.Engine
 
         protected OrthographicCamera Camera { get; }
 
-        public GuiGame(int windowWidth, int windowHeight, string title, string iconPath = null)
+        public GuiGame(int windowWidth, int windowHeight, string title, string iconPath = null, string networkAddress = "0.0.0.0:4297") : base(new Vector2(0, 0), networkAddress)
         {
             WindowWidth = windowWidth;
             WindowHeight = windowHeight;
