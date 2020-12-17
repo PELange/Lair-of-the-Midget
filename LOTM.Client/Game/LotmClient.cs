@@ -1,8 +1,10 @@
 ﻿using LOTM.Client.Engine;
 using LOTM.Client.Engine.Controls;
+using LOTM.Client.Game.Network;
 using LOTM.Client.Game.Objects;
 using LOTM.Client.Game.Objects.DungeonRoom;
 using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Game.Network.Packets;
 using System.Collections.Generic;
 
 namespace LOTM.Client.Game
@@ -11,8 +13,12 @@ namespace LOTM.Client.Game
     {
         public List<Vector2> RoomCoordsList = new List<Vector2>();
 
-        public LotmClient(int windowWidth, int windowHeight, string connectionString) : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", connectionString)
+        public LotmNetworkManagerClient NetworkClient { get; set; }
+
+        public LotmClient(int windowWidth, int windowHeight, string connectionString)
+            : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", new LotmNetworkManagerClient(connectionString))
         {
+            NetworkClient = (LotmNetworkManagerClient)NetworkManager;
         }
 
         protected override void OnInit()
@@ -112,7 +118,7 @@ namespace LOTM.Client.Game
                     World.Objects.Add(tile);
                 }
             }
-            
+
             //World.Objects.Add(new DemonBoss(new Vector2(160, 160), 45, new Vector2(32, 32)));
             World.Objects.Add(new WizardOfWisdom(new Vector2(6 * 16, 6 * 16), 0, new Vector2(16, 16 * 2)));
 
@@ -142,7 +148,7 @@ namespace LOTM.Client.Game
 
         protected override void OnUpdate(double deltaTime)
         {
-
+            NetworkClient.SendPacket(new PlayerJoin { PlayerName = "Paul" });
         }
     }
 }

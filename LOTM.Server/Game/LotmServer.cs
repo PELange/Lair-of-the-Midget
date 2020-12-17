@@ -1,10 +1,11 @@
-﻿using LOTM.Server.Engine.Network;
+﻿using LOTM.Server.Game.Network;
 
 namespace LOTM.Server.Game
 {
     public class LotmServer : Shared.Engine.Game
     {
-        public LotmServer(string listenAddress) : base(new NetworkManagerServer(listenAddress))
+        public LotmServer(string listenAddress)
+            : base(new LotmNetworkManagerServer(listenAddress))
         {
         }
 
@@ -14,6 +15,10 @@ namespace LOTM.Server.Game
 
         protected override void OnBeforeUpdate()
         {
+            if (NetworkManager.TryGetPacket(out var packet))
+            {
+                System.Console.WriteLine($"Packet arrived -> Type:{packet.GetType()}");
+            }
         }
 
         protected override void OnFixedUpdate(double deltaTime)

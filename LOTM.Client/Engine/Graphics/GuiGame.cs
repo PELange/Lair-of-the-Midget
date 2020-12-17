@@ -1,8 +1,8 @@
 ﻿using ImageDotNet;
 using LOTM.Client.Engine.Controls;
 using LOTM.Client.Engine.Graphics;
-using LOTM.Client.Engine.Network;
 using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Network;
 using System;
 using System.Runtime.InteropServices;
 using static GLDotNet.GL;
@@ -22,7 +22,8 @@ namespace LOTM.Client.Engine
 
         protected OrthographicCamera Camera { get; }
 
-        public GuiGame(int windowWidth, int windowHeight, string title, string iconPath, string serverAddress) : base(new NetworkManagerClient(serverAddress))
+        public GuiGame(int windowWidth, int windowHeight, string title, string iconPath, NetworkManager networkManager)
+            : base(networkManager)
         {
             WindowWidth = windowWidth;
             WindowHeight = windowHeight;

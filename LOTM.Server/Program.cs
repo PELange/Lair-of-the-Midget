@@ -1,5 +1,4 @@
 ﻿using LOTM.Server.Game;
-using LOTM.Shared.Engine.Math;
 
 namespace LOTM.Server
 {
