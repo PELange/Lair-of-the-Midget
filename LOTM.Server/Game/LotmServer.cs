@@ -1,8 +1,10 @@
-﻿namespace LOTM.Server.Game
+﻿using LOTM.Server.Engine.Network;
+
+namespace LOTM.Server.Game
 {
     public class LotmServer : Shared.Engine.Game
     {
-        public LotmServer(string listenAddress) : base(listenAddress)
+        public LotmServer(string listenAddress) : base(new NetworkManagerServer(listenAddress))
         {
         }
 

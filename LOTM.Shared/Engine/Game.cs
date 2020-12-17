@@ -10,16 +10,17 @@ namespace LOTM.Shared.Engine
 
         protected float FixedUpdateDeltaTime { get; }
 
-        protected GameWorld World { get; }
-
         protected NetworkManager NetworkManager { get; }
 
-        public Game(string networkAddress)
+        protected GameWorld World { get; }
+
+        public Game(NetworkManager networkManager)
         {
+            NetworkManager = networkManager;
+
             FixedUpdateDeltaTime = 1 / 60.0f; //60 fps
 
             World = new GameWorld();
-            NetworkManager = new NetworkManager(networkAddress);
         }
 
         public void Start()
