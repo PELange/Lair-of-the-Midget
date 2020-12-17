@@ -14,77 +14,95 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
         public DungeonTile(TileType tileType, Random random, Vector2 position = null, double rotation = 0, Vector2 scale = null) : base(position, rotation, scale)
         {
-            string tileName;
+            List<SpriteRenderer.Segment> spriteSegments = new List<SpriteRenderer.Segment>();
             Random rnd = random;
             switch (tileType)
             {
+                // Ground section
                 case TileType.Ground:
                     int tileNum = rnd.Next(0, 4);
-                    tileName = "dungeon_tile_" + tileNum;
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_tile_" + tileNum), null, null, null, 0));
                     break;
 
                 case TileType.Hole:
-                    tileName = "dungeon_tile_hole";
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_tile_hole"), null, null, null, 0));
                     break;
 
-                case TileType.StandardWall:
-                    tileName = "dungeon_wall_standard";
+                // Wall section
+                case TileType.TopWall:
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_wall_standard"), null, null, null, 0));
+                    break;
+
+                case TileType.BottomWall:
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_wall_standard"), null, null, null, 2000));
                     break;
 
                 case TileType.LeftWall:
-                    tileName = "dungeon_wall_left";
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_wall_left"), null, null, null, 1200));
                     break;
-                    
+
+                case TileType.LeftWallUnderDoor:
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_wall_left"), null, null, null, 0));
+                    break;
+
                 case TileType.RightWall:
-                    tileName = "dungeon_wall_right";
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_wall_right"), null, null, null, 1200));
+                    break;
+
+                case TileType.RightWallUnderDoor:
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_wall_right"), null, null, null, 0));
                     break;
 
                 case TileType.TopLeftCorner:
-                    tileName = "dungeon_corner_top_left";
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_corner_top_left"), null, null, null, 0));
                     break;
 
                 case TileType.TopRightCorner:
-                    tileName = "dungeon_corner_top_right";
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_corner_top_right"), null, null, null, 0));
                     break;
 
                 case TileType.BottomLeftCorner:
-                    tileName = "dungeon_corner_bottom_left";
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_corner_bottom_left"), null, null, null, 2000));
                     break;
 
                 case TileType.BottomRightCorner:
-                    tileName = "dungeon_corner_bottom_right";
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_corner_bottom_right"), null, null, null, 2000));
+                    break;
+
+                // Door section
+                case TileType.DoorFrameTop:
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_left"), new Vector2(0.25, (float)2/3), new Vector2(-0.25, 0.0), null, 0));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_right"), new Vector2(0.25, (float)2/3), new Vector2(0.5, 0.0), null, 0));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_arch"), new Vector2(0.5, (float)1 / 3), new Vector2(0.0, (float)-1/3), null, 2000));
+                    break;
+
+                case TileType.DoorFrameBottom:
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_left"), new Vector2(0.25, (float)2 / 3), new Vector2(-0.25, 0.0), null, 2000));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_right"), new Vector2(0.25, (float)2 / 3), new Vector2(0.5, 0.0), null, 2000));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_arch"), new Vector2(0.5, (float)1 / 3), new Vector2(0.0, (float)-1/3), null, 2000));
                     break;
 
                 case TileType.DoorClosed:
-                    tileName = "dungeon_door_closed";
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_closed")));
                     break;
 
-                case TileType.DoorOpenedBottom:
-                    tileName = "dungeon_door_opened_bottom";
+                case TileType.DoorOpened:
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_opened_top"), new Vector2(1, 0.5), new Vector2(0, 0.0), null, 2000));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_opened_bottom"), new Vector2(1, 0.5), new Vector2(0, 0.5), null, 0));
                     break;
 
-                case TileType.DoorOpenedTop:
-                    tileName = "dungeon_door_opened_top";
-                    break;
-
-                case TileType.DoorArch:
-                    tileName = "dungeon_door_arch";
-                    break;
-
+                // Pillar section
                 case TileType.Pillar:
-                    tileName = "dungeon_pillar";
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_pillar_top"), new Vector2(1, 0.5), new Vector2(0,0), null, 1100));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_pillar_bottom"), new Vector2(1, 0.5), new Vector2(0, 0.5), null, 100));
                     break;
 
                 default:
-                    tileName = "";
                     break;
 
             }
 
-            Components.Add(new SpriteRenderer(new List<SpriteRenderer.Segment>
-            {
-                new SpriteRenderer.Segment(AssetManager.GetSprite(tileName))
-            }));
+            Components.Add(new SpriteRenderer(spriteSegments));
         }
 
         public override void OnFixedUpdate(double deltaTime)

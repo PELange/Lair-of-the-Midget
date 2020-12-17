@@ -27,23 +27,23 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 24, 2, 24), "demonboss_idle_0_4");
 
             //Small Skeleton
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 5, 23, 5), "skeleton_small_m_idle_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(24, 5, 24, 5), "skeleton_small_m_idle_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 5, 25, 5), "skeleton_small_m_idle_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 5, 25, 5), "skeleton_small_m_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 4, 23, 5), "skeleton_small_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(24, 4, 24, 5), "skeleton_small_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 4, 25, 5), "skeleton_small_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 4, 25, 5), "skeleton_small_m_idle_anim_f3");
 
             //Small Ogre
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 13, 23, 13), "ogre_small_m_idle_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(24, 13, 24, 13), "ogre_small_m_idle_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 13, 25, 13), "ogre_small_m_idle_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 13, 25, 13), "ogre_small_m_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 12, 23, 13), "ogre_small_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(24, 12, 24, 13), "ogre_small_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 12, 25, 13), "ogre_small_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 12, 25, 13), "ogre_small_m_idle_anim_f3");
 
 
             // Green Blob
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 7, 27, 7), "blob_green_m_idle_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 7, 28, 7), "blob_green_m_idle_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 7, 29, 7), "blob_green_m_idle_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 7, 30, 7), "blob_green_m_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 6, 27, 7), "blob_green_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 6, 28, 7), "blob_green_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 6, 29, 7), "blob_green_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 6, 30, 7), "blob_green_m_idle_anim_f3");
 
 
             //Wizard
@@ -72,9 +72,13 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 15, 6, 15), "dungeon_door_opened_bottom");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 14, 6, 14), "dungeon_door_opened_top");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 13, 3, 13), "dungeon_door_arch");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 14, 1, 15), "dungeon_door_wall_left");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(4, 14, 4, 15), "dungeon_door_wall_right");
+
 
             // Pillar
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 5, 5, 6), "dungeon_pillar");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 5, 5, 5), "dungeon_pillar_top");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 6, 5, 6), "dungeon_pillar_bottom");
 
             //PickUps
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 14, 18, 14), "pickup_pot_orange_big");
@@ -108,8 +112,6 @@ namespace LOTM.Client.Game
                     World.Objects.Add(tile);
                 }
             }
-
-
             
             //World.Objects.Add(new DemonBoss(new Vector2(160, 160), 45, new Vector2(32, 32)));
             World.Objects.Add(new WizardOfWisdom(new Vector2(6 * 16, 6 * 16), 0, new Vector2(16, 16 * 2)));
