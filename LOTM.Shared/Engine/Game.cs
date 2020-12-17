@@ -1,5 +1,4 @@
-﻿using LOTM.Shared.Engine.Math;
-using LOTM.Shared.Engine.Network;
+﻿using LOTM.Shared.Engine.Network;
 using LOTM.Shared.Engine.World;
 using System;
 
@@ -15,11 +14,11 @@ namespace LOTM.Shared.Engine
 
         protected NetworkManager NetworkManager { get; }
 
-        public Game(Vector2 worldDimensions, string networkAddress)
+        public Game(string networkAddress)
         {
             FixedUpdateDeltaTime = 1 / 60.0f; //60 fps
 
-            World = new GameWorld(worldDimensions);
+            World = new GameWorld();
             NetworkManager = new NetworkManager(networkAddress);
         }
 

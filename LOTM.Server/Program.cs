@@ -16,7 +16,7 @@ namespace LOTM.Server
                 port = 4297;
             }
 
-            new LotmServer(new Vector2(0, 0), $"0.0.0.0:{port}").Start();
+            new LotmServer($"0.0.0.0:{port}").Start();
 
             //UdpClient udpServer = new UdpClient(11000);
 

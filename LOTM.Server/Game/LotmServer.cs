@@ -1,10 +1,8 @@
-﻿using LOTM.Shared.Engine.Math;
-
-namespace LOTM.Server.Game
+﻿namespace LOTM.Server.Game
 {
     public class LotmServer : Shared.Engine.Game
     {
-        public LotmServer(Vector2 worldDimensions, string listenAddress) : base(worldDimensions, listenAddress)
+        public LotmServer(string listenAddress) : base(listenAddress)
         {
         }
 
