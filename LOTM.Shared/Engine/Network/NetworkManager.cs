@@ -35,6 +35,7 @@ namespace LOTM.Shared.Engine.Network
                 client.Client.Bind(new IPEndPoint(IPAddress.Any, 0));
                 bindEndpoint = (IPEndPoint)client.Client.LocalEndPoint;
                 client.Client.Close();
+                client.Close();
             }
 
             ListenThread = new Thread(() => ListenWorker(bindEndpoint));
