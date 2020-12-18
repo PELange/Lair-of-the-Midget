@@ -3,34 +3,38 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace LOTM.Shared.Engine.Network
 {
-    public class NetworkManager
+    public class NetworkManager : IDisposable
     {
         private Thread ListenThread { get; }
         private Thread SendThread { get; }
-        private bool ShouldShutdown { get; set; }
+        private CancellationTokenSource ShouldShutdown { get; set; }
 
         private ConcurrentQueue<NetworkPacket> ReceiveQueue { get; }
         private ConcurrentQueue<(NetworkPacket, IPEndPoint)> SendQueue { get; }
         private INetworkPacketSerializationProvider NetworkPacketSerializationProvider { get; }
 
+        private AutoResetEvent SendEvent { get; }
+
         public NetworkManager(INetworkPacketSerializationProvider networkPacketSerializationProvider, IPEndPoint bindEndpoint = null)
         {
+            ShouldShutdown = new CancellationTokenSource();
             NetworkPacketSerializationProvider = networkPacketSerializationProvider;
+
+            SendEvent = new AutoResetEvent(false);
 
             ReceiveQueue = new ConcurrentQueue<NetworkPacket>();
             SendQueue = new ConcurrentQueue<(NetworkPacket, IPEndPoint)>();
 
             if (bindEndpoint == null) //Bind to the next free udp port
             {
-                bindEndpoint = new IPEndPoint(IPAddress.Any, 1234); //todo fetch open udp port
-
-                //var client = new UdpClient();
-                //client.Client.Bind(new IPEndPoint(IPAddress.Any, 0));
-                //bindEndpoint = (IPEndPoint)client.Client.LocalEndPoint;
-                //client.Client.Close();
+                var client = new UdpClient();
+                client.Client.Bind(new IPEndPoint(IPAddress.Any, 0));
+                bindEndpoint = (IPEndPoint)client.Client.LocalEndPoint;
+                client.Client.Close();
             }
 
             ListenThread = new Thread(() => ListenWorker(bindEndpoint));
@@ -42,12 +46,13 @@ namespace LOTM.Shared.Engine.Network
 
         public void Shutdown()
         {
-            ShouldShutdown = true;
-            ListenThread.Abort();
-            SendThread.Abort();
+            ShouldShutdown.Cancel();
+            SendEvent.Set();
+            ListenThread?.Join();
+            SendThread?.Join();
         }
 
-        private void ListenWorker(IPEndPoint bindEndpoint)
+        private async void ListenWorker(IPEndPoint bindEndpoint)
         {
             var listener = new UdpClient
             {
@@ -58,23 +63,38 @@ namespace LOTM.Shared.Engine.Network
 
             Console.WriteLine($"Listening on: {bindEndpoint}");
 
-            while (!ShouldShutdown)
+            while (!ShouldShutdown.IsCancellationRequested)
             {
-                //Create dummy endpoint that the sender data is written into
-                var remoteEndpoint = new IPEndPoint(IPAddress.Any, IPEndPoint.MinPort);
-
                 //Receive the data
-                var data = listener.Receive(ref remoteEndpoint);
+                var receiveTask = listener.ReceiveAsync();
+
+                var tcs = new TaskCompletionSource<bool>();
+
+                using (ShouldShutdown.Token.Register(x => tcs.TrySetResult(true), null))
+                {
+                    var finishedTask = await Task.WhenAny(receiveTask, tcs.Task);
+
+                    if (finishedTask == tcs.Task)
+                    {
+                        break;
+                    }
+                }
+
+                var data = await receiveTask;
 
                 //Unpack the packet into NetworkPaket C# instance
-                var packet = NetworkPacketSerializationProvider.DeserializePacket(data, remoteEndpoint);
+                var packet = NetworkPacketSerializationProvider.DeserializePacket(data.Buffer, data.RemoteEndPoint);
 
                 //Enqueue the result
                 if (packet != null) ReceiveQueue.Enqueue(packet);
             }
+
+            listener.Client.Shutdown(SocketShutdown.Both);
+            listener.Client.Close();
+            listener.Close();
         }
 
-        private void SendWorker(IPEndPoint bindEndpoint)
+        private async void SendWorker(IPEndPoint bindEndpoint)
         {
             var sender = new UdpClient
             {
@@ -85,15 +105,23 @@ namespace LOTM.Shared.Engine.Network
 
             Console.WriteLine($"Sending on: {bindEndpoint}");
 
-            while (!ShouldShutdown)
+            while (!ShouldShutdown.IsCancellationRequested)
             {
+                SendEvent.WaitOne();
+
+                if (ShouldShutdown.IsCancellationRequested) break;
+
                 if (SendQueue.TryDequeue(out var result))
                 {
                     var data = NetworkPacketSerializationProvider.SerializePacket(result.Item1);
 
-                    sender.Send(data, data.Length, result.Item2);
+                    await sender.SendAsync(data, data.Length, result.Item2);
                 }
             }
+
+            sender.Client.Shutdown(SocketShutdown.Both);
+            sender.Client.Close();
+            sender.Close();
         }
 
         public bool TryGetPacket(out NetworkPacket packet)
@@ -104,6 +132,12 @@ namespace LOTM.Shared.Engine.Network
         protected void SendPacket(NetworkPacket packet, IPEndPoint receiver)
         {
             SendQueue.Enqueue((packet, receiver));
+            SendEvent.Set();
+        }
+
+        public void Dispose()
+        {
+            Shutdown();
         }
     }
 }

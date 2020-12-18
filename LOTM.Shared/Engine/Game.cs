@@ -66,6 +66,7 @@ namespace LOTM.Shared.Engine
                 lastUpdate = currentTime;
             }
 
+            NetworkManager.Shutdown();
             OnShutdown();
         }
 
