@@ -1,6 +1,8 @@
 ﻿using LOTM.Shared.Engine.Network;
 using LOTM.Shared.Engine.World;
 using System;
+using System.Diagnostics;
+using System.Threading;
 
 namespace LOTM.Shared.Engine
 {
@@ -29,6 +31,9 @@ namespace LOTM.Shared.Engine
 
             var lastUpdate = DateTime.Now;
             double accumulator = 0.0;
+
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
 
             while (!ShouldShutdown)
             {
@@ -64,6 +69,13 @@ namespace LOTM.Shared.Engine
                 OnAfterUpdate();
 
                 lastUpdate = currentTime;
+
+                if (stopWatch.ElapsedMilliseconds < 5) //200 hz refesh limit. If the frame was calculated faster than this, sleep for the rest of the frame
+                {
+                    Thread.Sleep((int)(5 - stopWatch.ElapsedMilliseconds));
+                }
+
+                stopWatch.Reset();
             }
 
             NetworkManager.Shutdown();
