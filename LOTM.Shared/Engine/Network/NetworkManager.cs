@@ -89,6 +89,8 @@ namespace LOTM.Shared.Engine.Network
                 if (packet != null) ReceiveQueue.Enqueue(packet);
             }
 
+            Console.WriteLine($"Stop listening ...");
+
             listener.Client.Shutdown(SocketShutdown.Both);
             listener.Client.Close();
             listener.Close();
@@ -118,6 +120,8 @@ namespace LOTM.Shared.Engine.Network
                     await sender.SendAsync(data, data.Length, result.Item2);
                 }
             }
+
+            Console.WriteLine($"Stop sending ...");
 
             sender.Client.Shutdown(SocketShutdown.Both);
             sender.Client.Close();

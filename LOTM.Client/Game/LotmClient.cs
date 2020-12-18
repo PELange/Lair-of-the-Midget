@@ -144,11 +144,12 @@ namespace LOTM.Client.Game
             {
                 Camera.PanViewport(new Vector2(0, cameraMovementSpeed * deltaTime));
             }
+
+            NetworkClient.SendPacket(new PlayerJoin { PlayerName = "Paul" });
         }
 
         protected override void OnUpdate(double deltaTime)
         {
-            NetworkClient.SendPacket(new PlayerJoin { PlayerName = "Paul" });
         }
     }
 }
