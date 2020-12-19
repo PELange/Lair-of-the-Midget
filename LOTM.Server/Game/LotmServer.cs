@@ -18,7 +18,7 @@ namespace LOTM.Server.Game
         {
             if (NetworkManager.TryGetPacket(out var packet))
             {
-                System.Console.WriteLine($"[{DateTime.Now}] Packet arrived -> Type:{packet.GetType()}");
+                Console.WriteLine($"[{DateTime.Now}] Packet arrived -> Type:{packet.GetType()}");
             }
         }
 
