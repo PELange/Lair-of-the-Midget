@@ -325,7 +325,8 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 if (ListContainsVector(objectCoords)) continue;
 
                 //Do not place in front of door
-                if ((objectX == XDoorLeft || objectX == XDoorRight) && (objectY == Height - 1 || objectY == 1)) continue;
+                if ((objectX >= XDoorLeft - 1 && objectX <= XDoorRight + 1)
+                    && ((objectY <= Height - 1 && objectY >= Height - 3) || (objectY >= 0 && objectY <= 1))) continue;
 
                 if (objectType == "pillar")
                 {
