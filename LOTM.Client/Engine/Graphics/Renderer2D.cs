@@ -123,12 +123,12 @@ namespace LOTM.Client.Engine.Graphics
 
             foreach (var worldObject in worldObjects)
             {
-                if (worldObject.GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
+                if (worldObject.GetComponent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
                 {
                     foreach (var segment in spriteRenderer.Segments)
                     {
                         var textureCoordinates = segment.Sprite.TextureCoordinates;
-                        var transformation = worldObject.GetComonent<Transformation2D>();
+                        var transformation = worldObject.GetComponent<Transformation2D>();
 
                         var width = (segment.Sprite.TextureCoordinates.Z * segment.Sprite.Texture.Width) - (segment.Sprite.TextureCoordinates.X * segment.Sprite.Texture.Width);
                         var height = (segment.Sprite.TextureCoordinates.W * segment.Sprite.Texture.Height) - (segment.Sprite.TextureCoordinates.Y * segment.Sprite.Texture.Height);

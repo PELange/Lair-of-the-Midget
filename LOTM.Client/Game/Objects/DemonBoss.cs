@@ -19,13 +19,9 @@ namespace LOTM.Client.Game.Objects
             }));
         }
 
-        public override void OnFixedUpdate(double deltaTime)
-        {
-        }
-
         public override void OnUpdate(double deltaTime)
         {
-            var transform = GetComonent<Transformation2D>();
+            var transform = GetComponent<Transformation2D>();
 
             transform.Rotation += 45 * deltaTime;
         }

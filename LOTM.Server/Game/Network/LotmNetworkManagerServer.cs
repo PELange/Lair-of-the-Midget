@@ -3,7 +3,6 @@ using LOTM.Shared.Game.Network;
 using LOTM.Shared.Game.Network.Packets;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 
 namespace LOTM.Server.Game.Network
@@ -40,6 +39,7 @@ namespace LOTM.Server.Game.Network
                 var ack = playerCreationCallback(playerJoin);
 
                 JoinAcknowledgements[lookupKey] = ack;
+                ConnectedPlayers.Add(playerJoin.Sender);
 
                 SendPacket(ack, playerJoin.Sender);
 
@@ -49,6 +49,10 @@ namespace LOTM.Server.Game.Network
 
         public void Broadcast(NetworkPacket packet)
         {
+            foreach (var player in ConnectedPlayers)
+            {
+                SendPacket(packet, player);
+            }
         }
     }
 }

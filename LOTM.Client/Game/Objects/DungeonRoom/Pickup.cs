@@ -49,6 +49,10 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             }));
         }
 
+        public override void OnBeforeUpdate()
+        {
+        }
+
         public override void OnFixedUpdate(double deltaTime)
         {
         }

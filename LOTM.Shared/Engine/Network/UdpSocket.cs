@@ -17,6 +17,13 @@ namespace LOTM.Shared.Engine.Network
         {
             CancellationTokenSource = new CancellationTokenSource();
             UdpClient = new UdpClient();
+
+            //Supress ICMP messages to avoid exception (local network only)
+            UdpClient.Client.IOControl(
+                (IOControlCode)(-1744830452),
+                new byte[] { 0, 0, 0, 0 },
+                null
+            );
         }
 
         public static UdpSocket CreateServer(IPEndPoint endpoint)
@@ -33,13 +40,6 @@ namespace LOTM.Shared.Engine.Network
         public static UdpSocket CreateClient(IPEndPoint endpoint)
         {
             var udpSocket = new UdpSocket();
-
-            //Supress ICMP messages to avoid exception when host is not reachable (local network only)
-            udpSocket.UdpClient.Client.IOControl(
-                (IOControlCode)(-1744830452),
-                new byte[] { 0, 0, 0, 0 },
-                null
-            );
 
             udpSocket.UdpClient.Client.Connect(endpoint);
 

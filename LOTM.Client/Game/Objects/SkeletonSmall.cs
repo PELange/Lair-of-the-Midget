@@ -19,10 +19,6 @@ namespace LOTM.Client.Game.Objects
             }));
         }
 
-        public override void OnFixedUpdate(double deltaTime)
-        {
-        }
-
         public override void OnUpdate(double deltaTime)
         {
             //animation prototype
@@ -35,7 +31,7 @@ namespace LOTM.Client.Game.Objects
                 CurrentAnimationPhase = (CurrentAnimationPhase + 1) % 3;
             }
 
-            if (GetComonent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
+            if (GetComponent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
             {
 
                 spriteRenderer.Segments[0].Sprite = AssetManager.GetSprite($"skeleton_small_m_idle_anim_f{CurrentAnimationPhase}");

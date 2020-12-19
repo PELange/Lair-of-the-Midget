@@ -42,10 +42,17 @@ namespace LOTM.Shared.Engine
 
                 accumulator += deltaTime;
 
-                OnBeforeUpdate();
+                //todo only process objects that are close to players ... especially on the server
 
                 //var worldObjects = World.Objects.GetObjectsInArea(World.Objects.Bounds);
                 var worldObjects = World.Objects;
+
+                foreach (var worldObject in worldObjects)
+                {
+                    worldObject.OnBeforeUpdate();
+                }
+
+                OnBeforeUpdate();
 
                 while (accumulator >= FixedUpdateDeltaTime)
                 {
@@ -69,6 +76,8 @@ namespace LOTM.Shared.Engine
                 OnAfterUpdate();
 
                 lastUpdate = currentTime;
+
+                Console.WriteLine($"Frame took {stopWatch.ElapsedMilliseconds} to process");
 
                 if (stopWatch.ElapsedMilliseconds < 5) //200 hz refesh limit. If the frame was calculated faster than this, sleep for the rest of the frame
                 {

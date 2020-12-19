@@ -1,4 +1,5 @@
 ﻿using LOTM.Shared.Engine.Network;
+using LOTM.Shared.Engine.Network.Packets;
 using LOTM.Shared.Game.Network.Packets;
 using System;
 using System.Net;
@@ -27,7 +28,20 @@ namespace LOTM.Shared.Game.Network
                     type = 2;
                     break;
 
+                case DynamicHealthObjectSync _:
+                    type = 3;
+                    break;
+
+                case GameObjectSync _:
+                    type = 4;
+                    break;
+
+                case PlayerInput _:
+                    type = 5;
+                    break;
+
                 default:
+                    Console.WriteLine($"Tried to serialize packet with unknown type '{packet}'.");
                     break;
             }
 
@@ -58,9 +72,25 @@ namespace LOTM.Shared.Game.Network
                 case 2:
                     resultPacket = JsonSerializer.Deserialize<PlayerJoinAck>(data);
                     break;
+
+                case 3:
+                    resultPacket = JsonSerializer.Deserialize<DynamicHealthObjectSync>(data);
+                    break;
+
+                case 4:
+                    resultPacket = JsonSerializer.Deserialize<GameObjectSync>(data);
+                    break;
+
+                case 5:
+                    resultPacket = JsonSerializer.Deserialize<PlayerInput>(data);
+                    break;
+
+                default:
+                    Console.WriteLine($"Recieved packet with unknown type '{type}'.");
+                    break;
             }
 
-            resultPacket.Sender = sender;
+            if (resultPacket != null) resultPacket.Sender = sender;
 
             return resultPacket;
         }

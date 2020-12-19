@@ -1,18 +1,11 @@
-﻿using System;
+﻿using LOTM.Shared.Engine.Controls;
+using System;
 using static GLFWDotNet.GLFW;
 
 namespace LOTM.Client.Engine.Controls
 {
     public class InputManager
     {
-        public enum ControlType
-        {
-            WALK_UP,
-            WALK_DOWN,
-            WALK_LEFT,
-            WALK_RIGHT,
-        }
-
         protected static bool[] KeyStates { get; set; } = new bool[GLFW_KEY_LAST + 1];
 
         public static GLFWkeyfun KeyCallback { get; set; } = Key_callback;
@@ -30,12 +23,12 @@ namespace LOTM.Client.Engine.Controls
         {
         }
 
-        public static bool IsControlPressed(ControlType controlType)
+        public static bool IsControlPressed(InputType controlType)
         {
-            if (controlType == ControlType.WALK_UP && KeyStates[GLFW_KEY_W]) return true;
-            if (controlType == ControlType.WALK_DOWN && KeyStates[GLFW_KEY_S]) return true;
-            if (controlType == ControlType.WALK_LEFT && KeyStates[GLFW_KEY_A]) return true;
-            if (controlType == ControlType.WALK_RIGHT && KeyStates[GLFW_KEY_D]) return true;
+            if (controlType == InputType.WALK_UP && KeyStates[GLFW_KEY_W]) return true;
+            if (controlType == InputType.WALK_DOWN && KeyStates[GLFW_KEY_S]) return true;
+            if (controlType == InputType.WALK_LEFT && KeyStates[GLFW_KEY_A]) return true;
+            if (controlType == InputType.WALK_RIGHT && KeyStates[GLFW_KEY_D]) return true;
 
             return false;
         }

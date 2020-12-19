@@ -3,9 +3,12 @@ using LOTM.Client.Engine.Controls;
 using LOTM.Client.Game.Network;
 using LOTM.Client.Game.Objects;
 using LOTM.Client.Game.Objects.DungeonRoom;
+using LOTM.Shared.Engine.Controls;
 using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Network.Packets;
 using LOTM.Shared.Game.Network.Packets;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LOTM.Client.Game
 {
@@ -104,12 +107,34 @@ namespace LOTM.Client.Game
             {
                 switch (packet)
                 {
+                    //Received an answer to join
                     case PlayerJoinAck playerJoinAck:
                     {
                         if (NetworkClient.OnPlayerJoinAck(playerJoinAck))
                         {
                             OnJoin(playerJoinAck.WorldSeed, playerJoinAck.PlayerGameObjectId);
                         }
+
+                        break;
+                    }
+
+                    //Received any kind of package that is game object sync related. Forward that to the specific game object for further processing
+                    case GameObjectSync gameObjectSync:
+                    {
+                        var gameObject = World.Objects.Where(x => x.Id == gameObjectSync.Id).FirstOrDefault();
+
+                        //No known gameobject of that type yet. Create one
+                        if (gameObject == null)
+                        {
+                            if (gameObjectSync.Type == "PlayerObject")
+                            {
+                                gameObject = new WizardOfWisdom();
+
+                                World.Objects.Add(gameObject);
+                            }
+                        }
+
+                        gameObject.PacketsInbound.Enqueue(gameObjectSync);
 
                         break;
                     }
@@ -123,22 +148,34 @@ namespace LOTM.Client.Game
         protected override void OnFixedUpdate(double deltaTime)
         {
             var cameraMovementSpeed = 100;
-            if (InputManager.IsControlPressed(InputManager.ControlType.WALK_LEFT))
+            if (InputManager.IsControlPressed(InputType.WALK_LEFT))
             {
                 Camera.PanViewport(new Vector2(-cameraMovementSpeed * deltaTime, 0));
+
+                NetworkClient.SendPacket(new PlayerInput { InputType = InputType.WALK_LEFT });
+                //Console.WriteLine($"{DateTime.Now} InputType.WALK_LEFT");
             }
-            else if (InputManager.IsControlPressed(InputManager.ControlType.WALK_RIGHT))
+            else if (InputManager.IsControlPressed(InputType.WALK_RIGHT))
             {
                 Camera.PanViewport(new Vector2(cameraMovementSpeed * deltaTime, 0));
+
+                NetworkClient.SendPacket(new PlayerInput { InputType = InputType.WALK_RIGHT });
+                //Console.WriteLine($"{DateTime.Now} InputType.WALK_RIGHT");
             }
 
-            if (InputManager.IsControlPressed(InputManager.ControlType.WALK_UP))
+            if (InputManager.IsControlPressed(InputType.WALK_UP))
             {
                 Camera.PanViewport(new Vector2(0, -cameraMovementSpeed * deltaTime));
+
+                NetworkClient.SendPacket(new PlayerInput { InputType = InputType.WALK_UP });
+                //Console.WriteLine($"{DateTime.Now} InputType.WALK_UP");
             }
-            else if (InputManager.IsControlPressed(InputManager.ControlType.WALK_DOWN))
+            else if (InputManager.IsControlPressed(InputType.WALK_DOWN))
             {
                 Camera.PanViewport(new Vector2(0, cameraMovementSpeed * deltaTime));
+
+                NetworkClient.SendPacket(new PlayerInput { InputType = InputType.WALK_DOWN });
+                //Console.WriteLine($"{DateTime.Now} InputType.WALK_DOWN");
             }
         }
 
@@ -173,7 +210,7 @@ namespace LOTM.Client.Game
             }
 
             //World.Objects.Add(new DemonBoss(new Vector2(160, 160), 45, new Vector2(32, 32)));
-            World.Objects.Add(new WizardOfWisdom(new Vector2(6 * 16, 6 * 16), 0, new Vector2(16, 16 * 2)));
+            //World.Objects.Add(new WizardOfWisdom(new Vector2(6 * 16, 6 * 16), 0, new Vector2(16, 16 * 2)));
         }
     }
 }

@@ -364,7 +364,7 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         {
             foreach (var gameObj in DungeonObjectList)
             {
-                var position = gameObj.GetComonent<Transformation2D>().Position;
+                var position = gameObj.GetComponent<Transformation2D>().Position;
 
                 if (vector.X == position.X && vector.Y == position.Y)
                 {
