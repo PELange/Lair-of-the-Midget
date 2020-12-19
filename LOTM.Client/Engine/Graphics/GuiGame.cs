@@ -102,16 +102,12 @@ namespace LOTM.Client.Engine
             glViewport(0, 0, width, height);
         }
 
-        protected override void OnBeforeUpdate()
+
+        protected override void OnAfterUpdate()
         {
             if (glfwWindowShouldClose(Window) == GL_TRUE) Shutdown();
 
             glfwPollEvents();
-        }
-
-        protected override void OnAfterUpdate()
-        {
-            //var start = DateTime.Now;
 
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -119,8 +115,6 @@ namespace LOTM.Client.Engine
             Render();
 
             glfwSwapBuffers(Window);
-
-            //Console.WriteLine($"Frametime: {(DateTime.Now - start).TotalMilliseconds}");
         }
 
         protected override void OnShutdown()
