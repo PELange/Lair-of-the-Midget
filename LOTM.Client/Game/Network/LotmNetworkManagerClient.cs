@@ -1,6 +1,7 @@
 ﻿using LOTM.Shared.Engine.Network;
 using LOTM.Shared.Game.Network;
 using LOTM.Shared.Game.Network.Packets;
+using System;
 using System.Net;
 
 namespace LOTM.Client.Game.Network
@@ -12,6 +13,8 @@ namespace LOTM.Client.Game.Network
         public string PlayerName { get; }
 
         public bool IsConnected { get; set; }
+
+        public DateTime LastConnectionAttempt { get; set; }
 
         public LotmNetworkManagerClient(string serverAddress, string playerName)
             : base(UdpSocket.CreateClient(IPEndPoint.Parse(serverAddress)), new LotmNetworkPacketSerializationProvider())
@@ -36,8 +39,10 @@ namespace LOTM.Client.Game.Network
 
         public void EnsureServerConnection()
         {
-            if (!IsConnected)
+            if (!IsConnected && (LastConnectionAttempt == null || (DateTime.Now - LastConnectionAttempt).TotalSeconds > 1))
             {
+                LastConnectionAttempt = DateTime.Now;
+
                 SendPacket(new PlayerJoin { PlayerName = PlayerName });
             }
         }
