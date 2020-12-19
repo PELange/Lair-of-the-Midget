@@ -1,13 +1,16 @@
 ﻿using LOTM.Server.Game.Network;
-using System;
+using LOTM.Shared.Game.Network.Packets;
 
 namespace LOTM.Server.Game
 {
     public class LotmServer : Shared.Engine.Game
     {
+        public LotmNetworkManagerServer NetworkServer { get; set; }
+
         public LotmServer(string listenAddress)
             : base(new LotmNetworkManagerServer(listenAddress))
         {
+            NetworkServer = (LotmNetworkManagerServer)NetworkManager;
         }
 
         protected override void OnInit()
@@ -18,7 +21,14 @@ namespace LOTM.Server.Game
         {
             if (NetworkManager.TryGetPacket(out var packet))
             {
-                Console.WriteLine($"[{DateTime.Now}] Packet arrived -> Type:{packet.GetType()}");
+                switch (packet)
+                {
+                    case PlayerJoin playerJoin:
+                    {
+                        NetworkServer.OnPlayerJoin(playerJoin, CreatePlayerJoinAck);
+                        break;
+                    }
+                }
             }
         }
 
@@ -36,6 +46,18 @@ namespace LOTM.Server.Game
 
         protected override void OnShutdown()
         {
+        }
+
+        public PlayerJoinAck CreatePlayerJoinAck(PlayerJoin playerJoin)
+        {
+            System.Console.WriteLine($"{playerJoin.PlayerName}({playerJoin.Sender}) joined the server.");
+
+            //todo put in the correct values
+            return new PlayerJoinAck
+            {
+                PlayerGameObjectId = -1,
+                WorldSeed = -1
+            };
         }
     }
 }

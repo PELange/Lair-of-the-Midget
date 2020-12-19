@@ -15,8 +15,8 @@ namespace LOTM.Client.Game
 
         public LotmNetworkManagerClient NetworkClient { get; set; }
 
-        public LotmClient(int windowWidth, int windowHeight, string connectionString)
-            : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", new LotmNetworkManagerClient(connectionString))
+        public LotmClient(int windowWidth, int windowHeight, string connectionString, string playerName)
+            : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", new LotmNetworkManagerClient(connectionString, playerName))
         {
             NetworkClient = (LotmNetworkManagerClient)NetworkManager;
         }
@@ -124,6 +124,33 @@ namespace LOTM.Client.Game
 
         }
 
+        protected override void OnBeforeUpdate()
+        {
+            //Handle incoming packets
+            if (NetworkManager.TryGetPacket(out var packet))
+            {
+                switch (packet)
+                {
+                    case PlayerJoinAck playerJoinAck:
+                    {
+                        if (NetworkClient.OnPlayerJoinAck(playerJoinAck))
+                        {
+                            //Todo use ...
+                            var worldSeed = playerJoinAck.WorldSeed;
+                            var playerGameObjectId = playerJoinAck.PlayerGameObjectId;
+
+                            System.Console.WriteLine($"Successfully joined {playerJoinAck.Sender}");
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            //Make sure we are "connected" to the server -> If we did not get an ack from server yet, resend our join request.
+            NetworkClient.EnsureServerConnection();
+        }
+
         protected override void OnFixedUpdate(double deltaTime)
         {
             var cameraMovementSpeed = 100;
@@ -144,8 +171,6 @@ namespace LOTM.Client.Game
             {
                 Camera.PanViewport(new Vector2(0, cameraMovementSpeed * deltaTime));
             }
-
-            NetworkClient.SendPacket(new PlayerJoin { PlayerName = "Paul" });
         }
 
         protected override void OnUpdate(double deltaTime)

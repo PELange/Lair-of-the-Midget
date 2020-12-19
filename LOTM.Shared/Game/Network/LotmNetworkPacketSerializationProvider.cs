@@ -47,16 +47,22 @@ namespace LOTM.Shared.Game.Network
             //Replace data prefis with empty space to allow for direct deserialize
             data[0] = 0x20; //Space
 
+            NetworkPacket resultPacket = default;
+
             switch (type)
             {
                 case 1:
-                    return JsonSerializer.Deserialize<PlayerJoin>(data);
+                    resultPacket = JsonSerializer.Deserialize<PlayerJoin>(data);
+                    break;
 
                 case 2:
-                    return JsonSerializer.Deserialize<PlayerJoinAck>(data);
+                    resultPacket = JsonSerializer.Deserialize<PlayerJoinAck>(data);
+                    break;
             }
 
-            return null;
+            resultPacket.Sender = sender;
+
+            return resultPacket;
         }
     }
 }
