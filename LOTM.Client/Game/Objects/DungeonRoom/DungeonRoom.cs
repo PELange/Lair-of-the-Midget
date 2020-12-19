@@ -361,9 +361,11 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         /// <param name="vector"></param>
         public void RemoveObjectAtPosition(Vector2 vector)
         {
-            foreach (GameObject gameObj in DungeonObjectList)
+            foreach (var gameObj in DungeonObjectList)
             {
-                if (vector.X == gameObj.position.X && vector.Y == gameObj.position.Y)
+                var position = gameObj.GetComonent<Transformation2D>().Position;
+
+                if (vector.X == position.X && vector.Y == position.Y)
                 {
                     DungeonObjectList.Remove(gameObj);
                     break;

@@ -6,13 +6,14 @@ namespace LOTM.Shared.Engine.Objects
 {
     public abstract class GameObject
     {
-        protected ICollection<IComponent> Components { get; } = new LinkedList<IComponent>();
+        public int Id { get; set; }
 
-        public Vector2 position { get; set; }
+        protected ICollection<IComponent> Components { get; } = new LinkedList<IComponent>();
 
         public GameObject(Vector2 position = null, double rotation = 0, Vector2 scale = null)
         {
-            this.position = position;
+            Id = -1;
+
             var transform = new Transformation2D
             {
                 Position = position ?? Vector2.ZERO,
