@@ -15,7 +15,7 @@ namespace LOTM.Server.Game
 
         protected override void OnInit()
         {
-            //World.Seed = System.Guid.NewGuid().GetHashCode();
+            //World.Seed = new System.Random().Next(0, 100000);
             World.Seed = 130;
         }
 
