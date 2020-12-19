@@ -4,7 +4,6 @@ using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using static LOTM.Client.Game.Objects.DungeonRoom.DungeonRoom;
 
 namespace LOTM.Client.Game.Objects.DungeonRoom
@@ -71,15 +70,15 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
                 // Door section
                 case TileType.DoorFrameTop:
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_left"), new Vector2(0.25, (float)2/3), new Vector2(-0.25, 0.0), null, 0));
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_right"), new Vector2(0.25, (float)2/3), new Vector2(0.5, 0.0), null, 0));
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_arch"), new Vector2(0.5, (float)1 / 3), new Vector2(0.0, (float)-1/3), null, 2000));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_left"), new Vector2(0.25, (float)2 / 3), new Vector2(-0.25, 0.0), null, 0));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_right"), new Vector2(0.25, (float)2 / 3), new Vector2(0.5, 0.0), null, 0));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_arch"), new Vector2(0.5, (float)1 / 3), new Vector2(0.0, (float)-1 / 3), null, 2000));
                     break;
 
                 case TileType.DoorFrameBottom:
                     spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_left"), new Vector2(0.25, (float)2 / 3), new Vector2(-0.25, 0.0), null, 2000));
                     spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_right"), new Vector2(0.25, (float)2 / 3), new Vector2(0.5, 0.0), null, 2000));
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_arch"), new Vector2(0.5, (float)1 / 3), new Vector2(0.0, (float)-1/3), null, 2000));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_arch"), new Vector2(0.5, (float)1 / 3), new Vector2(0.0, (float)-1 / 3), null, 2000));
                     break;
 
                 case TileType.DoorClosed:
@@ -93,7 +92,7 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
                 // Pillar section
                 case TileType.Pillar:
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_pillar_top"), new Vector2(1, 0.5), new Vector2(0,0), null, 1100));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_pillar_top"), new Vector2(1, 0.5), new Vector2(0, 0), null, 1100));
                     spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_pillar_bottom"), new Vector2(1, 0.5), new Vector2(0, 0.5), null, 100));
                     break;
 

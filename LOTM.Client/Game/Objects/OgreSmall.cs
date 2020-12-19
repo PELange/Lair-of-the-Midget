@@ -2,9 +2,7 @@
 using LOTM.Client.Engine.Objects;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace LOTM.Client.Game.Objects
 {

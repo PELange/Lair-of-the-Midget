@@ -1,5 +1,4 @@
 ﻿using LOTM.Shared.Engine.Network;
-using System.Text.Json.Serialization;
 
 namespace LOTM.Shared.Game.Network.Packets
 {

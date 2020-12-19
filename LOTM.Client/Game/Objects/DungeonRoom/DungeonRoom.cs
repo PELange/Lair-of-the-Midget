@@ -1,10 +1,7 @@
-﻿using LOTM.Client.Engine;
-using LOTM.Client.Engine.Objects;
-using LOTM.Shared.Engine.Math;
+﻿using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace LOTM.Client.Game.Objects.DungeonRoom
 {
@@ -143,14 +140,15 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             if (top)
             {
                 DungeonObjectList.Add(new DungeonTile(TileType.DoorFrameTop, Random, new Vector2(xCoord, yCoord), 0, new Vector2(64, 48)));
-            } else
+            }
+            else
             {
                 DungeonObjectList.Add(new DungeonTile(TileType.DoorFrameBottom, Random, new Vector2(xCoord, yCoord), 0, new Vector2(64, 48)));
             }
 
             if (open)
             {
-                  DungeonObjectList.Add(new DungeonTile(TileType.DoorOpened, Random, new Vector2(xCoord, yCoord), 0, new Vector2(32, 32)));
+                DungeonObjectList.Add(new DungeonTile(TileType.DoorOpened, Random, new Vector2(xCoord, yCoord), 0, new Vector2(32, 32)));
             }
             else
             {
@@ -173,7 +171,8 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 {
                     //DungeonObjectList.Add(new DungeonTile(TileType.LeftWallUnderDoor, Random, new Vector2(StartCoords.X + XDoorLeft * 16, StartCoords.Y - i * 16), 0, DefaultScaleVector));
                     //DungeonObjectList.Add(new DungeonTile(TileType.RightWallUnderDoor, Random, new Vector2(StartCoords.X + XDoorRight * 16, StartCoords.Y - i * 16), 0, DefaultScaleVector));
-                } else
+                }
+                else
                 {
                     DungeonObjectList.Add(new DungeonTile(TileType.LeftWall, Random, new Vector2(StartCoords.X + XDoorLeft * 16, StartCoords.Y - i * 16), 0, DefaultScaleVector));
                     DungeonObjectList.Add(new DungeonTile(TileType.RightWall, Random, new Vector2(StartCoords.X + XDoorRight * 16, StartCoords.Y - i * 16), 0, DefaultScaleVector));
