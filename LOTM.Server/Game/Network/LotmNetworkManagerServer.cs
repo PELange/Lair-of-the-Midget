@@ -7,7 +7,7 @@ namespace LOTM.Server.Game.Network
     public class LotmNetworkManagerServer : NetworkManager
     {
         public LotmNetworkManagerServer(string listenBindAddress)
-            : base(new LotmNetworkPacketSerializationProvider(), IPEndPoint.Parse(listenBindAddress)) //Start listen on bind ip and port
+            : base(UdpSocket.CreateServer(IPEndPoint.Parse(listenBindAddress)), new LotmNetworkPacketSerializationProvider()) //Start listen on bind ip and port
         {
         }
     }

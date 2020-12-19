@@ -40,21 +40,20 @@ namespace LOTM.Shared.Game.Network
 
         public NetworkPacket DeserializePacket(byte[] data, IPEndPoint sender)
         {
-            if (data.Length > 0)
+            if (data == null || sender == null || data.Length < 1) return null;
+
+            var type = data[0];
+
+            //Replace data prefis with empty space to allow for direct deserialize
+            data[0] = 0x20; //Space
+
+            switch (type)
             {
-                var type = data[0];
+                case 1:
+                    return JsonSerializer.Deserialize<PlayerJoin>(data);
 
-                //Replace data prefis with empty space to allow for direct deserialize
-                data[0] = 0x20; //Space
-
-                switch (type)
-                {
-                    case 1:
-                        return JsonSerializer.Deserialize<PlayerJoin>(data);
-
-                    case 2:
-                        return JsonSerializer.Deserialize<PlayerJoinAck>(data);
-                }
+                case 2:
+                    return JsonSerializer.Deserialize<PlayerJoinAck>(data);
             }
 
             return null;

@@ -8,7 +8,8 @@ namespace LOTM.Client.Game.Network
     {
         protected IPEndPoint ServerEndpoint { get; set; }
 
-        public LotmNetworkManagerClient(string serverAddress) : base(new LotmNetworkPacketSerializationProvider())
+        public LotmNetworkManagerClient(string serverAddress)
+            : base(UdpSocket.CreateClient(IPEndPoint.Parse(serverAddress)), new LotmNetworkPacketSerializationProvider())
         {
             ServerEndpoint = IPEndPoint.Parse(serverAddress);
         }

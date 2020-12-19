@@ -1,4 +1,5 @@
 ﻿using LOTM.Server.Game.Network;
+using System;
 
 namespace LOTM.Server.Game
 {
@@ -17,7 +18,7 @@ namespace LOTM.Server.Game
         {
             if (NetworkManager.TryGetPacket(out var packet))
             {
-                System.Console.WriteLine($"Packet arrived -> Type:{packet.GetType()}");
+                System.Console.WriteLine($"[{DateTime.Now}] Packet arrived -> Type:{packet.GetType()}");
             }
         }
 
