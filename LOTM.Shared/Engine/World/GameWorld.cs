@@ -5,6 +5,8 @@ namespace LOTM.Shared.Engine.World
 {
     public class GameWorld
     {
+        public int Seed { get; set; }
+
         public List<GameObject> Objects { get; set; } = new List<GameObject>();
 
         //public QuadTree<GameObject> Objects { get; set; }

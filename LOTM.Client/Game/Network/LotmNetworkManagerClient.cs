@@ -46,5 +46,7 @@ namespace LOTM.Client.Game.Network
                 SendPacket(new PlayerJoin { PlayerName = PlayerName });
             }
         }
+
+        public string CurrentServer => ServerEndpoint.ToString();
     }
 }

@@ -15,6 +15,8 @@ namespace LOTM.Server.Game
 
         protected override void OnInit()
         {
+            //World.Seed = System.Guid.NewGuid().GetHashCode();
+            World.Seed = 130;
         }
 
         protected override void OnBeforeUpdate()
@@ -56,7 +58,7 @@ namespace LOTM.Server.Game
             return new PlayerJoinAck
             {
                 PlayerGameObjectId = -1,
-                WorldSeed = -1
+                WorldSeed = World.Seed
             };
         }
     }

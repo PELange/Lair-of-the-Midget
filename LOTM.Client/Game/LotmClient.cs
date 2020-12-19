@@ -95,33 +95,6 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(20, 15, 20, 15), "pickup_pot_green_small");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 14, 21, 14), "pickup_pot_yellow_big");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 15, 21, 15), "pickup_pot_yellow_small");
-
-
-            //var seed = System.Guid.NewGuid().GetHashCode();
-            var seed = 130;
-            int playerCount = 4; // Get num of connected players to spawn more or less pickups and enemys
-            int roomCount = 3;
-            int roomWidth = 15;
-            int roomHeight = 15;
-            int tunnelLength = 5;
-            Vector2 roomCoords;
-            // Create rooms
-            for (int i = 0; i < roomCount; i++)
-            {
-                roomCoords = new Vector2(0, -i * (roomHeight + tunnelLength) * 16 + 32);
-                RoomCoordsList.Add(roomCoords);
-                DungeonRoom dungeonRoom = new DungeonRoom(roomCoords, roomWidth, roomHeight, tunnelLength, playerCount, seed);
-                if (i == 0) dungeonRoom.CreateDungeonEntrance();
-
-                foreach (var tile in dungeonRoom.DungeonObjectList)
-                {
-                    World.Objects.Add(tile);
-                }
-            }
-
-            //World.Objects.Add(new DemonBoss(new Vector2(160, 160), 45, new Vector2(32, 32)));
-            World.Objects.Add(new WizardOfWisdom(new Vector2(6 * 16, 6 * 16), 0, new Vector2(16, 16 * 2)));
-
         }
 
         protected override void OnBeforeUpdate()
@@ -135,11 +108,7 @@ namespace LOTM.Client.Game
                     {
                         if (NetworkClient.OnPlayerJoinAck(playerJoinAck))
                         {
-                            //Todo use ...
-                            var worldSeed = playerJoinAck.WorldSeed;
-                            var playerGameObjectId = playerJoinAck.PlayerGameObjectId;
-
-                            System.Console.WriteLine($"Successfully joined {playerJoinAck.Sender}");
+                            OnJoin(playerJoinAck.WorldSeed, playerJoinAck.PlayerGameObjectId);
                         }
 
                         break;
@@ -175,6 +144,36 @@ namespace LOTM.Client.Game
 
         protected override void OnUpdate(double deltaTime)
         {
+        }
+
+        void OnJoin(int seed, int playerGameObjectId)
+        {
+            System.Console.WriteLine($"Successfully joined {NetworkClient.CurrentServer}");
+
+            World.Seed = seed;
+
+            int playerCount = 4; // Get num of connected players to spawn more or less pickups and enemys
+            int roomCount = 3;
+            int roomWidth = 15;
+            int roomHeight = 15;
+            int tunnelLength = 5;
+            Vector2 roomCoords;
+            // Create rooms
+            for (int i = 0; i < roomCount; i++)
+            {
+                roomCoords = new Vector2(0, -i * (roomHeight + tunnelLength) * 16 + 32);
+                RoomCoordsList.Add(roomCoords);
+                DungeonRoom dungeonRoom = new DungeonRoom(roomCoords, roomWidth, roomHeight, tunnelLength, playerCount, World.Seed);
+                if (i == 0) dungeonRoom.CreateDungeonEntrance();
+
+                foreach (var tile in dungeonRoom.DungeonObjectList)
+                {
+                    World.Objects.Add(tile);
+                }
+            }
+
+            //World.Objects.Add(new DemonBoss(new Vector2(160, 160), 45, new Vector2(32, 32)));
+            World.Objects.Add(new WizardOfWisdom(new Vector2(6 * 16, 6 * 16), 0, new Vector2(16, 16 * 2)));
         }
     }
 }
