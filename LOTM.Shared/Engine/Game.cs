@@ -8,7 +8,7 @@ namespace LOTM.Shared.Engine
 {
     public abstract class Game
     {
-        private const double MAX_REFRESH_RATE_IN_MS = (1.0 / 165) / 1000; //165 fps in ms
+        private const double MAX_REFRESH_RATE_IN_MS = (1.0 / 165) * 1000; //165 fps in ms
 
         private bool ShouldShutdown { get; set; }
 
