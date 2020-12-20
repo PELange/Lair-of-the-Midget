@@ -77,6 +77,11 @@ namespace LOTM.Shared.Engine
 
                 OnAfterUpdate();
 
+                foreach (var worldObject in worldObjects)
+                {
+                    worldObject.OnAfterUpdate();
+                }
+
                 lastUpdate = currentTime;
 
                 //165 fps refesh limit. If the frame was calculated faster than this, sleep for the rest of the frame

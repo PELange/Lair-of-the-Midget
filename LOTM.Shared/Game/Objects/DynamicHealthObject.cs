@@ -22,13 +22,15 @@ namespace LOTM.Shared.Game.Objects
             return packet;
         }
 
-        protected virtual void ApplyNetworkPacket(DynamicHealthObjectSync packet)
+        protected virtual bool ApplyNetworkPacket(DynamicHealthObjectSync packet)
         {
-            base.ApplyNetworkPacket(packet);
+            if (!base.ApplyNetworkPacket(packet)) return false;
 
             var healthComponent = GetComponent<Health>();
 
             healthComponent.Value = packet.Health ?? healthComponent.Value;
+
+            return true;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace LOTM.Shared.Engine.Objects
         protected ICollection<IComponent> Components { get; } = new LinkedList<IComponent>();
 
         public int NetworkId { get; set; }
+        public long SimulationTimestamp { get; set; }
         public Queue<NetworkPacket> PacketsInbound { get; }
         public Queue<NetworkPacket> PacketsOutbound { get; }
         public bool NetworkSyncFlag { get; set; }
@@ -27,12 +28,15 @@ namespace LOTM.Shared.Engine.Objects
         public GameObject(Vector2 position = null, double rotation = 0, Vector2 scale = null, NetworkInstanceType instanceType = default)
         {
             NetworkId = -1;
+            SimulationTimestamp = -1;
             PacketsInbound = new Queue<NetworkPacket>();
             PacketsOutbound = new Queue<NetworkPacket>();
             InstanceType = instanceType;
 
             if (InstanceType == NetworkInstanceType.Server)
             {
+                //Created on server. Skipping first simulation step
+                SimulationTimestamp = 0;
                 NetworkSyncFlag = true;
             }
 
@@ -63,12 +67,18 @@ namespace LOTM.Shared.Engine.Objects
         {
         }
 
+        public virtual void OnAfterUpdate()
+        {
+            SimulationTimestamp++;
+        }
+
         protected virtual GameObjectSync WriteToNetworkPacket(GameObjectSync packet)
         {
             var transform = GetComponent<Transformation2D>();
 
             packet.Type = GetType().Name;
             packet.NetworkId = NetworkId;
+            packet.SimulationTimestamp = SimulationTimestamp;
 
             if (transform.Position.X != default) packet.PositionX = transform.Position.X;
             if (transform.Position.Y != default) packet.PositionY = transform.Position.Y;
@@ -79,16 +89,26 @@ namespace LOTM.Shared.Engine.Objects
             return packet;
         }
 
-        protected virtual void ApplyNetworkPacket(GameObjectSync packet)
+        protected virtual bool ApplyNetworkPacket(GameObjectSync packet)
         {
-            var transform = GetComponent<Transformation2D>();
+            //Ignore old/out of order packets
+            if (SimulationTimestamp > packet.SimulationTimestamp)
+            {
+                System.Console.WriteLine($"Packet {packet.GetType().Name} was dropped because it arrived out of order.");
+                return false;
+            }
 
             NetworkId = packet.NetworkId;
+            SimulationTimestamp = packet.SimulationTimestamp;
+
+            var transform = GetComponent<Transformation2D>();
             transform.Position.X = packet.PositionX ?? transform.Position.X;
             transform.Position.Y = packet.PositionY ?? transform.Position.Y;
             transform.Rotation = packet.Rotation ?? transform.Rotation;
             transform.Scale.X = packet.ScaleX ?? transform.Scale.X;
             transform.Scale.Y = packet.ScaleY ?? transform.Scale.Y;
+
+            return true;
         }
     }
 }

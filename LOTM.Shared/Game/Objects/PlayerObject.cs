@@ -15,63 +15,25 @@ namespace LOTM.Shared.Game.Objects
 
         public override void OnFixedUpdate(double deltaTime)
         {
-            //Process inbound packets
             while (PacketsInbound.TryDequeue(out var inbound))
             {
                 switch (inbound)
                 {
-                    //Recieve sync from server. Apply on client
-                    case DynamicHealthObjectSync dynamicHealthObjectSync:
+                    case DynamicHealthObjectSync healthObjectSync:
                     {
-                        //Console.WriteLine($"{DateTime.Now} Recieved sync for {dynamicHealthObjectSync.NetworkId}: <{dynamicHealthObjectSync.PositionX}, {dynamicHealthObjectSync.PositionY}>");
-                        ApplyNetworkPacket(dynamicHealthObjectSync);
+                        ApplyNetworkPacket(healthObjectSync);
                         break;
                     }
 
-                    //Receive input from client. Apply on server.
                     case PlayerInput playerInput:
                     {
-                        var walkSpeed = 100;
+                        ApplyPlayerinput(playerInput, deltaTime);
+                        break;
+                    }
 
-                        //Console.WriteLine($"{DateTime.Now} processed input {playerInput.Inputs}");
-
-                        if (GetComponent<Transformation2D>() is Transformation2D transformation)
-                        {
-                            var walkDirection = Vector2.ZERO;
-
-                            if ((playerInput.Inputs & InputType.WALK_UP) != 0)
-                            {
-                                walkDirection.Y -= 1;
-                            }
-                            else if ((playerInput.Inputs & InputType.WALK_DOWN) != 0)
-                            {
-                                walkDirection.Y += 1;
-                            }
-
-                            if ((playerInput.Inputs & InputType.WALK_LEFT) != 0)
-                            {
-                                walkDirection.X -= 1;
-                            }
-                            else if ((playerInput.Inputs & InputType.WALK_RIGHT) != 0)
-                            {
-                                walkDirection.X += 1;
-                            }
-
-                            if (walkDirection.X != 0 || walkDirection.Y != 0)
-                            {
-                                //Normalize direction vector
-                                var magnitude = Math.Sqrt(walkDirection.X * walkDirection.X + walkDirection.Y * walkDirection.Y);
-
-                                walkDirection.X /= magnitude;
-                                walkDirection.Y /= magnitude;
-
-                                transformation.Position.X += walkDirection.X * walkSpeed * deltaTime;
-                                transformation.Position.Y += walkDirection.Y * walkSpeed * deltaTime;
-
-                                NetworkSyncFlag = true;
-                            }
-                        }
-
+                    default:
+                    {
+                        Console.WriteLine($"Packet {inbound.GetType().Name} was dropped.");
                         break;
                     }
                 }
@@ -81,6 +43,50 @@ namespace LOTM.Shared.Game.Objects
             {
                 PacketsOutbound.Enqueue(WriteToNetworkPacket(new DynamicHealthObjectSync()));
                 NetworkSyncFlag = false;
+            }
+        }
+
+        protected void ApplyPlayerinput(PlayerInput playerInput, double deltaTime)
+        {
+            var walkSpeed = 100;
+
+            //Console.WriteLine($"{DateTime.Now} processed input {playerInput.Inputs}");
+
+            if (GetComponent<Transformation2D>() is Transformation2D transformation)
+            {
+                var walkDirection = Vector2.ZERO;
+
+                if ((playerInput.Inputs & InputType.WALK_UP) != 0)
+                {
+                    walkDirection.Y -= 1;
+                }
+                else if ((playerInput.Inputs & InputType.WALK_DOWN) != 0)
+                {
+                    walkDirection.Y += 1;
+                }
+
+                if ((playerInput.Inputs & InputType.WALK_LEFT) != 0)
+                {
+                    walkDirection.X -= 1;
+                }
+                else if ((playerInput.Inputs & InputType.WALK_RIGHT) != 0)
+                {
+                    walkDirection.X += 1;
+                }
+
+                if (walkDirection.X != 0 || walkDirection.Y != 0)
+                {
+                    //Normalize direction vector
+                    var magnitude = Math.Sqrt(walkDirection.X * walkDirection.X + walkDirection.Y * walkDirection.Y);
+
+                    walkDirection.X /= magnitude;
+                    walkDirection.Y /= magnitude;
+
+                    transformation.Position.X += walkDirection.X * walkSpeed * deltaTime;
+                    transformation.Position.Y += walkDirection.Y * walkSpeed * deltaTime;
+
+                    NetworkSyncFlag = true;
+                }
             }
         }
     }

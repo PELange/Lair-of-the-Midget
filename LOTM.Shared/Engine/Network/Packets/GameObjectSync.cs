@@ -3,8 +3,9 @@
     public class GameObjectSync : NetworkPacket
     {
         public string Type { get; set; }
-
         public int NetworkId { get; set; }
+        public long SimulationTimestamp { get; set; }
+
         public double? PositionX { get; set; }
         public double? PositionY { get; set; }
         public double? Rotation { get; set; }
