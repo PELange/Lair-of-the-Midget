@@ -1,5 +1,6 @@
 ﻿using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
+using LOTM.Shared.Engine.Objects.Components;
 using System;
 using System.Collections.Generic;
 

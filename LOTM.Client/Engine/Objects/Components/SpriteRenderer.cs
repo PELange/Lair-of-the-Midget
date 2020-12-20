@@ -1,9 +1,9 @@
 ﻿using LOTM.Client.Engine.Graphics;
 using LOTM.Shared.Engine.Math;
-using LOTM.Shared.Engine.Objects;
+using LOTM.Shared.Engine.Objects.Components;
 using System.Collections.Generic;
 
-namespace LOTM.Client.Engine.Objects
+namespace LOTM.Client.Engine.Objects.Components
 {
     public class SpriteRenderer : IComponent
     {

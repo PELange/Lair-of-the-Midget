@@ -6,7 +6,7 @@ using LOTM.Client.Game.Objects.DungeonRoom;
 using LOTM.Shared.Engine.Controls;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Network.Packets;
-using LOTM.Shared.Engine.Objects;
+using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using System.Collections.Generic;

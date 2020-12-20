@@ -1,6 +1,7 @@
 ﻿using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Game.Network.Packets;
+using LOTM.Shared.Game.Objects.Components;
 
 namespace LOTM.Shared.Game.Objects
 {
@@ -9,16 +10,14 @@ namespace LOTM.Shared.Game.Objects
         public DynamicHealthObject(Vector2 position = null, double rotation = 0, Vector2 scale = null, NetworkInstanceType instanceType = default, double health = default)
             : base(position, rotation, scale, instanceType)
         {
-            Health = health;
+            Components.Add(new Health());
         }
-
-        public double Health { get; set; }
 
         protected virtual DynamicHealthObjectSync WriteToNetworkPacket(DynamicHealthObjectSync packet)
         {
             base.WriteToNetworkPacket(packet);
 
-            packet.Health = Health;
+            packet.Health = GetComponent<Health>().Value;
 
             return packet;
         }
@@ -27,7 +26,9 @@ namespace LOTM.Shared.Game.Objects
         {
             base.ApplyNetworkPacket(packet);
 
-            Health = packet.Health ?? Health;
+            var healthComponent = GetComponent<Health>();
+
+            healthComponent.Value = packet.Health ?? healthComponent.Value;
         }
     }
 }

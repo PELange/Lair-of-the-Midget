@@ -1,7 +1,8 @@
 ﻿using LOTM.Client.Engine;
-using LOTM.Client.Engine.Objects;
+using LOTM.Client.Engine.Objects.Components;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
+using LOTM.Shared.Engine.Objects.Components;
 using System.Collections.Generic;
 
 namespace LOTM.Client.Game.Objects
