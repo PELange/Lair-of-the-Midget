@@ -67,8 +67,8 @@ namespace LOTM.Shared.Engine.Objects
             var transform = GetComponent<Transformation2D>();
 
             packet.Type = GetType().Name;
+            packet.NetworkId = NetworkId;
 
-            if (NetworkId != default) packet.NetworkId = NetworkId;
             if (transform.Position.X != default) packet.PositionX = transform.Position.X;
             if (transform.Position.Y != default) packet.PositionY = transform.Position.Y;
             if (transform.Rotation != default) packet.Rotation = transform.Rotation;
