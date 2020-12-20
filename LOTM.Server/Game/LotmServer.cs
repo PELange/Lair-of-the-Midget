@@ -31,7 +31,7 @@ namespace LOTM.Server.Game
         protected override void OnFixedUpdate(double deltaTime)
         {
             //Process all incoming packets
-            if (NetworkManager.TryGetPacket(out var inbound))
+            while (NetworkManager.TryGetPacket(out var inbound))
             {
                 switch (inbound)
                 {

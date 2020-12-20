@@ -111,7 +111,7 @@ namespace LOTM.Client.Game
         protected override void OnFixedUpdate(double deltaTime)
         {
             //Handle incoming packets
-            if (NetworkManager.TryGetPacket(out var inbound))
+            while (NetworkManager.TryGetPacket(out var inbound))
             {
                 switch (inbound)
                 {
