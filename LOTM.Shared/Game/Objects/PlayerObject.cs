@@ -21,6 +21,7 @@ namespace LOTM.Shared.Game.Objects
                 {
                     case DynamicHealthObjectSync healthObjectSync:
                     {
+                        //Console.WriteLine($"Sync <{healthObjectSync.PositionX},{healthObjectSync.PositionY}>");
                         ApplyNetworkPacket(healthObjectSync);
                         break;
                     }
