@@ -20,7 +20,7 @@ namespace LOTM.Client
             {
                 connect = "127.0.0.1:4297";
             }
-            new LotmClient(500, 500, connect, name).Start();
+            new LotmClient(720, 720, connect, name).Start();
         }
     }
 }

@@ -2,7 +2,6 @@
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
-using System;
 using System.Collections.Generic;
 using static LOTM.Shared.Engine.Objects.GameObject;
 
