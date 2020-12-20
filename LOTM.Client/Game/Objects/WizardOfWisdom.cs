@@ -11,7 +11,8 @@ namespace LOTM.Client.Game.Objects
         protected int CurrentAnimationPhase { get; set; }
         protected double AnimationTimer { get; set; }
 
-        public WizardOfWisdom(Vector2 position = null, double rotation = 0, Vector2 scale = null) : base(position, rotation, scale)
+        public WizardOfWisdom(Vector2 position = null, double rotation = 0, Vector2 scale = null, NetworkInstanceType instanceType = default, double health = default)
+            : base(position, rotation, scale, instanceType, health)
         {
             Components.Add(new SpriteRenderer(new List<SpriteRenderer.Segment>
             {

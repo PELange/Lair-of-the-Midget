@@ -8,6 +8,8 @@ namespace LOTM.Shared.Engine
 {
     public abstract class Game
     {
+        private const double MAX_REFRESH_RATE_IN_MS = (1.0 / 165) / 1000; //165 fps in ms
+
         private bool ShouldShutdown { get; set; }
 
         protected float FixedUpdateDeltaTime { get; }
@@ -47,41 +49,40 @@ namespace LOTM.Shared.Engine
                 //var worldObjects = World.Objects.GetObjectsInArea(World.Objects.Bounds);
                 var worldObjects = World.Objects;
 
+                OnBeforeUpdate();
+
                 foreach (var worldObject in worldObjects)
                 {
                     worldObject.OnBeforeUpdate();
                 }
 
-                OnBeforeUpdate();
-
                 while (accumulator >= FixedUpdateDeltaTime)
                 {
+                    OnFixedUpdate(FixedUpdateDeltaTime);
+
                     foreach (var worldObject in worldObjects)
                     {
                         worldObject.OnFixedUpdate(FixedUpdateDeltaTime);
                     }
 
-                    OnFixedUpdate(FixedUpdateDeltaTime);
-
                     accumulator -= FixedUpdateDeltaTime;
                 }
+
+                OnUpdate(deltaTime);
 
                 foreach (var worldObject in worldObjects)
                 {
                     worldObject.OnUpdate(deltaTime);
                 }
 
-                OnUpdate(deltaTime);
-
                 OnAfterUpdate();
 
                 lastUpdate = currentTime;
 
-                Console.WriteLine($"Frame took {stopWatch.ElapsedMilliseconds} to process");
-
-                if (stopWatch.ElapsedMilliseconds < 5) //200 hz refesh limit. If the frame was calculated faster than this, sleep for the rest of the frame
+                //165 fps refesh limit. If the frame was calculated faster than this, sleep for the rest of the frame
+                if (stopWatch.ElapsedMilliseconds < MAX_REFRESH_RATE_IN_MS)
                 {
-                    Thread.Sleep((int)(5 - stopWatch.ElapsedMilliseconds));
+                    Thread.Sleep((int)(MAX_REFRESH_RATE_IN_MS - stopWatch.ElapsedMilliseconds));
                 }
 
                 stopWatch.Reset();
@@ -96,16 +97,28 @@ namespace LOTM.Shared.Engine
             ShouldShutdown = true;
         }
 
-        protected abstract void OnInit();
+        protected virtual void OnInit()
+        {
+        }
 
-        protected abstract void OnBeforeUpdate();
+        protected virtual void OnBeforeUpdate()
+        {
+        }
 
-        protected abstract void OnFixedUpdate(double deltaTime);
+        protected virtual void OnFixedUpdate(double deltaTime)
+        {
+        }
 
-        protected abstract void OnUpdate(double deltaTime);
+        protected virtual void OnUpdate(double deltaTime)
+        {
+        }
 
-        protected abstract void OnAfterUpdate();
+        protected virtual void OnAfterUpdate()
+        {
+        }
 
-        protected abstract void OnShutdown();
+        protected virtual void OnShutdown()
+        {
+        }
     }
 }

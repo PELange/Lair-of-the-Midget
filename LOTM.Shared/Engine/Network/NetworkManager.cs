@@ -60,7 +60,7 @@ namespace LOTM.Shared.Engine.Network
 
                 if (ShouldShutdown.IsCancellationRequested) break;
 
-                if (SendQueue.TryDequeue(out var result))
+                while (SendQueue.TryDequeue(out var result))
                 {
                     var data = NetworkPacketSerializationProvider.SerializePacket(result.Item1);
 

@@ -6,22 +6,30 @@ using LOTM.Client.Game.Objects.DungeonRoom;
 using LOTM.Shared.Engine.Controls;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Network.Packets;
+using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Game.Network.Packets;
+using LOTM.Shared.Game.Objects;
 using System.Collections.Generic;
 using System.Linq;
+using static LOTM.Client.Engine.Graphics.OrthographicCamera;
+using static LOTM.Shared.Engine.Objects.GameObject;
 
 namespace LOTM.Client.Game
 {
     public class LotmClient : GuiGame
     {
-        public List<Vector2> RoomCoordsList = new List<Vector2>();
+        protected List<Vector2> RoomCoordsList = new List<Vector2>();
 
-        public LotmNetworkManagerClient NetworkClient { get; set; }
+        protected LotmNetworkManagerClient NetworkClient { get; set; }
+
+        protected int PlayerGameObjectId { get; set; }
+        protected PlayerObject PlayerObject { get; set; }
 
         public LotmClient(int windowWidth, int windowHeight, string connectionString, string playerName)
             : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", new LotmNetworkManagerClient(connectionString, playerName))
         {
             NetworkClient = (LotmNetworkManagerClient)NetworkManager;
+            PlayerGameObjectId = -1;
         }
 
         protected override void OnInit()
@@ -100,12 +108,12 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 15, 21, 15), "pickup_pot_yellow_small");
         }
 
-        protected override void OnBeforeUpdate()
+        protected override void OnFixedUpdate(double deltaTime)
         {
             //Handle incoming packets
-            if (NetworkManager.TryGetPacket(out var packet))
+            if (NetworkManager.TryGetPacket(out var inbound))
             {
-                switch (packet)
+                switch (inbound)
                 {
                     //Received an answer to join
                     case PlayerJoinAck playerJoinAck:
@@ -121,14 +129,14 @@ namespace LOTM.Client.Game
                     //Received any kind of package that is game object sync related. Forward that to the specific game object for further processing
                     case GameObjectSync gameObjectSync:
                     {
-                        var gameObject = World.Objects.Where(x => x.Id == gameObjectSync.Id).FirstOrDefault();
+                        var gameObject = World.Objects.Where(x => x.NetworkId == gameObjectSync.NetworkId).FirstOrDefault();
 
                         //No known gameobject of that type yet. Create one
                         if (gameObject == null)
                         {
                             if (gameObjectSync.Type == "PlayerObject")
                             {
-                                gameObject = new WizardOfWisdom();
+                                gameObject = new WizardOfWisdom(instanceType: NetworkInstanceType.Local);
 
                                 World.Objects.Add(gameObject);
                             }
@@ -143,50 +151,19 @@ namespace LOTM.Client.Game
 
             //Make sure we are "connected" to the server -> If we did not get an ack from server yet, resend our join request.
             NetworkClient.EnsureServerConnection();
-        }
 
-        protected override void OnFixedUpdate(double deltaTime)
-        {
-            var cameraMovementSpeed = 100;
-            if (InputManager.IsControlPressed(InputType.WALK_LEFT))
-            {
-                Camera.PanViewport(new Vector2(-cameraMovementSpeed * deltaTime, 0));
+            //Poll controls and send input to server if needed
+            PollInputs();
 
-                NetworkClient.SendPacket(new PlayerInput { InputType = InputType.WALK_LEFT });
-                //Console.WriteLine($"{DateTime.Now} InputType.WALK_LEFT");
-            }
-            else if (InputManager.IsControlPressed(InputType.WALK_RIGHT))
-            {
-                Camera.PanViewport(new Vector2(cameraMovementSpeed * deltaTime, 0));
-
-                NetworkClient.SendPacket(new PlayerInput { InputType = InputType.WALK_RIGHT });
-                //Console.WriteLine($"{DateTime.Now} InputType.WALK_RIGHT");
-            }
-
-            if (InputManager.IsControlPressed(InputType.WALK_UP))
-            {
-                Camera.PanViewport(new Vector2(0, -cameraMovementSpeed * deltaTime));
-
-                NetworkClient.SendPacket(new PlayerInput { InputType = InputType.WALK_UP });
-                //Console.WriteLine($"{DateTime.Now} InputType.WALK_UP");
-            }
-            else if (InputManager.IsControlPressed(InputType.WALK_DOWN))
-            {
-                Camera.PanViewport(new Vector2(0, cameraMovementSpeed * deltaTime));
-
-                NetworkClient.SendPacket(new PlayerInput { InputType = InputType.WALK_DOWN });
-                //Console.WriteLine($"{DateTime.Now} InputType.WALK_DOWN");
-            }
-        }
-
-        protected override void OnUpdate(double deltaTime)
-        {
+            //Update camera ... todo make it follow the player
+            UpdateCamera();
         }
 
         void OnJoin(int seed, int playerGameObjectId)
         {
             System.Console.WriteLine($"Successfully joined {NetworkClient.CurrentServer}");
 
+            PlayerGameObjectId = playerGameObjectId;
             World.Seed = seed;
 
             int playerCount = 4; // Get num of connected players to spawn more or less pickups and enemys
@@ -211,6 +188,55 @@ namespace LOTM.Client.Game
 
             //World.Objects.Add(new DemonBoss(new Vector2(160, 160), 45, new Vector2(32, 32)));
             //World.Objects.Add(new WizardOfWisdom(new Vector2(6 * 16, 6 * 16), 0, new Vector2(16, 16 * 2)));
+        }
+
+        void PollInputs()
+        {
+            var inputs = InputType.NONE;
+
+            if (InputManager.IsControlPressed(InputType.WALK_LEFT))
+            {
+                inputs |= InputType.WALK_LEFT;
+            }
+            else if (InputManager.IsControlPressed(InputType.WALK_RIGHT))
+            {
+                inputs |= InputType.WALK_RIGHT;
+            }
+
+            if (InputManager.IsControlPressed(InputType.WALK_UP))
+            {
+                inputs |= InputType.WALK_UP;
+            }
+            else if (InputManager.IsControlPressed(InputType.WALK_DOWN))
+            {
+                inputs |= InputType.WALK_DOWN;
+            }
+
+            if (inputs != InputType.NONE) NetworkClient.SendPacket(new PlayerInput { Inputs = inputs });
+        }
+
+        void UpdateCamera()
+        {
+            //Try find the player object if we did not already have it
+            if (PlayerObject == null)
+            {
+                PlayerObject = World.Objects.Where(x => x.NetworkId == PlayerGameObjectId).FirstOrDefault() as PlayerObject;
+            }
+
+            if (PlayerObject != null)
+            {
+                var transformation = PlayerObject.GetComponent<Transformation2D>();
+
+                var cameraCenterPos = Vector2.ZERO;
+                cameraCenterPos.X += transformation.Position.X + transformation.Scale.X / 2;
+                cameraCenterPos.Y += transformation.Position.Y + transformation.Scale.Y / 2;
+
+                var viewportPadding = 16 * 10;
+
+                Camera.SetViewport(new Viewport(
+                    new Vector2(cameraCenterPos.X - viewportPadding, cameraCenterPos.Y - viewportPadding),
+                    new Vector2(cameraCenterPos.X + viewportPadding, cameraCenterPos.Y + viewportPadding)));
+            }
         }
     }
 }

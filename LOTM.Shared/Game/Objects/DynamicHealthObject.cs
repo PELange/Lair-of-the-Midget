@@ -6,8 +6,8 @@ namespace LOTM.Shared.Game.Objects
 {
     public abstract class DynamicHealthObject : GameObject
     {
-        public DynamicHealthObject(Vector2 position = null, double rotation = 0, Vector2 scale = null, double health = default)
-            : base(position, rotation, scale)
+        public DynamicHealthObject(Vector2 position = null, double rotation = 0, Vector2 scale = null, NetworkInstanceType instanceType = default, double health = default)
+            : base(position, rotation, scale, instanceType)
         {
             Health = health;
         }

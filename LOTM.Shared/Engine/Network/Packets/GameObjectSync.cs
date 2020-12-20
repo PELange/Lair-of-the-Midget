@@ -4,7 +4,7 @@
     {
         public string Type { get; set; }
 
-        public int Id { get; set; }
+        public int NetworkId { get; set; }
         public double? PositionX { get; set; }
         public double? PositionY { get; set; }
         public double? Rotation { get; set; }

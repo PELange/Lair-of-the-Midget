@@ -2,7 +2,9 @@
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
+using System;
 using System.Collections.Generic;
+using static LOTM.Shared.Engine.Objects.GameObject;
 
 namespace LOTM.Server.Game
 {
@@ -27,11 +29,12 @@ namespace LOTM.Server.Game
             World.Seed = 130;
         }
 
-        protected override void OnBeforeUpdate()
+        protected override void OnFixedUpdate(double deltaTime)
         {
-            if (NetworkManager.TryGetPacket(out var packet))
+            //Process all incoming packets
+            if (NetworkManager.TryGetPacket(out var inbound))
             {
-                switch (packet)
+                switch (inbound)
                 {
                     //A player wants to join / and or has no recived our join ack yet
                     case PlayerJoin playerJoin:
@@ -45,7 +48,7 @@ namespace LOTM.Server.Game
                     {
                         if (Players.TryGetValue(playerInput.Sender.ToString(), out var playerObject))
                         {
-                            //Console.WriteLine($"{DateTime.Now} Recieved input {playerInput.InputType}");
+                            //Console.WriteLine($"{DateTime.Now} Recieved input {playerInput.Inputs}");
                             playerObject.PacketsInbound.Enqueue(playerInput);
                         }
 
@@ -53,39 +56,27 @@ namespace LOTM.Server.Game
                     }
                 }
             }
-        }
 
-        protected override void OnFixedUpdate(double deltaTime)
-        {
-        }
-
-        protected override void OnUpdate(double deltaTime)
-        {
-        }
-
-        protected override void OnAfterUpdate()
-        {
-            //After all the updates, collect outbond packets from all gameobjects
+            //Process broadcast all outbound packets
             foreach (var gameObject in World.Objects)
             {
-                while (gameObject.PacketsOutbound.TryDequeue(out var packet))
+                while (gameObject.PacketsOutbound.TryDequeue(out var outbound))
                 {
-                    NetworkServer.Broadcast(packet);
+                    NetworkServer.Broadcast(outbound);
                 }
             }
-        }
-
-        protected override void OnShutdown()
-        {
         }
 
         public PlayerJoinAck CreatePlayerJoinAck(PlayerJoin playerJoin)
         {
             System.Console.WriteLine($"{playerJoin.PlayerName}({playerJoin.Sender}) joined the server.");
 
-            var playerObject = new PlayerObject(new Vector2(6 * 16, 6 * 16), scale: new Vector2(16, 16 * 2))
+            var playerObject = new PlayerObject(
+                new Vector2(6 * 16, 6 * 16),
+                scale: new Vector2(16, 16 * 2),
+                instanceType: NetworkInstanceType.Server)
             {
-                Id = NextFreeEntityId++
+                NetworkId = NextFreeEntityId++
             };
 
             Players[playerJoin.Sender.ToString()] = playerObject;
@@ -94,7 +85,7 @@ namespace LOTM.Server.Game
 
             return new PlayerJoinAck
             {
-                PlayerGameObjectId = playerObject.Id,
+                PlayerGameObjectId = playerObject.NetworkId,
                 WorldSeed = World.Seed
             };
         }

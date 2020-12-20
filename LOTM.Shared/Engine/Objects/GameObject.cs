@@ -8,18 +8,32 @@ namespace LOTM.Shared.Engine.Objects
 {
     public class GameObject
     {
-        public int Id { get; set; }
-
         protected ICollection<IComponent> Components { get; } = new LinkedList<IComponent>();
 
+        public int NetworkId { get; set; }
         public Queue<NetworkPacket> PacketsInbound { get; }
         public Queue<NetworkPacket> PacketsOutbound { get; }
-
-        public GameObject(Vector2 position = null, double rotation = 0, Vector2 scale = null)
+        public bool NetworkSyncFlag { get; set; }
+        public enum NetworkInstanceType
         {
-            Id = -1;
+            Unknown,
+            Local,
+            Remote,
+            Server
+        }
+        public NetworkInstanceType InstanceType { get; }
+
+        public GameObject(Vector2 position = null, double rotation = 0, Vector2 scale = null, NetworkInstanceType instanceType = default)
+        {
+            NetworkId = -1;
             PacketsInbound = new Queue<NetworkPacket>();
             PacketsOutbound = new Queue<NetworkPacket>();
+            InstanceType = instanceType;
+
+            if (InstanceType == NetworkInstanceType.Server)
+            {
+                NetworkSyncFlag = true;
+            }
 
             var transform = new Transformation2D
             {
@@ -54,7 +68,7 @@ namespace LOTM.Shared.Engine.Objects
 
             packet.Type = GetType().Name;
 
-            if (Id != default) packet.Id = Id;
+            if (NetworkId != default) packet.NetworkId = NetworkId;
             if (transform.Position.X != default) packet.PositionX = transform.Position.X;
             if (transform.Position.Y != default) packet.PositionY = transform.Position.Y;
             if (transform.Rotation != default) packet.Rotation = transform.Rotation;
@@ -68,7 +82,7 @@ namespace LOTM.Shared.Engine.Objects
         {
             var transform = GetComponent<Transformation2D>();
 
-            Id = packet.Id;
+            NetworkId = packet.NetworkId;
             transform.Position.X = packet.PositionX ?? transform.Position.X;
             transform.Position.Y = packet.PositionY ?? transform.Position.Y;
             transform.Rotation = packet.Rotation ?? transform.Rotation;

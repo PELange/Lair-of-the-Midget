@@ -5,6 +5,6 @@ namespace LOTM.Shared.Game.Network.Packets
 {
     public class PlayerInput : NetworkPacket
     {
-        public InputType InputType { get; set; }
+        public InputType Inputs { get; set; }
     }
 }

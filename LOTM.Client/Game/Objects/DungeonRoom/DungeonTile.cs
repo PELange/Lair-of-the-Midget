@@ -103,17 +103,5 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
             Components.Add(new SpriteRenderer(spriteSegments));
         }
-
-        public override void OnBeforeUpdate()
-        {
-        }
-
-        public override void OnFixedUpdate(double deltaTime)
-        {
-        }
-
-        public override void OnUpdate(double deltaTime)
-        {
-        }
     }
 }
