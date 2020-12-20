@@ -12,7 +12,7 @@ namespace LOTM.Shared.Engine
 
         private bool ShouldShutdown { get; set; }
 
-        protected float FixedUpdateDeltaTime { get; }
+        protected double FixedUpdateDeltaTime { get; }
 
         protected NetworkManager NetworkManager { get; }
 
@@ -22,7 +22,7 @@ namespace LOTM.Shared.Engine
         {
             NetworkManager = networkManager;
 
-            FixedUpdateDeltaTime = 1 / 60.0f; //60 fps
+            FixedUpdateDeltaTime = 1.0 / 60; //60 fps
 
             World = new GameWorld();
         }
