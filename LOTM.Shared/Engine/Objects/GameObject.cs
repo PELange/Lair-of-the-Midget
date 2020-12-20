@@ -69,7 +69,10 @@ namespace LOTM.Shared.Engine.Objects
 
         public virtual void OnAfterUpdate()
         {
-            SimulationTimestamp++;
+            if (InstanceType == NetworkInstanceType.Server)
+            {
+                SimulationTimestamp++;
+            }
         }
 
         protected virtual GameObjectSync WriteToNetworkPacket(GameObjectSync packet)
