@@ -14,6 +14,11 @@ namespace LOTM.Client.Engine
             Textures[textureName] = Texture2D.FromFile(texturePath);
         }
 
+        public static void RegisterTexture(Texture2D texture, string textureName)
+        {
+            Textures[textureName] = texture;
+        }
+
         public static void RegisterSpriteByGridIndex(string textureName, int gridsize, Vector4Int textureCoordinates, string spriteName)
         {
             var texture = Textures[textureName];

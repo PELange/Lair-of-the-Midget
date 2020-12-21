@@ -51,6 +51,9 @@ namespace LOTM.Client.Engine.Graphics
 
             WorldObjectShader = Shader.SpriteShader();
 
+            //Setup white placehold texture
+            AssetManager.RegisterTexture(Texture2D.FromColor(Vector4.ONE), "white");
+
             // --------- setup buffers
 
             //Create vertex array
@@ -107,11 +110,6 @@ namespace LOTM.Client.Engine.Graphics
             //Set current camera projection
             WorldObjectShader.SetMatrix4("projection", Camera.GetProjectionMatrix());
 
-            //todo refactor use of current texture better. currently hardcoded to texture1 on slot0
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, 1);
-            WorldObjectShader.SetInteger("textureSlot", 0);
-
             //Collect all verticies to be drawn for the current view
             var viewPort = Camera.GetViewport();
             var searchRect = new System.Drawing.RectangleF((float)viewPort.TopLeft.X, (float)viewPort.TopLeft.Y, (float)System.Math.Abs(viewPort.BottomRight.X - viewPort.TopLeft.X), (float)System.Math.Abs(viewPort.BottomRight.Y - viewPort.TopLeft.Y));
@@ -121,10 +119,20 @@ namespace LOTM.Client.Engine.Graphics
 
             var layeredVerticies = new List<LayeredVertex>();
 
+            int currentTextureBound = -1;
+
             foreach (var worldObject in worldObjects)
             {
                 if (worldObject.GetComponent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
                 {
+                    if (spriteRenderer.Segments.Count > 0 && currentTextureBound != spriteRenderer.Segments[0].Sprite.Texture.ID)
+                    {
+                        //Bind sprite textures
+                        glActiveTexture(GL_TEXTURE1);
+                        glBindTexture(GL_TEXTURE_2D, spriteRenderer.Segments[0].Sprite.Texture.ID);
+                        WorldObjectShader.SetInteger("textureSlot", 1);
+                    }
+
                     foreach (var segment in spriteRenderer.Segments)
                     {
                         var textureCoordinates = segment.Sprite.TextureCoordinates;
