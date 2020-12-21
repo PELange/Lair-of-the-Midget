@@ -20,17 +20,10 @@ namespace LOTM.Shared.Engine.Network
         public NetworkManager(UdpSocket socket, INetworkPacketSerializationProvider networkPacketSerializationProvider)
         {
             Socket = socket;
-
             SendEvent = new AutoResetEvent(false);
-
-            SendThread = new Thread(() => SendWorker());
-            SendThread.Start();
-
             ShouldShutdown = new CancellationTokenSource();
-
             ReceiveQueue = new ConcurrentQueue<NetworkPacket>();
             SendQueue = new ConcurrentQueue<(NetworkPacket, IPEndPoint)>();
-
             NetworkPacketSerializationProvider = networkPacketSerializationProvider;
 
             //Setup receive listener
@@ -42,6 +35,10 @@ namespace LOTM.Shared.Engine.Network
                 //Enqueue the result
                 if (networkPacket != null) ReceiveQueue.Enqueue(networkPacket);
             };
+
+            //Start sender thread
+            SendThread = new Thread(() => SendWorker());
+            SendThread.Start();
         }
 
         public void Shutdown()

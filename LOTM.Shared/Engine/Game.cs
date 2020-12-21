@@ -45,11 +45,11 @@ namespace LOTM.Shared.Engine
 
             Stopwatch = Stopwatch.StartNew();
 
+            GameLoopReset = new AutoResetEvent(false);
+
             Timer = new HighPrecisionTimer();
             Timer.Timer += (sender, args) => GameLoopTick();
             Timer.Start(1, true);
-
-            GameLoopReset = new AutoResetEvent(false);
 
             while (!ShouldShutdown)
             {
