@@ -88,8 +88,6 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             //DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (XDoorLeft * 16), StartCoords.Y + (Height * 16)), 0, DefaultScaleVector));
             //DungeonObjectList.Add(new DungeonTile(TileType.Ground, Random, new Vector2(StartCoords.X + (XDoorRight * 16), StartCoords.Y + (Height * 16)), 0, DefaultScaleVector));
 
-            this.CreatePickups();
-
             // Create top corners
             DungeonObjectList.Add(new DungeonTile(TileType.TopLeftCorner, Random, new Vector2(StartCoords.X, StartCoords.Y - 32), 0, new Vector2(16, 32)));
             DungeonObjectList.Add(new DungeonTile(TileType.TopRightCorner, Random, new Vector2(StartCoords.X + ((Width - 1) * 16), StartCoords.Y - 32), 0, new Vector2(16, 32)));
@@ -123,6 +121,8 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
             this.CreateDoor(true, true);
             this.CreateDoor(false, true);
+
+            this.CreatePickups();
 
             this.CreateEnemies();
         }
@@ -200,7 +200,7 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
         }
 
         /// <summary>
-        /// Create a random amount of pickups on random positions, based on seed
+        /// Create a random amount of pickups on random positions, based on seeds
         /// </summary>
         public void CreatePickups()
         {
@@ -318,7 +318,7 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
             for (int nIteration = 0; nIteration < 100000; nIteration++)
             {
                 var objectX = Random.Next(0, Width);
-                var objectY = Random.Next(0, Height - 1);
+                var objectY = Random.Next(0, Height - 2);
 
                 var objectCoords = new Vector2(StartCoords.X + objectX * 16, StartCoords.Y + objectY * 16);
 

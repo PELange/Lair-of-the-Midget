@@ -166,10 +166,10 @@ namespace LOTM.Client.Game
             PlayerGameObjectId = playerGameObjectId;
             World.Seed = seed;
 
-            int playerCount = 4; // Get num of connected players to spawn more or less pickups and enemys
+            int playerCount = 5; // Get num of connected players to spawn more or less pickups and enemys
             int roomCount = 3;
-            int roomWidth = 15;
-            int roomHeight = 15;
+            int roomWidth = 10 + playerCount;
+            int roomHeight = 10 + playerCount;
             int tunnelLength = 5;
             Vector2 roomCoords;
             // Create rooms
