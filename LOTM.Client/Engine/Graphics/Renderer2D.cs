@@ -115,7 +115,7 @@ namespace LOTM.Client.Engine.Graphics
             var searchRect = new System.Drawing.RectangleF((float)viewPort.TopLeft.X, (float)viewPort.TopLeft.Y, (float)System.Math.Abs(viewPort.BottomRight.X - viewPort.TopLeft.X), (float)System.Math.Abs(viewPort.BottomRight.Y - viewPort.TopLeft.Y));
 
             //var worldObjects = world.Objects.GetObjectsInArea(world.Objects.Bounds);
-            var worldObjects = world.Objects;
+            var worldObjects = world.GetAllObjects();
 
             var layeredVerticies = new List<LayeredVertex>();
 

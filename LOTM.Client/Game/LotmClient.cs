@@ -129,16 +129,17 @@ namespace LOTM.Client.Game
                     //Received any kind of package that is game object sync related. Forward that to the specific game object for further processing
                     case GameObjectSync gameObjectSync:
                     {
-                        var gameObject = World.Objects.Where(x => x.NetworkId == gameObjectSync.NetworkId).FirstOrDefault();
+                        //Try to loctate the object using the network id
+                        var gameObject = World.GetGameObjectByNetworkId(gameObjectSync.NetworkId);
 
-                        //No known gameobject of that type yet. Create one
+                        //No known gameobject with that id yet -> Create
                         if (gameObject == null)
                         {
                             if (gameObjectSync.Type == "PlayerObject")
                             {
-                                gameObject = new WizardOfWisdom(instanceType: NetworkInstanceType.Local);
+                                gameObject = new WizardOfWisdom(instanceType: NetworkInstanceType.Local, networkId: gameObjectSync.NetworkId);
 
-                                World.Objects.Add(gameObject);
+                                World.AddObject(gameObject);
                             }
                         }
 
@@ -164,7 +165,6 @@ namespace LOTM.Client.Game
             System.Console.WriteLine($"Successfully joined {NetworkClient.CurrentServer}");
 
             PlayerGameObjectId = playerGameObjectId;
-            World.Seed = seed;
 
             int playerCount = 5; // Get num of connected players to spawn more or less pickups and enemys
             int roomCount = 3;
@@ -177,12 +177,12 @@ namespace LOTM.Client.Game
             {
                 roomCoords = new Vector2(0, -i * (roomHeight + tunnelLength) * 16 + 32);
                 RoomCoordsList.Add(roomCoords);
-                DungeonRoom dungeonRoom = new DungeonRoom(roomCoords, roomWidth, roomHeight, tunnelLength, playerCount, World.Seed);
+                DungeonRoom dungeonRoom = new DungeonRoom(roomCoords, roomWidth, roomHeight, tunnelLength, playerCount, seed);
                 if (i == 0) dungeonRoom.CreateDungeonEntrance();
 
                 foreach (var tile in dungeonRoom.DungeonObjectList)
                 {
-                    World.Objects.Add(tile);
+                    World.AddObject(tile);
                 }
             }
 
@@ -220,7 +220,7 @@ namespace LOTM.Client.Game
             //Try find the player object if we did not already have it
             if (PlayerObject == null)
             {
-                PlayerObject = World.Objects.Where(x => x.NetworkId == PlayerGameObjectId).FirstOrDefault() as PlayerObject;
+                PlayerObject = World.GetGameObjectByNetworkId(PlayerGameObjectId) as PlayerObject;
             }
 
             if (PlayerObject != null)

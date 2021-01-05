@@ -5,12 +5,12 @@ using LOTM.Shared.Game.Objects.Components;
 
 namespace LOTM.Shared.Game.Objects
 {
-    public abstract class DynamicHealthObject : GameObject
+    public abstract class MovingHealthObject : GameObject, IMoveable
     {
-        public DynamicHealthObject(Vector2 position = null, double rotation = 0, Vector2 scale = null, NetworkInstanceType instanceType = default, double health = default)
-            : base(position, rotation, scale, instanceType)
+        public MovingHealthObject(Vector2 position = null, double rotation = 0, Vector2 scale = null, NetworkInstanceType instanceType = default, int networkId = -1, double health = default)
+            : base(position, rotation, scale, instanceType, networkId)
         {
-            Components.Add(new Health());
+            Components.Add(new Health(health));
         }
 
         protected virtual DynamicHealthObjectSync WriteToNetworkPacket(DynamicHealthObjectSync packet)

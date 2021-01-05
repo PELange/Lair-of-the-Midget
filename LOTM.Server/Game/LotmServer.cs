@@ -15,6 +15,8 @@ namespace LOTM.Server.Game
 
         protected Dictionary<string, PlayerObject> Players { get; set; }
 
+        public int WorldSeed { get; set; }
+
         public LotmServer(string listenAddress)
             : base(new LotmNetworkManagerServer(listenAddress))
         {
@@ -24,8 +26,8 @@ namespace LOTM.Server.Game
 
         protected override void OnInit()
         {
-            //World.Seed = new System.Random().Next(0, 100000);
-            World.Seed = 130;
+            //WorldSeed = new System.Random().Next(0, 100000);
+            WorldSeed = 130;
         }
 
         protected override void OnFixedUpdate(double deltaTime)
@@ -57,7 +59,7 @@ namespace LOTM.Server.Game
             }
 
             //Process broadcast all outbound packets
-            foreach (var gameObject in World.Objects)
+            foreach (var gameObject in World.GetAllObjects())
             {
                 while (gameObject.PacketsOutbound.TryDequeue(out var outbound))
                 {
@@ -73,19 +75,16 @@ namespace LOTM.Server.Game
             var playerObject = new PlayerObject(
                 new Vector2(6 * 16, 6 * 16),
                 scale: new Vector2(16, 16 * 2),
-                instanceType: NetworkInstanceType.Server)
-            {
-                NetworkId = NextFreeEntityId++
-            };
+                instanceType: NetworkInstanceType.Server, networkId: NextFreeEntityId++);
 
             Players[playerJoin.Sender.ToString()] = playerObject;
 
-            World.Objects.Add(playerObject);
+            World.AddObject(playerObject);
 
             return new PlayerJoinAck
             {
                 PlayerGameObjectId = playerObject.NetworkId,
-                WorldSeed = World.Seed
+                WorldSeed = WorldSeed
             };
         }
     }

@@ -1,18 +1,27 @@
 ﻿using LOTM.Shared.Engine.Objects;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LOTM.Shared.Engine.World
 {
     public class GameWorld
     {
-        public int Seed { get; set; }
+        protected List<GameObject> DynamicObjects { get; }
+        protected Dictionary<int, GameObject> DynamicObjectLookupCache { get; set; }
 
-        public List<GameObject> Objects { get; set; } = new List<GameObject>();
+        protected List<GameObject> StaticObjects { get; }
+        protected Dictionary<int, GameObject> StaticObjectLookupCache { get; set; }
 
         //public QuadTree<GameObject> Objects { get; set; }
 
         public GameWorld()
         {
+            DynamicObjects = new List<GameObject>();
+            DynamicObjectLookupCache = new Dictionary<int, GameObject>();
+
+            StaticObjects = new List<GameObject>();
+            StaticObjectLookupCache = new Dictionary<int, GameObject>();
+
             //Objects = new QuadTree<GameObject>(new System.Drawing.RectangleF(-width, -height, width * 2, height * 2))
             //{
             //    GetBounds = obj =>
@@ -22,6 +31,39 @@ namespace LOTM.Shared.Engine.World
             //        return new System.Drawing.RectangleF((float)transformation.Position.X, (float)transformation.Position.Y, (float)transformation.Scale.X, (float)transformation.Scale.Y);
             //    }
             //};
+        }
+
+        public void AddObject(GameObject gameObject)
+        {
+            if (gameObject is IMoveable)
+            {
+                DynamicObjects.Add(gameObject);
+                if (gameObject.NetworkId != -1) DynamicObjectLookupCache.Add(gameObject.NetworkId, gameObject);
+            }
+            else
+            {
+                StaticObjects.Add(gameObject);
+                if (gameObject.NetworkId != -1) StaticObjectLookupCache.Add(gameObject.NetworkId, gameObject);
+            }
+        }
+
+        public IEnumerable<GameObject> GetAllObjects()
+        {
+            return DynamicObjects.Concat(StaticObjects);
+        }
+
+        public IEnumerable<GameObject> GetDynamicObjects()
+        {
+            return DynamicObjects;
+        }
+
+        public GameObject GetGameObjectByNetworkId(int networkId)
+        {
+            if (DynamicObjectLookupCache.TryGetValue(networkId, out var dynamicObject)) return dynamicObject;
+
+            if (StaticObjectLookupCache.TryGetValue(networkId, out var staticObject)) return staticObject;
+
+            return null;
         }
     }
 }

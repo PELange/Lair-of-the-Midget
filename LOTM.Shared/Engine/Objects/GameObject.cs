@@ -25,9 +25,9 @@ namespace LOTM.Shared.Engine.Objects
         }
         public NetworkInstanceType InstanceType { get; }
 
-        public GameObject(Vector2 position = null, double rotation = 0, Vector2 scale = null, NetworkInstanceType instanceType = default)
+        public GameObject(Vector2 position = null, double rotation = 0, Vector2 scale = null, NetworkInstanceType instanceType = NetworkInstanceType.Unknown, int networkId = -1)
         {
-            NetworkId = -1;
+            NetworkId = networkId;
             SimulationTimestamp = -1;
             PacketsInbound = new Queue<NetworkPacket>();
             PacketsOutbound = new Queue<NetworkPacket>();

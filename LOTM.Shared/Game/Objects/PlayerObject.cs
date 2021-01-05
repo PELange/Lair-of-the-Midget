@@ -6,10 +6,10 @@ using System;
 
 namespace LOTM.Shared.Game.Objects
 {
-    public class PlayerObject : DynamicHealthObject
+    public class PlayerObject : MovingHealthObject
     {
-        public PlayerObject(Vector2 position = null, double rotation = 0, Vector2 scale = null, NetworkInstanceType instanceType = default, double health = default)
-            : base(position, rotation, scale, instanceType, health)
+        public PlayerObject(Vector2 position = null, double rotation = 0, Vector2 scale = null, NetworkInstanceType instanceType = default, int networkId = -1, double health = default)
+            : base(position, rotation, scale, instanceType, networkId, health)
         {
         }
 

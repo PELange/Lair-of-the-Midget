@@ -24,8 +24,7 @@ namespace LOTM.Shared.Engine
         public double Accumulator { get; set; }
         public HighPrecisionTimer Timer { get; set; }
         public Stopwatch Stopwatch { get; set; }
-        public long GameloopRunningFlag;
-
+        public long GameloopRunningFlag { get; set; }
         public AutoResetEvent GameLoopReset { get; set; }
 
         public Game(NetworkManager networkManager)
@@ -103,7 +102,7 @@ namespace LOTM.Shared.Engine
             //todo only process objects that are close to players ... especially on the server
 
             //var worldObjects = World.Objects.GetObjectsInArea(World.Objects.Bounds);
-            var worldObjects = World.Objects;
+            var worldObjects = World.GetAllObjects();
 
             OnBeforeUpdate();
 
