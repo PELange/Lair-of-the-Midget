@@ -1,9 +1,11 @@
 ﻿using LOTM.Server.Game.Network;
+using LOTM.Server.Game.Objects;
 using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
+using LOTM.Shared.Game.Objects.Components;
 using System.Collections.Generic;
-using static LOTM.Shared.Engine.Objects.GameObject;
 
 namespace LOTM.Server.Game
 {
@@ -13,7 +15,7 @@ namespace LOTM.Server.Game
 
         public int NextFreeEntityId { get; set; }
 
-        protected Dictionary<string, PlayerObject> Players { get; set; }
+        protected Dictionary<string, PlayerBaseServer> Players { get; set; }
 
         public int WorldSeed { get; set; }
 
@@ -21,7 +23,7 @@ namespace LOTM.Server.Game
             : base(new LotmNetworkManagerServer(listenAddress))
         {
             NetworkServer = (LotmNetworkManagerServer)NetworkManager;
-            Players = new Dictionary<string, PlayerObject>();
+            Players = new Dictionary<string, PlayerBaseServer>();
         }
 
         protected override void OnInit()
@@ -50,7 +52,7 @@ namespace LOTM.Server.Game
                         if (Players.TryGetValue(playerInput.Sender.ToString(), out var playerObject))
                         {
                             //Console.WriteLine($"{DateTime.Now} Recieved input {playerInput.Inputs}");
-                            playerObject.PacketsInbound.Enqueue(playerInput);
+                            playerObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(playerInput);
                         }
 
                         break;
@@ -61,9 +63,12 @@ namespace LOTM.Server.Game
             //Process broadcast all outbound packets
             foreach (var gameObject in World.GetAllObjects())
             {
-                while (gameObject.PacketsOutbound.TryDequeue(out var outbound))
+                if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
                 {
-                    NetworkServer.Broadcast(outbound);
+                    while (networkSynchronization.PacketsOutbound.TryDequeue(out var outbound))
+                    {
+                        NetworkServer.Broadcast(outbound);
+                    }
                 }
             }
         }
@@ -72,18 +77,39 @@ namespace LOTM.Server.Game
         {
             System.Console.WriteLine($"{playerJoin.PlayerName}({playerJoin.Sender}) joined the server.");
 
-            var playerObject = new PlayerObject(
-                new Vector2(6 * 16, 6 * 16),
-                scale: new Vector2(16, 16 * 2),
-                instanceType: NetworkInstanceType.Server, networkId: NextFreeEntityId++);
+            var spawnType = MovingHealthObjectType.PLAYER_WIZARD;
+            var spawnPos = new Vector2(6 * 16, 6 * 16);
+            var spawnScale = new Vector2(16, 16 * 2);
+            var spawnHp = 100;
 
+            var playerObject = new PlayerBaseServer(spawnType, spawnPos, spawnScale, spawnHp);
+
+            //Set network id for newly spawned player
+            var netId = NextFreeEntityId++;
+            var netSync = playerObject.GetComponent<NetworkSynchronization>();
+            netSync.NetworkId = netId;
+
+            //Send inital create packet for the player
+            netSync.PacketsOutbound.Enqueue(new MovingHealthObjectUpdate
+            {
+                Type = spawnType,
+                PositionX = spawnPos.X,
+                PositionY = spawnPos.Y,
+                ScaleX = spawnScale.X,
+                ScaleY = spawnScale.Y,
+                Health = spawnHp,
+            });
+
+            //Store player object
             Players[playerJoin.Sender.ToString()] = playerObject;
 
+            //Add to world
             World.AddObject(playerObject);
 
+            //Respond to client
             return new PlayerJoinAck
             {
-                PlayerGameObjectId = playerObject.NetworkId,
+                PlayerObjectNetworkId = netId,
                 WorldSeed = WorldSeed
             };
         }

@@ -1,10 +1,8 @@
 ﻿using LOTM.Shared.Engine.Network;
-using LOTM.Shared.Engine.Network.Packets;
 using LOTM.Shared.Game.Network.Packets;
 using System;
+using System.IO;
 using System.Net;
-using System.Text;
-using System.Text.Json;
 
 namespace LOTM.Shared.Game.Network
 {
@@ -12,77 +10,78 @@ namespace LOTM.Shared.Game.Network
     {
         public byte[] SerializePacket(NetworkPacket packet)
         {
-            var textBytes = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(packet, packet.GetType()));
-
-            var data = new byte[textBytes.Length + 1];
-
-            byte type = 0;
+            using var memoryStream = new MemoryStream();
+            using var writer = new BinaryWriter(memoryStream);
 
             switch (packet)
             {
                 case PlayerJoin _:
-                    type = 1;
+                    writer.Write(1);
                     break;
 
                 case PlayerJoinAck _:
-                    type = 2;
-                    break;
-
-                case DynamicHealthObjectSync _:
-                    type = 3;
-                    break;
-
-                case GameObjectSync _:
-                    type = 4;
+                    writer.Write(2);
                     break;
 
                 case PlayerInput _:
-                    type = 5;
+                    writer.Write(3);
+                    break;
+
+                case MovingHealthObjectUpdate _:
+                    writer.Write(4);
+                    break;
+
+                case ObjectHealthUpdate _:
+                    writer.Write(5);
+                    break;
+
+                case ObjectPositionUpdate _:
+                    writer.Write(6);
                     break;
 
                 default:
-                    Console.WriteLine($"Tried to serialize packet with unknown type '{packet}'.");
-                    break;
+                    throw new Exception($"Tried to serialize packet with unknown type '{packet}'.");
             }
 
-            data[0] = type;
+            packet.WriteBytes(writer);
 
-            Buffer.BlockCopy(textBytes, 0, data, 1, textBytes.Length);
-
-            return data;
+            return memoryStream.ToArray();
         }
 
         public NetworkPacket DeserializePacket(byte[] data, IPEndPoint sender)
         {
             if (data == null || sender == null || data.Length < 1) return null;
 
-            var type = data[0];
+            using MemoryStream memoryStream = new MemoryStream(data);
+            using BinaryReader reader = new BinaryReader(memoryStream);
 
-            //Replace data prefis with empty space to allow for direct deserialize
-            data[0] = 0x20; //Space
-
-            NetworkPacket resultPacket = default;
+            var type = reader.ReadInt32();
+            NetworkPacket networkPacket = null;
 
             switch (type)
             {
                 case 1:
-                    resultPacket = JsonSerializer.Deserialize<PlayerJoin>(data);
+                    networkPacket = new PlayerJoin(sender);
                     break;
 
                 case 2:
-                    resultPacket = JsonSerializer.Deserialize<PlayerJoinAck>(data);
+                    networkPacket = new PlayerJoinAck(sender);
                     break;
 
                 case 3:
-                    resultPacket = JsonSerializer.Deserialize<DynamicHealthObjectSync>(data);
+                    networkPacket = new PlayerInput(sender);
                     break;
 
                 case 4:
-                    resultPacket = JsonSerializer.Deserialize<GameObjectSync>(data);
+                    networkPacket = new MovingHealthObjectUpdate(sender);
                     break;
 
                 case 5:
-                    resultPacket = JsonSerializer.Deserialize<PlayerInput>(data);
+                    networkPacket = new ObjectHealthUpdate(sender);
+                    break;
+
+                case 6:
+                    networkPacket = new ObjectPositionUpdate(sender);
                     break;
 
                 default:
@@ -90,9 +89,12 @@ namespace LOTM.Shared.Game.Network
                     break;
             }
 
-            if (resultPacket != null) resultPacket.Sender = sender;
+            if (networkPacket != null)
+            {
+                networkPacket.ReadBytes(reader);
+            }
 
-            return resultPacket;
+            return networkPacket;
         }
     }
 }

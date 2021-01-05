@@ -4,26 +4,29 @@ using System.Net;
 
 namespace LOTM.Shared.Game.Network.Packets
 {
-    public class PlayerJoin : NetworkPacket
+    public class ObjectHealthUpdate : NetworkPacket
     {
-        public PlayerJoin(IPEndPoint sender = default) : base(sender)
+        public ObjectHealthUpdate(IPEndPoint sender = default) : base(sender)
         {
         }
 
-        public string PlayerName { get; set; }
+        public int ObjectId { get; set; }
+        public double Health { get; set; }
 
         public override void ReadBytes(BinaryReader reader)
         {
             base.ReadBytes(reader);
 
-            PlayerName = reader.ReadString();
+            ObjectId = reader.ReadInt32();
+            Health = reader.ReadDouble();
         }
 
         public override void WriteBytes(BinaryWriter writer)
         {
             base.WriteBytes(writer);
 
-            writer.Write(PlayerName);
+            writer.Write(ObjectId);
+            writer.Write(Health);
         }
     }
 }

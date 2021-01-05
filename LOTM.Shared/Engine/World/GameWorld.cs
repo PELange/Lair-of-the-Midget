@@ -1,4 +1,5 @@
 ﻿using LOTM.Shared.Engine.Objects;
+using LOTM.Shared.Engine.Objects.Components;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -38,12 +39,20 @@ namespace LOTM.Shared.Engine.World
             if (gameObject is IMoveable)
             {
                 DynamicObjects.Add(gameObject);
-                if (gameObject.NetworkId != -1) DynamicObjectLookupCache.Add(gameObject.NetworkId, gameObject);
+
+                if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
+                {
+                    DynamicObjectLookupCache.Add(networkSynchronization.NetworkId, gameObject);
+                }
             }
             else
             {
                 StaticObjects.Add(gameObject);
-                if (gameObject.NetworkId != -1) StaticObjectLookupCache.Add(gameObject.NetworkId, gameObject);
+
+                if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
+                {
+                    StaticObjectLookupCache.Add(networkSynchronization.NetworkId, gameObject);
+                }
             }
         }
 

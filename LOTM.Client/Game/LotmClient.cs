@@ -1,17 +1,16 @@
 ﻿using LOTM.Client.Engine;
 using LOTM.Client.Engine.Controls;
 using LOTM.Client.Game.Network;
-using LOTM.Client.Game.Objects;
 using LOTM.Client.Game.Objects.DungeonRoom;
+using LOTM.Client.Game.Objects.Player;
 using LOTM.Shared.Engine.Controls;
 using LOTM.Shared.Engine.Math;
-using LOTM.Shared.Engine.Network.Packets;
+using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using System.Collections.Generic;
 using static LOTM.Client.Engine.Graphics.OrthographicCamera;
-using static LOTM.Shared.Engine.Objects.GameObject;
 
 namespace LOTM.Client.Game
 {
@@ -22,7 +21,7 @@ namespace LOTM.Client.Game
         protected LotmNetworkManagerClient NetworkClient { get; set; }
 
         protected int PlayerGameObjectId { get; set; }
-        protected PlayerObject PlayerObject { get; set; }
+        protected GameObject PlayerObject { get; set; }
 
         public LotmClient(int windowWidth, int windowHeight, string connectionString, string playerName)
             : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", new LotmNetworkManagerClient(connectionString, playerName))
@@ -119,30 +118,61 @@ namespace LOTM.Client.Game
                     {
                         if (NetworkClient.OnPlayerJoinAck(playerJoinAck))
                         {
-                            OnJoin(playerJoinAck.WorldSeed, playerJoinAck.PlayerGameObjectId);
+                            OnJoin(playerJoinAck.WorldSeed, playerJoinAck.PlayerObjectNetworkId);
                         }
 
                         break;
                     }
 
-                    //Received any kind of package that is game object sync related. Forward that to the specific game object for further processing
-                    case GameObjectSync gameObjectSync:
+                    //Player or enemy object creation or full state update
+                    case MovingHealthObjectUpdate movingHealthObjectUpdate:
                     {
                         //Try to loctate the object using the network id
-                        var gameObject = World.GetGameObjectByNetworkId(gameObjectSync.NetworkId);
+                        var gameObject = World.GetGameObjectByNetworkId(movingHealthObjectUpdate.ObjectId);
 
                         //No known gameobject with that id yet -> Create
                         if (gameObject == null)
                         {
-                            if (gameObjectSync.Type == "PlayerObject")
+                            if (movingHealthObjectUpdate.Type == MovingHealthObjectType.PLAYER_WIZARD)
                             {
-                                gameObject = new WizardOfWisdom(instanceType: NetworkInstanceType.Local, networkId: gameObjectSync.NetworkId);
+                                gameObject = new PlayerBaseClient(
+                                    movingHealthObjectUpdate.ObjectId,
+                                    MovingHealthObjectType.PLAYER_WIZARD,
+                                    new Vector2(movingHealthObjectUpdate.PositionX, movingHealthObjectUpdate.PositionY),
+                                    new Vector2(movingHealthObjectUpdate.ScaleX, movingHealthObjectUpdate.ScaleY),
+                                    movingHealthObjectUpdate.Health);
 
                                 World.AddObject(gameObject);
                             }
                         }
+                        else
+                        {
+                            gameObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(movingHealthObjectUpdate);
+                        }
 
-                        gameObject.PacketsInbound.Enqueue(gameObjectSync);
+                        break;
+                    }
+
+                    case ObjectHealthUpdate objectHealthUpdate:
+                    {
+                        var gameObject = World.GetGameObjectByNetworkId(objectHealthUpdate.ObjectId);
+
+                        if (gameObject != null)
+                        {
+                            gameObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(objectHealthUpdate);
+                        }
+
+                        break;
+                    }
+
+                    case ObjectPositionUpdate objectPositionUpdate:
+                    {
+                        var gameObject = World.GetGameObjectByNetworkId(objectPositionUpdate.ObjectId);
+
+                        if (gameObject != null)
+                        {
+                            gameObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(objectPositionUpdate);
+                        }
 
                         break;
                     }
@@ -222,7 +252,7 @@ namespace LOTM.Client.Game
             //Try find the player object if we did not already have it
             if (PlayerObject == null)
             {
-                PlayerObject = World.GetGameObjectByNetworkId(PlayerGameObjectId) as PlayerObject;
+                PlayerObject = World.GetGameObjectByNetworkId(PlayerGameObjectId);
             }
 
             if (PlayerObject != null)

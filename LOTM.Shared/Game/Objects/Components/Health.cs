@@ -2,7 +2,7 @@
 
 namespace LOTM.Shared.Game.Objects.Components
 {
-    class Health : IComponent
+    public class Health : IComponent
     {
         public double Value { get; set; }
 
