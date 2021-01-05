@@ -101,12 +101,16 @@ namespace LOTM.Client.Engine
             glViewport(0, 0, width, height);
         }
 
-        protected override void OnAfterUpdate()
+        protected override void OnBeforeUpdate()
         {
+            //Poll GLFW events
             if (glfwWindowShouldClose(Window) == GL_TRUE) Shutdown();
 
             glfwPollEvents();
+        }
 
+        protected override void OnAfterUpdate()
+        {
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

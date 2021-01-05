@@ -194,25 +194,28 @@ namespace LOTM.Client.Game
         {
             var inputs = InputType.NONE;
 
-            if (InputManager.IsControlPressed(InputType.WALK_LEFT))
+            if (InputManager.WasControlPressed(InputType.WALK_LEFT))
             {
                 inputs |= InputType.WALK_LEFT;
             }
-            else if (InputManager.IsControlPressed(InputType.WALK_RIGHT))
+            else if (InputManager.WasControlPressed(InputType.WALK_RIGHT))
             {
                 inputs |= InputType.WALK_RIGHT;
             }
 
-            if (InputManager.IsControlPressed(InputType.WALK_UP))
+            if (InputManager.WasControlPressed(InputType.WALK_UP))
             {
                 inputs |= InputType.WALK_UP;
             }
-            else if (InputManager.IsControlPressed(InputType.WALK_DOWN))
+            else if (InputManager.WasControlPressed(InputType.WALK_DOWN))
             {
                 inputs |= InputType.WALK_DOWN;
             }
 
             if (inputs != InputType.NONE) NetworkClient.SendPacket(new PlayerInput { Inputs = inputs });
+
+            //Clear all events such as button presses, as we processed them all for this frame.
+            InputManager.ClearEvents();
         }
 
         void UpdateCamera()
