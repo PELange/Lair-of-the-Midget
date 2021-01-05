@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -22,7 +21,7 @@ namespace LOTM.Shared.Engine.World
     public class QuadTree<T> where T : IHasRectangle
     {
         // How many objects can exist in a QuadTree before it sub divides itself
-        private const int MAX_OBJECTS_PER_NODE = 2;   
+        private const int MAX_OBJECTS_PER_NODE = 2;
         public List<T> Objects { get; set; } // The list holding all objects in this QuadTree
         public Rectangle BoundingRect { get; set; } // The area this QuadTree represents
 
@@ -283,7 +282,7 @@ namespace LOTM.Shared.Engine.World
             }
 
             return results;
-                
+
         }
 
         /// <summary>

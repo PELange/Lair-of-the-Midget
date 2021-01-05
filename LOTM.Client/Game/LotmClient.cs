@@ -10,7 +10,6 @@ using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using System.Collections.Generic;
-using System.Linq;
 using static LOTM.Client.Engine.Graphics.OrthographicCamera;
 using static LOTM.Shared.Engine.Objects.GameObject;
 

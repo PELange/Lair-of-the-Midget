@@ -1,7 +1,6 @@
 ﻿using LOTM.Shared.Engine.Controls;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using static GLFWDotNet.GLFW;
 
