@@ -24,8 +24,8 @@ namespace LOTM.Shared.Engine
         public double Accumulator { get; set; }
         public HighPrecisionTimer Timer { get; set; }
         public Stopwatch Stopwatch { get; set; }
-        public long GameloopRunningFlag { get; set; }
         public AutoResetEvent GameLoopReset { get; set; }
+        public long GameloopRunningFlag;
 
         public Game(NetworkManager networkManager)
         {
