@@ -197,9 +197,6 @@ namespace LOTM.Client.Game
             {
                 worldObject.OnFixedUpdate(FixedUpdateDeltaTime);
             }
-
-            //Update camera ... todo make it follow the player
-            UpdateCamera();
         }
 
         protected override void OnUpdate(double deltaTime)
@@ -208,6 +205,8 @@ namespace LOTM.Client.Game
             {
                 worldObject.OnUpdate(deltaTime);
             }
+
+            UpdateCamera();
         }
 
         void OnJoin(int seed, int playerGameObjectId)
