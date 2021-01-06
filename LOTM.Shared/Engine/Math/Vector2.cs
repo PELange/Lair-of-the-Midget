@@ -1,11 +1,51 @@
-﻿namespace LOTM.Shared.Engine.Math
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+namespace LOTM.Shared.Engine.Math
 {
-    public class Vector2
+    public class Vector2 : INotifyPropertyChanged
     {
         public static Vector2 ZERO => new Vector2(0, 0);
 
-        public double X { get; set; }
-        public double Y { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected double _X;
+
+        public double X
+        {
+            get
+            {
+                return _X;
+            }
+
+            set
+            {
+                _X = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        protected double _Y;
+
+        public double Y
+        {
+            get
+            {
+                return _Y;
+            }
+
+            set
+            {
+                _Y = value;
+                OnPropertyChanged();
+            }
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
         public Vector2(double x, double y)
         {

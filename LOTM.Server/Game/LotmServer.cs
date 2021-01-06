@@ -4,7 +4,6 @@ using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
-using LOTM.Shared.Game.Objects.Components;
 using System.Collections.Generic;
 
 namespace LOTM.Server.Game
@@ -60,6 +59,12 @@ namespace LOTM.Server.Game
                 }
             }
 
+            //Run fixed simulation on all relevant world objects
+            foreach (var worldObject in World.GetAllObjects())
+            {
+                worldObject.OnFixedUpdate(FixedUpdateDeltaTime);
+            }
+
             //Process broadcast all outbound packets
             foreach (var gameObject in World.GetAllObjects())
             {
@@ -70,6 +75,14 @@ namespace LOTM.Server.Game
                         NetworkServer.Broadcast(outbound);
                     }
                 }
+            }
+        }
+
+        protected override void OnUpdate(double deltaTime)
+        {
+            foreach (var worldObject in World.GetAllObjects())
+            {
+                worldObject.OnUpdate(deltaTime);
             }
         }
 

@@ -1,140 +1,97 @@
+using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Objects;
+using LOTM.Shared.Engine.Objects.Components;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace LOTM.Shared.Engine.World
 {
-    // <summary>
-    /// Interface to define Rect, so that QuadTree knows how to store the object.
-    /// </summary>
-    public interface IHasRectangle
+    public class QuadTree
     {
-        /// <summary>
-        /// The rectangle that defines the object's boundaries.
-        /// </summary>
-        Rectangle Rect { get; }
-    }
+        protected List<GameObject> Objects { get; set; } // The list holding all objects in this QuadTree
+        protected BoundingBox BoundingRect { get; set; } // The area this QuadTree represents
 
-    /// <summary>
-    /// A QuadTree Object that provides fast and efficient storage of objects in a world space.
-    /// </summary>
-    /// <typeparam name="T">Any object iheriting from IHasRect.</typeparam>
-    public class QuadTree<T> where T : IHasRectangle
-    {
-        // How many objects can exist in a QuadTree before it sub divides itself
-        private const int MAX_OBJECTS_PER_NODE = 2;
-        public List<T> Objects { get; set; } // The list holding all objects in this QuadTree
-        public Rectangle BoundingRect { get; set; } // The area this QuadTree represents
+        protected QuadTree ChildTL { get; set; } // Top Left Child
+        protected QuadTree ChildTR { get; set; } // Top Right Child
+        protected QuadTree ChildBL { get; set; } // Bottom Left Child
+        protected QuadTree ChildBR { get; set; } // Bottom Right Child
 
-        public QuadTree<T> ChildTL { get; set; } // Top Left Child
-        public QuadTree<T> ChildTR { get; set; } // Top Right Child
-        public QuadTree<T> ChildBL { get; set; } // Bottom Left Child
-        public QuadTree<T> ChildBR { get; set; } // Bottom Right Child
-        public int Count { get { return this.ObjectCount(); } } // How many total objects are contained within this QuadTree (includes children)
-
-        /// <summary>
-        /// Creates a QuadTree for the specified area.
-        /// </summary>
-        /// <param name="rect">The area this QuadTree object will encompass.</param>
-        public QuadTree(Rectangle rect)
+        public QuadTree(BoundingBox rect)
         {
-            this.BoundingRect = rect;
+            BoundingRect = rect;
+            Objects = new List<GameObject>();
         }
 
-        /// <summary>
-        /// Add an item to the object list.
-        /// </summary>
-        /// <param name="item">The item to add.</param>
-        private void AddItem(T item)
+        protected int Count
         {
-            if (Objects == null)
-                Objects = new List<T>();
-
-            Objects.Add(item);
-        }
-
-        /// <summary>
-        /// Remove an item from the object list.
-        /// </summary>
-        /// <param name="item">The object to remove.</param>
-        private void Remove(T item)
-        {
-            if (Objects != null && Objects.Contains(item))
-                Objects.Remove(item);
-        }
-
-        /// <summary>
-        /// Get the total for all objects in this QuadTree, including children.
-        /// </summary>
-        private int ObjectCount()
-        {
-            int count = 0;
-
-            // Add the objects at this level
-            if (Objects != null) count += Objects.Count;
-
-            // Add the objects that are contained in the children
-            if (ChildTL != null)
+            get
             {
-                count += ChildTL.ObjectCount();
-                count += ChildTR.ObjectCount();
-                count += ChildBL.ObjectCount();
-                count += ChildBR.ObjectCount();
-            }
+                int count = 0;
 
-            return count;
+                // Add the objects at this level
+                if (Objects != null)
+                {
+                    count += Objects.Count;
+                }
+
+                // Add the objects that are contained in the children
+                if (ChildTL != null)
+                {
+                    count += ChildTL.Count;
+                    count += ChildTR.Count;
+                    count += ChildBL.Count;
+                    count += ChildBR.Count;
+                }
+
+                return count;
+            }
         }
 
-        /// <summary>
-        /// Subdivide this QuadTree and move it's children into the appropriate Quads where applicable.
-        /// </summary>
         private void Split()
         {
             // When max capacity is reached, split the tree
-            Point size = new Point(BoundingRect.Width / 2, BoundingRect.Height / 2);
-            Point mid = new Point(BoundingRect.X + size.X, BoundingRect.Y + size.Y);
+            var size = new Vector2(BoundingRect.Width / 2, BoundingRect.Height / 2);
+            var mid = new Vector2(BoundingRect.X + size.X, BoundingRect.Y + size.Y);
 
-            ChildTL = new QuadTree<T>(new Rectangle(BoundingRect.Left, BoundingRect.Top, size.X, size.Y));
-            ChildTR = new QuadTree<T>(new Rectangle(mid.X, BoundingRect.Top, size.X, size.Y));
-            ChildBL = new QuadTree<T>(new Rectangle(BoundingRect.Left, mid.Y, size.X, size.Y));
-            ChildBR = new QuadTree<T>(new Rectangle(mid.X, mid.Y, size.X, size.Y));
+            ChildTL = new QuadTree(new BoundingBox(BoundingRect.X, BoundingRect.Y, size.X, size.Y));
+            ChildTR = new QuadTree(new BoundingBox(mid.X, BoundingRect.Y, size.X, size.Y));
+            ChildBL = new QuadTree(new BoundingBox(BoundingRect.X, mid.Y, size.X, size.Y));
+            ChildBR = new QuadTree(new BoundingBox(mid.X, mid.Y, size.X, size.Y));
 
             // If they're completely contained by the quad, bump objects down
             for (int i = 0; i < Objects.Count; i++)
             {
-                QuadTree<T> destTree = GetDestinationTree(Objects[i]);
+                var destTree = GetDestinationTree(Objects[i]);
 
                 if (destTree != this)
                 {
                     // Insert to the appropriate tree, remove the object, and back up one in the loop
                     destTree.Add(Objects[i]);
-                    Remove(Objects[i]);
+                    Objects.Remove(Objects[i]);
                     i--;
                 }
             }
         }
 
-        /// <summary>
-        /// Get the child Quad that would contain an object.
-        /// </summary>
-        /// <param name="item">The object to get a child for.</param>
-        private QuadTree<T> GetDestinationTree(T item)
+        private QuadTree GetDestinationTree(GameObject item)
         {
             // If a child can't contain an object, it will live in this Quad
-            QuadTree<T> destTree = this;
+            var destTree = this;
 
-            if (ChildTL.BoundingRect.Contains(item.Rect))
+            var boundingBox = item.GetComponent<Transformation2D>().GetBoundingBox();
+
+            if (ChildTL.BoundingRect.Contains(boundingBox))
             {
                 destTree = ChildTL;
             }
-            else if (ChildTR.BoundingRect.Contains(item.Rect))
+            else if (ChildTR.BoundingRect.Contains(boundingBox))
             {
                 destTree = ChildTR;
             }
-            else if (ChildBL.BoundingRect.Contains(item.Rect))
+            else if (ChildBL.BoundingRect.Contains(boundingBox))
             {
                 destTree = ChildBL;
             }
-            else if (ChildBR.BoundingRect.Contains(item.Rect))
+            else if (ChildBR.BoundingRect.Contains(boundingBox))
             {
                 destTree = ChildBR;
             }
@@ -142,9 +99,6 @@ namespace LOTM.Shared.Engine.World
             return destTree;
         }
 
-        /// <summary>
-        /// Clears the QuadTree of all objects, including any objects living in its children.
-        /// </summary>
         public void Clear()
         {
             // Clear out the children, if we have any
@@ -170,17 +124,14 @@ namespace LOTM.Shared.Engine.World
             ChildBR = null;
         }
 
-        /// <summary>
-        /// Deletes an item from this QuadTree. If the object is removed causes this Quad to have no objects in its children, it's children will be removed as well.
-        /// </summary>
-        /// <param name="item">The item to remove.</param>
-        public void Delete(T item)
+        public void Delete(GameObject item)
         {
             // If this level contains the object, remove it
             bool objectRemoved = false;
+
             if (Objects != null && Objects.Contains(item))
             {
-                Remove(item);
+                Objects.Remove(item);
                 objectRemoved = true;
             }
 
@@ -209,20 +160,18 @@ namespace LOTM.Shared.Engine.World
             }
         }
 
-        /// <summary>
-        /// Adds an item into this QuadTree.
-        /// </summary>
-        /// <param name="item">The item to insert.</param>
-        public void Add(T item)
+        public void Add(GameObject item)
         {
-            // If this quad doesn't intersect the items rectangle, do nothing
-            if (!BoundingRect.IntersectsWith(item.Rect))
-                return;
+            // If this quad doesn't intersect the items bounds, do nothing
+            if (!BoundingRect.IntersectsWith(item.GetComponent<Transformation2D>().GetBoundingBox()))
+            {
+                return; //Todo instead of skip, resize quadtree and rebuild it?
+            }
 
-            if (Objects == null || (ChildTL == null && Objects.Count + 1 <= MAX_OBJECTS_PER_NODE))
+            if (Objects == null || (ChildTL == null && Objects.Count + 1 < 4)) //As soon as we hit 3 items we subdevide
             {
                 // If there's room to add the object, just add it
-                AddItem(item);
+                Objects.Add(item);
             }
             else
             {
@@ -233,10 +182,10 @@ namespace LOTM.Shared.Engine.World
                 }
 
                 // Find out which tree this object should go in and add it there
-                QuadTree<T> destTree = GetDestinationTree(item);
+                var destTree = GetDestinationTree(item);
                 if (destTree == this)
                 {
-                    AddItem(item);
+                    Objects.Add(item);
                 }
                 else
                 {
@@ -245,27 +194,23 @@ namespace LOTM.Shared.Engine.World
             }
         }
 
-        /// <summary>
-        /// Get the objects in this tree that intersect with the specified rectangle.
-        /// </summary>
-        /// <param name="rect">The rectangle to find objects in.</param>
-        public List<T> GetObjects(Rectangle rect)
+        public List<GameObject> GetObjects(BoundingBox rect)
         {
-            List<T> results = new List<T>();
+            var results = new List<GameObject>();
 
             // If the search area completely contains this quad, just get every object this quad and all it's children have
-            if (rect.Contains(this.BoundingRect))
+            if (rect.Contains(BoundingRect))
             {
                 results.AddRange(GetAllObjects());
             }
-            // Otherwise, if the quad isn't fully contained, only add objects that intersect with the search rectangle
-            else if (rect.IntersectsWith(this.BoundingRect))
+            // Otherwise, if the quad isn't fully contained, only add objects that intersect with the search RectangleF
+            else if (rect.IntersectsWith(BoundingRect))
             {
                 if (Objects != null)
                 {
                     for (int i = 0; i < Objects.Count; i++)
                     {
-                        if (rect.IntersectsWith(Objects[i].Rect))
+                        if (rect.IntersectsWith(Objects[i].GetComponent<Transformation2D>().GetBoundingBox()))
                         {
                             results.Add(Objects[i]);
                         }
@@ -285,12 +230,10 @@ namespace LOTM.Shared.Engine.World
 
         }
 
-        /// <summary>
-        /// Get all objects in this Quad, and it's children.
-        /// </summary>
-        public List<T> GetAllObjects()
+        public List<GameObject> GetAllObjects()
         {
-            List<T> results = new List<T>();
+            var results = new List<GameObject>();
+
             if (Objects != null)
                 results.AddRange(Objects);
 
@@ -301,8 +244,8 @@ namespace LOTM.Shared.Engine.World
                 results.AddRange(ChildBL.GetAllObjects());
                 results.AddRange(ChildBR.GetAllObjects());
             }
-            return results;
 
+            return results;
         }
     }
 }

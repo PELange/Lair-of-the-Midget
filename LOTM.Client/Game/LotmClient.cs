@@ -106,6 +106,13 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 15, 21, 15), "pickup_pot_yellow_small");
         }
 
+        protected override void OnBeforeUpdate()
+        {
+            base.OnBeforeUpdate();
+
+            //todo free up distant world object
+        }
+
         protected override void OnFixedUpdate(double deltaTime)
         {
             //Handle incoming packets
@@ -185,8 +192,22 @@ namespace LOTM.Client.Game
             //Poll controls and send input to server if needed
             PollInputs();
 
+            //Run fixed simulation on all relevant world objects
+            foreach (var worldObject in World.GetAllObjects())
+            {
+                worldObject.OnFixedUpdate(FixedUpdateDeltaTime);
+            }
+
             //Update camera ... todo make it follow the player
             UpdateCamera();
+        }
+
+        protected override void OnUpdate(double deltaTime)
+        {
+            foreach (var worldObject in World.GetAllObjects())
+            {
+                worldObject.OnUpdate(deltaTime);
+            }
         }
 
         void OnJoin(int seed, int playerGameObjectId)

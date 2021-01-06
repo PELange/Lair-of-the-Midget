@@ -48,17 +48,5 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 new SpriteRenderer.Segment(AssetManager.GetSprite(pickupName))
             }));
         }
-
-        public override void OnBeforeUpdate()
-        {
-        }
-
-        public override void OnFixedUpdate(double deltaTime)
-        {
-        }
-
-        public override void OnUpdate(double deltaTime)
-        {
-        }
     }
 }

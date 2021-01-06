@@ -112,10 +112,9 @@ namespace LOTM.Client.Engine.Graphics
 
             //Collect all verticies to be drawn for the current view
             var viewPort = Camera.GetViewport();
-            var searchRect = new System.Drawing.RectangleF((float)viewPort.TopLeft.X, (float)viewPort.TopLeft.Y, (float)System.Math.Abs(viewPort.BottomRight.X - viewPort.TopLeft.X), (float)System.Math.Abs(viewPort.BottomRight.Y - viewPort.TopLeft.Y));
+            var searchRect = new BoundingBox(viewPort.TopLeft.X, viewPort.TopLeft.Y, System.Math.Abs(viewPort.BottomRight.X - viewPort.TopLeft.X), System.Math.Abs(viewPort.BottomRight.Y - viewPort.TopLeft.Y));
 
-            //var worldObjects = world.Objects.GetObjectsInArea(world.Objects.Bounds);
-            var worldObjects = world.GetAllObjects();
+            var worldObjects = world.GetObjectsInArea(searchRect);
 
             var layeredVerticies = new List<LayeredVertex>();
 

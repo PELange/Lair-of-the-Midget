@@ -99,43 +99,18 @@ namespace LOTM.Shared.Engine
 
             Accumulator += deltaTime;
 
-            //todo only process objects that are close to players ... especially on the server
-
-            //var worldObjects = World.Objects.GetObjectsInArea(World.Objects.Bounds);
-            var worldObjects = World.GetAllObjects();
-
             OnBeforeUpdate();
-
-            foreach (var worldObject in worldObjects)
-            {
-                worldObject.OnBeforeUpdate();
-            }
 
             while (Accumulator >= FixedUpdateDeltaTime)
             {
                 OnFixedUpdate(FixedUpdateDeltaTime);
-
-                foreach (var worldObject in worldObjects)
-                {
-                    worldObject.OnFixedUpdate(FixedUpdateDeltaTime);
-                }
 
                 Accumulator -= FixedUpdateDeltaTime;
             }
 
             OnUpdate(deltaTime);
 
-            foreach (var worldObject in worldObjects)
-            {
-                worldObject.OnUpdate(deltaTime);
-            }
-
             OnAfterUpdate();
-
-            foreach (var worldObject in worldObjects)
-            {
-                worldObject.OnAfterUpdate();
-            }
 
             LastUpdate = currentTime;
 

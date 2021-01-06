@@ -1,4 +1,5 @@
-﻿using LOTM.Shared.Engine.Objects;
+﻿using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,28 +11,18 @@ namespace LOTM.Shared.Engine.World
         protected List<GameObject> DynamicObjects { get; }
         protected Dictionary<int, GameObject> DynamicObjectLookupCache { get; set; }
 
-        protected List<GameObject> StaticObjects { get; }
+        //protected List<GameObject> StaticObjects { get; }
+        protected QuadTree StaticObjects { get; }
         protected Dictionary<int, GameObject> StaticObjectLookupCache { get; set; }
-
-        //public QuadTree<GameObject> Objects { get; set; }
 
         public GameWorld()
         {
             DynamicObjects = new List<GameObject>();
             DynamicObjectLookupCache = new Dictionary<int, GameObject>();
 
-            StaticObjects = new List<GameObject>();
+            //StaticObjects = new List<GameObject>();
+            StaticObjects = new QuadTree(new BoundingBox(-10_000, -10_000, 20_000, 20_000));
             StaticObjectLookupCache = new Dictionary<int, GameObject>();
-
-            //Objects = new QuadTree<GameObject>(new System.Drawing.RectangleF(-width, -height, width * 2, height * 2))
-            //{
-            //    GetBounds = obj =>
-            //    {
-            //        var transformation = obj.GetComonent<Transformation2D>();
-
-            //        return new System.Drawing.RectangleF((float)transformation.Position.X, (float)transformation.Position.Y, (float)transformation.Scale.X, (float)transformation.Scale.Y);
-            //    }
-            //};
         }
 
         public void AddObject(GameObject gameObject)
@@ -58,12 +49,12 @@ namespace LOTM.Shared.Engine.World
 
         public IEnumerable<GameObject> GetAllObjects()
         {
-            return DynamicObjects.Concat(StaticObjects);
+            return StaticObjects.GetAllObjects().Concat(DynamicObjects);
         }
 
-        public IEnumerable<GameObject> GetDynamicObjects()
+        public IEnumerable<GameObject> GetObjectsInArea(BoundingBox area)
         {
-            return DynamicObjects;
+            return StaticObjects.GetObjects(area).Concat(DynamicObjects.Where(x => area.IntersectsWith(x.GetComponent<Transformation2D>().GetBoundingBox())));
         }
 
         public GameObject GetGameObjectByNetworkId(int networkId)
