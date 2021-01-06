@@ -3,6 +3,7 @@ using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
+using System.Linq;
 
 namespace LOTM.Server.Game.Objects
 {
@@ -17,21 +18,15 @@ namespace LOTM.Server.Game.Objects
         {
             var networkSynchronization = GetComponent<NetworkSynchronization>();
 
-            //Process inbound packets
-            foreach (var inbound in networkSynchronization.PacketsInbound)
+            //System.Console.WriteLine($"Processing {networkSynchronization.PacketsInbound.Count} packets.");
+
+            //1. Check for position changes and only apply the latest one
+            if (networkSynchronization.PacketsInbound.Where(x => x is PlayerInput).OrderByDescending(x => x.Id).FirstOrDefault() is PlayerInput playerInput)
             {
-                switch (inbound)
-                {
-                    case PlayerInput playerInput:
-                    {
-                        ApplyPlayerinput(playerInput, deltaTime);
-                        break;
-                    }
-                }
+                ApplyPlayerinput(playerInput, deltaTime);
             }
 
-            //Finish processing in base implementation
-            base.OnFixedUpdate(deltaTime);
+            networkSynchronization.PacketsInbound.Clear();
         }
 
         protected void ApplyPlayerinput(PlayerInput playerInput, double deltaTime)
@@ -69,7 +64,11 @@ namespace LOTM.Server.Game.Objects
                 transformation.Position.X += walkDirection.X * walkSpeed * deltaTime;
                 transformation.Position.Y += walkDirection.Y * walkSpeed * deltaTime;
 
-                GetComponent<NetworkSynchronization>().StateSyncFlags.Add("position");
+                GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectPositionUpdate
+                {
+                    PositionX = transformation.Position.X,
+                    PositionY = transformation.Position.Y,
+                });
             }
         }
     }

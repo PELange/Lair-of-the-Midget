@@ -50,7 +50,6 @@ namespace LOTM.Server.Game
                     {
                         if (Players.TryGetValue(playerInput.Sender.ToString(), out var playerObject))
                         {
-                            //Console.WriteLine($"{DateTime.Now} Recieved input {playerInput.Inputs}");
                             playerObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(playerInput);
                         }
 
