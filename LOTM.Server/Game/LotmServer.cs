@@ -90,7 +90,7 @@ namespace LOTM.Server.Game
             System.Console.WriteLine($"{playerJoin.PlayerName}({playerJoin.Sender}) joined the server.");
 
             var spawnType = MovingHealthObjectType.PLAYER_WIZARD;
-            var spawnPos = new Vector2(6 * 16, 6 * 16);
+            var spawnPos = new Vector2(-8, 12 * 16);
             var spawnScale = new Vector2(16, 16 * 2);
             var spawnHp = 100;
 
