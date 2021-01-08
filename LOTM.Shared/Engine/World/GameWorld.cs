@@ -47,6 +47,28 @@ namespace LOTM.Shared.Engine.World
             }
         }
 
+        public void RemoveObject(GameObject gameObject)
+        {
+            if (gameObject is IMoveable)
+            {
+                DynamicObjects.Remove(gameObject);
+
+                if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
+                {
+                    DynamicObjectLookupCache.Remove(networkSynchronization.NetworkId);
+                }
+            }
+            else
+            {
+                StaticObjects.Remove(gameObject);
+
+                if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
+                {
+                    StaticObjectLookupCache.Remove(networkSynchronization.NetworkId);
+                }
+            }
+        }
+
         public IEnumerable<GameObject> GetAllObjects()
         {
             return StaticObjects.GetAllObjects().Concat(DynamicObjects);

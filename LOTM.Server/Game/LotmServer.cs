@@ -102,7 +102,7 @@ namespace LOTM.Server.Game
             netSync.NetworkId = netId;
 
             //Send inital create packet for the player
-            netSync.PacketsOutbound.Enqueue(new MovingHealthObjectUpdate
+            netSync.PacketsOutbound.Enqueue(new MovingHealthObjectCreate
             {
                 Type = spawnType,
                 PositionX = spawnPos.X,

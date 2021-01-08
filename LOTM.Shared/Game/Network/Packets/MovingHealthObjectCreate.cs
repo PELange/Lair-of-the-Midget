@@ -5,9 +5,9 @@ using System.Net;
 
 namespace LOTM.Shared.Game.Network.Packets
 {
-    public class MovingHealthObjectUpdate : NetworkPacket
+    public class MovingHealthObjectCreate : NetworkPacket
     {
-        public MovingHealthObjectUpdate(IPEndPoint sender = default) : base(sender)
+        public MovingHealthObjectCreate(IPEndPoint sender = default) : base(sender)
         {
         }
 

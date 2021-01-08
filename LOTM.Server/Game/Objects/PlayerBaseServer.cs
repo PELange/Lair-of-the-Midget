@@ -18,8 +18,6 @@ namespace LOTM.Server.Game.Objects
         {
             var networkSynchronization = GetComponent<NetworkSynchronization>();
 
-            //System.Console.WriteLine($"Processing {networkSynchronization.PacketsInbound.Count} packets.");
-
             //1. Check for position changes and only apply the latest one
             if (networkSynchronization.PacketsInbound.Where(x => x is PlayerInput).OrderByDescending(x => x.Id).FirstOrDefault() is PlayerInput playerInput)
             {

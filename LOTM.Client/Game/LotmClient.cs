@@ -131,30 +131,29 @@ namespace LOTM.Client.Game
                         break;
                     }
 
-                    //Player or enemy object creation or full state update
-                    case MovingHealthObjectUpdate movingHealthObjectUpdate:
+                    //Player or enemy object creation
+                    case MovingHealthObjectCreate movingHealthObjectCreate:
                     {
                         //Try to loctate the object using the network id
-                        var gameObject = World.GetGameObjectByNetworkId(movingHealthObjectUpdate.ObjectId);
+                        var gameObject = World.GetGameObjectByNetworkId(movingHealthObjectCreate.ObjectId);
 
-                        //No known gameobject with that id yet -> Create
-                        if (gameObject == null)
+                        //We seem to already know the object? Dublicate packet arrival or faulty serverside logic. Either way, we keep the local version and wait for more updates to come to refresh it's state
+                        if (gameObject != null)
                         {
-                            if (movingHealthObjectUpdate.Type == MovingHealthObjectType.PLAYER_WIZARD)
-                            {
-                                gameObject = new PlayerBaseClient(
-                                    movingHealthObjectUpdate.ObjectId,
-                                    MovingHealthObjectType.PLAYER_WIZARD,
-                                    new Vector2(movingHealthObjectUpdate.PositionX, movingHealthObjectUpdate.PositionY),
-                                    new Vector2(movingHealthObjectUpdate.ScaleX, movingHealthObjectUpdate.ScaleY),
-                                    movingHealthObjectUpdate.Health);
-
-                                World.AddObject(gameObject);
-                            }
+                            break;
                         }
-                        else
+
+                        //Create the object based on remote info
+                        if (movingHealthObjectCreate.Type == MovingHealthObjectType.PLAYER_WIZARD)
                         {
-                            gameObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(movingHealthObjectUpdate);
+                            gameObject = new PlayerBaseClient(
+                                movingHealthObjectCreate.ObjectId,
+                                MovingHealthObjectType.PLAYER_WIZARD,
+                                new Vector2(movingHealthObjectCreate.PositionX, movingHealthObjectCreate.PositionY),
+                                new Vector2(movingHealthObjectCreate.ScaleX, movingHealthObjectCreate.ScaleY),
+                                movingHealthObjectCreate.Health);
+
+                            World.AddObject(gameObject);
                         }
 
                         break;
@@ -236,16 +235,13 @@ namespace LOTM.Client.Game
                     World.AddObject(tile);
                 }
             }
-
-            //World.Objects.Add(new DemonBoss(new Vector2(160, 160), 45, new Vector2(32, 32)));
-            //World.Objects.Add(new WizardOfWisdom(new Vector2(6 * 16, 6 * 16), 0, new Vector2(16, 16 * 2)));
         }
 
         void PollInputs()
         {
             var inputs = InputType.NONE;
 
-            if (InputManager.WasControlPressed(InputType.WALK_LEFT))
+            if (InputManager.WasControlPressed(InputType.WALK_LEFT)) //check last left instead of generally was pressed.
             {
                 inputs |= InputType.WALK_LEFT;
             }

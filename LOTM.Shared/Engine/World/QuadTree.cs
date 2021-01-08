@@ -124,7 +124,7 @@ namespace LOTM.Shared.Engine.World
             ChildBR = null;
         }
 
-        public void Delete(GameObject item)
+        public void Remove(GameObject item)
         {
             // If this level contains the object, remove it
             bool objectRemoved = false;
@@ -138,10 +138,10 @@ namespace LOTM.Shared.Engine.World
             // If we didn't find the object in this tree, try to delete from its children
             if (ChildTL != null && !objectRemoved)
             {
-                ChildTL.Delete(item);
-                ChildTR.Delete(item);
-                ChildBL.Delete(item);
-                ChildBR.Delete(item);
+                ChildTL.Remove(item);
+                ChildTR.Remove(item);
+                ChildBL.Remove(item);
+                ChildBR.Remove(item);
             }
 
             if (ChildTL != null)
