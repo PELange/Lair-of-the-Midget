@@ -11,6 +11,7 @@ using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using System.Collections.Generic;
 using static LOTM.Client.Engine.Graphics.OrthographicCamera;
+using static LOTM.Shared.Game.Objects.LivingObject;
 
 namespace LOTM.Client.Game
 {
@@ -131,11 +132,11 @@ namespace LOTM.Client.Game
                         break;
                     }
 
-                    //Player or enemy object creation
-                    case MovingHealthObjectCreate movingHealthObjectCreate:
+                    //Object creation based on server packet
+                    case ObjectCreation objectCreation:
                     {
                         //Try to loctate the object using the network id
-                        var gameObject = World.GetGameObjectByNetworkId(movingHealthObjectCreate.ObjectId);
+                        var gameObject = World.GetGameObjectByNetworkId(objectCreation.ObjectId);
 
                         //We seem to already know the object? Dublicate packet arrival or faulty serverside logic. Either way, we keep the local version and wait for more updates to come to refresh it's state
                         if (gameObject != null)
@@ -144,28 +145,16 @@ namespace LOTM.Client.Game
                         }
 
                         //Create the object based on remote info
-                        if (movingHealthObjectCreate.Type == MovingHealthObjectType.PLAYER_WIZARD)
+                        if (objectCreation.Type == ObjectType.PLAYER_WIZARD)
                         {
                             gameObject = new PlayerBaseClient(
-                                movingHealthObjectCreate.ObjectId,
-                                MovingHealthObjectType.PLAYER_WIZARD,
-                                new Vector2(movingHealthObjectCreate.PositionX, movingHealthObjectCreate.PositionY),
-                                new Vector2(movingHealthObjectCreate.ScaleX, movingHealthObjectCreate.ScaleY),
-                                movingHealthObjectCreate.Health);
+                                objectCreation.ObjectId,
+                                objectCreation.Type,
+                                new Vector2(objectCreation.PositionX, objectCreation.PositionY),
+                                new Vector2(objectCreation.ScaleX, objectCreation.ScaleY),
+                                (objectCreation as LivingObjectCreation).Health);
 
                             World.AddObject(gameObject);
-                        }
-
-                        break;
-                    }
-
-                    case ObjectHealthUpdate objectHealthUpdate:
-                    {
-                        var gameObject = World.GetGameObjectByNetworkId(objectHealthUpdate.ObjectId);
-
-                        if (gameObject != null)
-                        {
-                            gameObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(objectHealthUpdate);
                         }
 
                         break;
@@ -178,6 +167,18 @@ namespace LOTM.Client.Game
                         if (gameObject != null)
                         {
                             gameObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(objectPositionUpdate);
+                        }
+
+                        break;
+                    }
+
+                    case ObjectHealthUpdate objectHealthUpdate:
+                    {
+                        var gameObject = World.GetGameObjectByNetworkId(objectHealthUpdate.ObjectId);
+
+                        if (gameObject != null)
+                        {
+                            gameObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(objectHealthUpdate);
                         }
 
                         break;
@@ -239,6 +240,25 @@ namespace LOTM.Client.Game
 
         void PollInputs()
         {
+            if (PlayerObject != null)
+            {
+                var playerCollider = PlayerObject.GetComponent<Collider>();
+
+                foreach (var worldObject in World.GetAllObjects())
+                {
+                    if (worldObject == PlayerObject) continue;
+
+                    if (worldObject.GetComponent<Collider>() is Collider objectCollider)
+                    {
+                        if (playerCollider.CollidesWith(objectCollider, out var collisionResult))
+                        {
+                            System.Console.WriteLine($"{System.DateTime.Now} X:{collisionResult.Overlap.X} Y:{collisionResult.Overlap.Y} Width:{collisionResult.Overlap.Width} Height:{collisionResult.Overlap.Height} ");
+                            //return;
+                        }
+                    }
+                }
+            }
+
             var inputs = InputType.NONE;
 
             if (InputManager.WasControlPressed(InputType.WALK_LEFT)) //check last left instead of generally was pressed.

@@ -2,6 +2,7 @@
 using LOTM.Client.Engine.Objects.Components;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
+using LOTM.Shared.Engine.Objects.Components;
 using System;
 using System.Collections.Generic;
 using static LOTM.Client.Game.Objects.DungeonRoom.DungeonRoom;
@@ -13,13 +14,13 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
 
         public DungeonTile(TileType tileType, Random random, Vector2 position = null, double rotation = 0, Vector2 scale = null) : base(position, rotation, scale)
         {
-            List<SpriteRenderer.Segment> spriteSegments = new List<SpriteRenderer.Segment>();
-            Random rnd = random;
+            var spriteSegments = new List<SpriteRenderer.Segment>();
+
             switch (tileType)
             {
                 // Ground section
                 case TileType.Ground:
-                    int tileNum = rnd.Next(0, 4);
+                    int tileNum = random.Next(0, 4);
                     spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_tile_" + tileNum), null, null, null, 0));
                     break;
 
@@ -94,14 +95,19 @@ namespace LOTM.Client.Game.Objects.DungeonRoom
                 case TileType.Pillar:
                     spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_pillar_top"), new Vector2(1, 0.5), new Vector2(0, 0), null, 1100));
                     spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_pillar_bottom"), new Vector2(1, 0.5), new Vector2(0, 0.5), null, 100));
+
+                    Components.Add(new Collider(this, new BoundingBox(0, 0.5, 1, 0.5)));
+
                     break;
 
                 default:
                     break;
-
             }
 
-            Components.Add(new SpriteRenderer(spriteSegments));
+            if (spriteSegments.Count > 0)
+            {
+                Components.Add(new SpriteRenderer(spriteSegments));
+            }
         }
     }
 }

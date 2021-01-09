@@ -11,10 +11,10 @@ namespace LOTM.Client.Game.Objects.Player
         protected int CurrentAnimationPhase { get; set; }
         protected double AnimationTimer { get; set; }
 
-        public PlayerBaseClient(int networkId, MovingHealthObjectType type, Vector2 position, Vector2 scale, double health)
-            : base(networkId, type, position, scale, health)
+        public PlayerBaseClient(int networkId, ObjectType type, Vector2 position, Vector2 scale, double health)
+            : base(networkId, type, position, scale, new BoundingBox(0, 0.5, 1, 0.5), health)
         {
-            if (Type == MovingHealthObjectType.PLAYER_WIZARD)
+            if (Type == ObjectType.PLAYER_WIZARD)
             {
                 Components.Add(new SpriteRenderer(new List<SpriteRenderer.Segment>
                 {
@@ -39,7 +39,7 @@ namespace LOTM.Client.Game.Objects.Player
             {
                 spriteRenderer.Segments[0].Color = new Vector4(1, 0, 0, 1);
 
-                if (Type == MovingHealthObjectType.PLAYER_WIZARD)
+                if (Type == ObjectType.PLAYER_WIZARD)
                 {
                     spriteRenderer.Segments[0].Sprite = AssetManager.GetSprite($"wizzard_m_idle_anim_f{CurrentAnimationPhase}");
                 }

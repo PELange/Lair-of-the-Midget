@@ -1,16 +1,14 @@
-﻿using LOTM.Shared.Engine.Network;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 
 namespace LOTM.Shared.Game.Network.Packets
 {
-    public class ObjectPositionUpdate : NetworkPacket
+    public class ObjectPositionUpdate : ObjectBoundPacket
     {
         public ObjectPositionUpdate(IPEndPoint sender = default) : base(sender)
         {
         }
 
-        public int ObjectId { get; set; }
         public double PositionX { get; set; }
         public double PositionY { get; set; }
 
@@ -18,7 +16,6 @@ namespace LOTM.Shared.Game.Network.Packets
         {
             base.ReadBytes(reader);
 
-            ObjectId = reader.ReadInt32();
             PositionX = reader.ReadDouble();
             PositionY = reader.ReadDouble();
         }
@@ -27,7 +24,6 @@ namespace LOTM.Shared.Game.Network.Packets
         {
             base.WriteBytes(writer);
 
-            writer.Write(ObjectId);
             writer.Write(PositionX);
             writer.Write(PositionY);
         }

@@ -1,6 +1,6 @@
 ﻿namespace LOTM.Shared.Game.Objects
 {
-    public enum MovingHealthObjectType : byte
+    public enum ObjectType : byte
     {
         PLAYER_WIZARD,
     }

@@ -3,9 +3,9 @@ using System.Net;
 
 namespace LOTM.Shared.Game.Network.Packets
 {
-    public class ObjectHealthUpdate : ObjectBoundPacket
+    public class LivingObjectCreation : ObjectCreation
     {
-        public ObjectHealthUpdate(IPEndPoint sender = default) : base(sender)
+        public LivingObjectCreation(IPEndPoint sender = default) : base(sender)
         {
         }
 

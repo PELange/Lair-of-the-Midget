@@ -89,7 +89,7 @@ namespace LOTM.Server.Game
         {
             System.Console.WriteLine($"{playerJoin.PlayerName}({playerJoin.Sender}) joined the server.");
 
-            var spawnType = MovingHealthObjectType.PLAYER_WIZARD;
+            var spawnType = ObjectType.PLAYER_WIZARD;
             var spawnPos = new Vector2(-8, 12 * 16);
             var spawnScale = new Vector2(16, 16 * 2);
             var spawnHp = 100;
@@ -102,7 +102,7 @@ namespace LOTM.Server.Game
             netSync.NetworkId = netId;
 
             //Send inital create packet for the player
-            netSync.PacketsOutbound.Enqueue(new MovingHealthObjectCreate
+            netSync.PacketsOutbound.Enqueue(new LivingObjectCreation
             {
                 Type = spawnType,
                 PositionX = spawnPos.X,

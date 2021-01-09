@@ -7,10 +7,10 @@ using System.Linq;
 
 namespace LOTM.Client.Game.Objects
 {
-    public class MovingHealthObjectClient : MovingHealthObject
+    public class MovingHealthObjectClient : LivingObject
     {
-        public MovingHealthObjectClient(int networkId, MovingHealthObjectType type, Vector2 position, Vector2 scale, double health)
-            : base(type, position, scale, health)
+        public MovingHealthObjectClient(int networkId, ObjectType type, Vector2 position, Vector2 scale, BoundingBox colliderInfo, double health)
+            : base(type, position, scale, colliderInfo, health)
         {
             GetComponent<NetworkSynchronization>().NetworkId = networkId;
         }

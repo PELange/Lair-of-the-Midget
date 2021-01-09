@@ -27,7 +27,7 @@ namespace LOTM.Shared.Game.Network
                     writer.Write(3);
                     break;
 
-                case MovingHealthObjectCreate _:
+                case LivingObjectCreation _:
                     writer.Write(4);
                     break;
 
@@ -73,7 +73,7 @@ namespace LOTM.Shared.Game.Network
                     break;
 
                 case 4:
-                    networkPacket = new MovingHealthObjectCreate(sender);
+                    networkPacket = new LivingObjectCreation(sender);
                     break;
 
                 case 5:

@@ -9,8 +9,8 @@ namespace LOTM.Server.Game.Objects
 {
     public class PlayerBaseServer : MovingHealthObjectServer
     {
-        public PlayerBaseServer(MovingHealthObjectType type, Vector2 position, Vector2 scale, double health)
-            : base(type, position, scale, health)
+        public PlayerBaseServer(ObjectType type, Vector2 position, Vector2 scale, double health)
+            : base(type, position, scale, new BoundingBox(0, 0.5, 1, 0.5), health)
         {
         }
 
