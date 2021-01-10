@@ -227,7 +227,7 @@ namespace LOTM.Client.Game
                 worldObject.OnUpdate(deltaTime);
             }
 
-            DebugCollisions();
+            //DebugCollisions();
 
             UpdateCamera();
         }
@@ -312,8 +312,7 @@ namespace LOTM.Client.Game
             {
                 if (worldObject.GetComponent<Collider>() is Collider collider)
                 {
-                    var dbgBox = collider.AsBoundingBox();
-                    DebugOverlay.DrawBox(dbgBox.X, dbgBox.Y, dbgBox.Width, dbgBox.Height, new Vector4(0, 1, 0, 0.5));
+                    collider.AsBoundingBoxes().ForEach(dbgBox => DebugOverlay.DrawBox(dbgBox.X, dbgBox.Y, dbgBox.Width, dbgBox.Height, new Vector4(0, 1, 0, 0.5)));
                 }
             }
 
@@ -329,8 +328,6 @@ namespace LOTM.Client.Game
                 {
                     if (playerCollider.CollidesWith(objectCollider, out var collisionResult))
                     {
-                        var firstBox = playerCollider.AsBoundingBox();
-                        var secondBox = objectCollider.AsBoundingBox();
                         DebugOverlay.DrawBox(collisionResult.Overlap.X, collisionResult.Overlap.Y, collisionResult.Overlap.Width, collisionResult.Overlap.Height, new Vector4(1, 0, 0, 1));
                     }
                 }

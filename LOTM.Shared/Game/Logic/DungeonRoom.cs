@@ -114,7 +114,7 @@ namespace LOTM.Shared.Game.Logic
         public void CreateDoor(bool top, bool open)
         {
             int xCoord = (int)StartCoords.X + (16 * XDoorLeft);
-            int yCoord = top ? (int)StartCoords.Y - 32 : (int)StartCoords.Y + (Height - 2) * 16;
+            int yCoord = top ? (int)StartCoords.Y - 32 : (int)(StartCoords.Y + (Height - 2) * 16);
 
             // Create door frame
             if (top)

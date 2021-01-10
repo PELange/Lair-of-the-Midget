@@ -17,7 +17,7 @@ namespace LOTM.Client.Game.Objects.Player
         protected double AnimationTimer { get; set; }
 
         public PlayerBaseClient(int networkId, string name, ObjectType type, Vector2 position, Vector2 scale, double health)
-            : base(networkId, type, position, scale, new BoundingBox(0, 0.5, 1, 0.5), health)
+            : base(networkId, type, position, scale, new BoundingBox(0, 0.75, 1, 0.25), health)
         {
             AddComponent(new PlayerInfo(name));
 

@@ -13,7 +13,7 @@ namespace LOTM.Server.Game.Objects
     public class PlayerBaseServer : LivingObjectServer
     {
         public PlayerBaseServer(int networkId, string name, ObjectType type, Vector2 position, double health)
-            : base(networkId, type, position, new Vector2(16, 32), new BoundingBox(0, 0.5, 1, 0.5), health)
+            : base(networkId, type, position, new Vector2(16, 32), new BoundingBox(0, 0.75, 1, 0.25), health)
         {
             AddComponent(new PlayerInfo(name));
         }
