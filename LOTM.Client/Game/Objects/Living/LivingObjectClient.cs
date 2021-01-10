@@ -1,5 +1,6 @@
 ﻿using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects.Components;
+using LOTM.Shared.Engine.World;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
@@ -7,15 +8,14 @@ using System.Linq;
 
 namespace LOTM.Client.Game.Objects
 {
-    public class MovingHealthObjectClient : LivingObject
+    public class LivingObjectClient : LivingObject
     {
-        public MovingHealthObjectClient(int networkId, ObjectType type, Vector2 position, Vector2 scale, BoundingBox colliderInfo, double health)
-            : base(type, position, scale, colliderInfo, health)
+        public LivingObjectClient(int networkId, ObjectType type, Vector2 position, Vector2 scale, BoundingBox colliderInfo, double health)
+            : base(networkId, type, position, scale, colliderInfo, health)
         {
-            GetComponent<NetworkSynchronization>().NetworkId = networkId;
         }
 
-        public override void OnFixedUpdate(double deltaTime)
+        public override void OnFixedUpdate(double deltaTime, GameWorld world)
         {
             var networkSynchronization = GetComponent<NetworkSynchronization>();
 

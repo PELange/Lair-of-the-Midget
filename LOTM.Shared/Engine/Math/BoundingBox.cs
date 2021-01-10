@@ -21,6 +21,21 @@
             return !(other.X > (X + Width) || (other.X + other.Width) < X || other.Y > (Y + Height) || (other.Y + other.Height) < Y);
         }
 
+        public BoundingBox GetInsectionArea(BoundingBox other)
+        {
+            var maxLeft = System.Math.Max(X, other.X);
+            var minRight = System.Math.Min(X + Width, other.X + other.Width);
+            var maxTop = System.Math.Max(Y, other.Y);
+            var minBottom = System.Math.Min(Y + Height, other.Y + other.Height);
+
+            if (maxLeft < minRight && maxTop < minBottom)
+            {
+                return new BoundingBox(maxLeft, maxTop, minRight - maxLeft, minBottom - maxTop);
+            }
+
+            return null;
+        }
+
         public bool Contains(BoundingBox other)
         {
             //Other coords must be within bounds of this bbox

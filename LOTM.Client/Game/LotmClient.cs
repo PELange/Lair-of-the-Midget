@@ -1,24 +1,22 @@
 ﻿using LOTM.Client.Engine;
 using LOTM.Client.Engine.Controls;
+using LOTM.Client.Engine.Graphics;
 using LOTM.Client.Game.Network;
-using LOTM.Client.Game.Objects.DungeonRoom;
+using LOTM.Client.Game.Objects.Environment;
 using LOTM.Client.Game.Objects.Player;
 using LOTM.Shared.Engine.Controls;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
+using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
-using LOTM.Shared.Game.Objects;
-using System.Collections.Generic;
+using LOTM.Shared.Game.Objects.Environment;
 using static LOTM.Client.Engine.Graphics.OrthographicCamera;
-using static LOTM.Shared.Game.Objects.LivingObject;
 
 namespace LOTM.Client.Game
 {
     public class LotmClient : GuiGame
     {
-        protected List<Vector2> RoomCoordsList = new List<Vector2>();
-
         protected LotmNetworkManagerClient NetworkClient { get; set; }
 
         protected int PlayerGameObjectId { get; set; }
@@ -37,6 +35,8 @@ namespace LOTM.Client.Game
             AssetManager.RegisterTexture("Game/Assets/Textures/0x72_DungeonTilesetII_v1.3.png", "dungeonTiles");
 
             //Register indivual sprites on the atlas using 16x16 grid indices
+
+            //Deamon boss
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 23, 1, 23), "demonboss_idle_0_1");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 23, 2, 23), "demonboss_idle_0_2");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 24, 1, 24), "demonboss_idle_0_3");
@@ -54,13 +54,11 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 12, 25, 13), "ogre_small_m_idle_anim_f2");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 12, 25, 13), "ogre_small_m_idle_anim_f3");
 
-
             // Green Blob
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 6, 27, 7), "blob_green_m_idle_anim_f0");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 6, 28, 7), "blob_green_m_idle_anim_f1");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 6, 29, 7), "blob_green_m_idle_anim_f2");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 6, 30, 7), "blob_green_m_idle_anim_f3");
-
 
             //Wizard
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(8, 10, 8, 11), "wizzard_m_idle_anim_f0");
@@ -82,7 +80,6 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 9, 2, 10), "dungeon_corner_bottom_left");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(3, 9, 3, 10), "dungeon_corner_bottom_right");
 
-
             // Door tiles
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 14, 3, 15), "dungeon_door_closed");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 15, 6, 15), "dungeon_door_opened_bottom");
@@ -90,7 +87,6 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 13, 3, 13), "dungeon_door_arch");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 14, 1, 15), "dungeon_door_wall_left");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(4, 14, 4, 15), "dungeon_door_wall_right");
-
 
             // Pillar
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 5, 5, 5), "dungeon_pillar_top");
@@ -132,11 +128,11 @@ namespace LOTM.Client.Game
                         break;
                     }
 
-                    //Object creation based on server packet
-                    case ObjectCreation objectCreation:
+                    //Player creations
+                    case PlayerCreation playerCreation:
                     {
                         //Try to loctate the object using the network id
-                        var gameObject = World.GetGameObjectByNetworkId(objectCreation.ObjectId);
+                        var gameObject = World.GetGameObjectByNetworkId(playerCreation.ObjectId);
 
                         //We seem to already know the object? Dublicate packet arrival or faulty serverside logic. Either way, we keep the local version and wait for more updates to come to refresh it's state
                         if (gameObject != null)
@@ -145,17 +141,42 @@ namespace LOTM.Client.Game
                         }
 
                         //Create the object based on remote info
-                        if (objectCreation.Type == ObjectType.PLAYER_WIZARD)
-                        {
-                            gameObject = new PlayerBaseClient(
-                                objectCreation.ObjectId,
-                                objectCreation.Type,
-                                new Vector2(objectCreation.PositionX, objectCreation.PositionY),
-                                new Vector2(objectCreation.ScaleX, objectCreation.ScaleY),
-                                (objectCreation as LivingObjectCreation).Health);
+                        gameObject = new PlayerBaseClient(
+                            playerCreation.ObjectId,
+                            playerCreation.Name,
+                            playerCreation.Type,
+                            new Vector2(playerCreation.PositionX, playerCreation.PositionY),
+                            new Vector2(playerCreation.ScaleX, playerCreation.ScaleY),
+                            playerCreation.Health);
 
-                            World.AddObject(gameObject);
+                        World.AddObject(gameObject);
+
+                        break;
+                    }
+
+                    //Enemy creations
+                    case LivingObjectCreation livingObjectCreation:
+                    {
+                        //Try to loctate the object using the network id
+                        var gameObject = World.GetGameObjectByNetworkId(livingObjectCreation.ObjectId);
+
+                        //We seem to already know the object? Dublicate packet arrival or faulty serverside logic. Either way, we keep the local version and wait for more updates to come to refresh it's state
+                        if (gameObject != null)
+                        {
+                            break;
                         }
+
+                        //switch enemy types here
+
+                        ////Create the object based on remote info
+                        //gameObject = new LivingObjectClient(
+                        //    livingObjectCreation.ObjectId,
+                        //    livingObjectCreation.Type,
+                        //    new Vector2(livingObjectCreation.PositionX, livingObjectCreation.PositionY),
+                        //    new Vector2(livingObjectCreation.ScaleX, livingObjectCreation.ScaleY),
+                        //    livingObjectCreation.Health);
+
+                        //World.AddObject(gameObject);
 
                         break;
                     }
@@ -195,7 +216,7 @@ namespace LOTM.Client.Game
             //Run fixed simulation on all relevant world objects
             foreach (var worldObject in World.GetAllObjects())
             {
-                worldObject.OnFixedUpdate(FixedUpdateDeltaTime);
+                worldObject.OnFixedUpdate(FixedUpdateDeltaTime, World);
             }
         }
 
@@ -206,6 +227,8 @@ namespace LOTM.Client.Game
                 worldObject.OnUpdate(deltaTime);
             }
 
+            DebugCollisions();
+
             UpdateCamera();
         }
 
@@ -215,50 +238,24 @@ namespace LOTM.Client.Game
 
             PlayerGameObjectId = playerGameObjectId;
 
-            int playerCount = 3; // Get num of connected players to spawn more or less pickups and enemys
-            int roomCount = 3;
-            int roomWidth = 9 + playerCount;
-            int roomHeight = 9 + playerCount;
-            if (roomWidth % 2 == 1) roomWidth += 1;
-            if (roomHeight % 2 == 1) roomHeight += 1;
-            int tunnelLength = 5;
-            Vector2 roomCoords;
-            // Create rooms
-            for (int i = 0; i < roomCount; i++)
-            {
-                roomCoords = new Vector2(0, -i * (roomHeight + tunnelLength) * 16 + 32);
-                RoomCoordsList.Add(roomCoords);
-                DungeonRoom dungeonRoom = new DungeonRoom(roomCoords, roomWidth, roomHeight, tunnelLength, playerCount, seed);
-                if (i == 0) dungeonRoom.CreateDungeonEntrance();
+            var result = LevelGenerator.PreGenerate(4, seed);
 
-                foreach (var tile in dungeonRoom.DungeonObjectList)
+            foreach (var obj in result)
+            {
+                if (obj is DungeonTile dungeonTile)
                 {
-                    World.AddObject(tile);
+                    var transform = dungeonTile.GetComponent<Transformation2D>();
+                    World.AddObject(new DungeonTileRenderable(dungeonTile.Type, transform.Position, transform.Scale));
+                }
+                else
+                {
+                    //todo add other types
                 }
             }
         }
 
         void PollInputs()
         {
-            if (PlayerObject != null)
-            {
-                var playerCollider = PlayerObject.GetComponent<Collider>();
-
-                foreach (var worldObject in World.GetAllObjects())
-                {
-                    if (worldObject == PlayerObject) continue;
-
-                    if (worldObject.GetComponent<Collider>() is Collider objectCollider)
-                    {
-                        if (playerCollider.CollidesWith(objectCollider, out var collisionResult))
-                        {
-                            System.Console.WriteLine($"{System.DateTime.Now} X:{collisionResult.Overlap.X} Y:{collisionResult.Overlap.Y} Width:{collisionResult.Overlap.Width} Height:{collisionResult.Overlap.Height} ");
-                            //return;
-                        }
-                    }
-                }
-            }
-
             var inputs = InputType.NONE;
 
             if (InputManager.WasControlPressed(InputType.WALK_LEFT)) //check last left instead of generally was pressed.
@@ -307,6 +304,38 @@ namespace LOTM.Client.Game
                     new Vector2(cameraCenterPos.X - viewportPadding, cameraCenterPos.Y - viewportPadding),
                     new Vector2(cameraCenterPos.X + viewportPadding, cameraCenterPos.Y + viewportPadding)));
             }
+        }
+
+        void DebugCollisions()
+        {
+            foreach (var worldObject in World.GetAllObjects())
+            {
+                if (worldObject.GetComponent<Collider>() is Collider collider)
+                {
+                    var dbgBox = collider.AsBoundingBox();
+                    DebugOverlay.DrawBox(dbgBox.X, dbgBox.Y, dbgBox.Width, dbgBox.Height, new Vector4(0, 1, 0, 0.5));
+                }
+            }
+
+            if (PlayerObject == null) return;
+
+            var playerCollider = PlayerObject.GetComponent<Collider>();
+
+            foreach (var worldObject in World.GetObjectsInArea(PlayerObject.GetComponent<Transformation2D>().GetBoundingBox()))
+            {
+                var objectCollider = worldObject.GetComponent<Collider>();
+
+                if (objectCollider != null)
+                {
+                    if (playerCollider.CollidesWith(objectCollider, out var collisionResult))
+                    {
+                        var firstBox = playerCollider.AsBoundingBox();
+                        var secondBox = objectCollider.AsBoundingBox();
+                        DebugOverlay.DrawBox(collisionResult.Overlap.X, collisionResult.Overlap.Y, collisionResult.Overlap.Width, collisionResult.Overlap.Height, new Vector4(1, 0, 0, 1));
+                    }
+                }
+            }
+
         }
     }
 }

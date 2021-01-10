@@ -2,8 +2,10 @@
 using LOTM.Server.Game.Objects;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects.Components;
+using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
+using LOTM.Shared.Game.Objects.Components;
 using System.Collections.Generic;
 
 namespace LOTM.Server.Game
@@ -29,6 +31,8 @@ namespace LOTM.Server.Game
         {
             //WorldSeed = new System.Random().Next(0, 100000);
             WorldSeed = 130;
+
+            GenerateTestWorld();
         }
 
         protected override void OnFixedUpdate(double deltaTime)
@@ -61,7 +65,7 @@ namespace LOTM.Server.Game
             //Run fixed simulation on all relevant world objects
             foreach (var worldObject in World.GetAllObjects())
             {
-                worldObject.OnFixedUpdate(FixedUpdateDeltaTime);
+                worldObject.OnFixedUpdate(FixedUpdateDeltaTime, World);
             }
 
             //Process broadcast all outbound packets
@@ -89,34 +93,41 @@ namespace LOTM.Server.Game
         {
             System.Console.WriteLine($"{playerJoin.PlayerName}({playerJoin.Sender}) joined the server.");
 
-            var spawnType = ObjectType.PLAYER_WIZARD;
-            var spawnPos = new Vector2(-8, 12 * 16);
-            var spawnScale = new Vector2(16, 16 * 2);
+            if (playerJoin.PlayerType < ObjectType.Player_Wizard_Male || playerJoin.PlayerType > ObjectType.Player_Wizard_Male)
+            {
+                playerJoin.PlayerType = ObjectType.Player_Wizard_Male;
+            }
+
+            var spawnPos = new Vector2(-26, 97);
+            //var spawnPos = new Vector2(-8, 12 * 16);
             var spawnHp = 100;
 
-            var playerObject = new PlayerBaseServer(spawnType, spawnPos, spawnScale, spawnHp);
-
-            //Set network id for newly spawned player
             var netId = NextFreeEntityId++;
-            var netSync = playerObject.GetComponent<NetworkSynchronization>();
-            netSync.NetworkId = netId;
+            var playerObject = new PlayerBaseServer(netId, playerJoin.PlayerName, playerJoin.PlayerType, spawnPos, spawnHp);
 
             //Send inital create packet for the player
-            netSync.PacketsOutbound.Enqueue(new LivingObjectCreation
-            {
-                Type = spawnType,
-                PositionX = spawnPos.X,
-                PositionY = spawnPos.Y,
-                ScaleX = spawnScale.X,
-                ScaleY = spawnScale.Y,
-                Health = spawnHp,
-            });
+            var netSync = playerObject.GetComponent<NetworkSynchronization>();
+            var transform = playerObject.GetComponent<Transformation2D>();
+            var health = playerObject.GetComponent<Health>();
+            var playerInfo = playerObject.GetComponent<PlayerInfo>();
 
-            //Store player object
-            Players[playerJoin.Sender.ToString()] = playerObject;
+            netSync.PacketsOutbound.Enqueue(new PlayerCreation
+            {
+                ObjectId = netSync.NetworkId,
+                Type = playerObject.Type,
+                PositionX = transform.Position.X,
+                PositionY = transform.Position.Y,
+                ScaleX = transform.Scale.X,
+                ScaleY = transform.Scale.Y,
+                Health = health.Value,
+                Name = playerInfo.Name,
+            });
 
             //Add to world
             World.AddObject(playerObject);
+
+            //Store player object
+            Players[playerJoin.Sender.ToString()] = playerObject;
 
             //Respond to client
             return new PlayerJoinAck
@@ -124,6 +135,19 @@ namespace LOTM.Server.Game
                 PlayerObjectNetworkId = netId,
                 WorldSeed = WorldSeed
             };
+        }
+
+        protected void GenerateTestWorld()
+        {
+            var result = LevelGenerator.PreGenerate(4, WorldSeed);
+
+            foreach (var obj in result)
+            {
+                if (obj.GetComponent<Collider>() != null)
+                {
+                    World.AddObject(obj);
+                }
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects.Components;
+using LOTM.Shared.Engine.World;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,6 +22,11 @@ namespace LOTM.Shared.Engine.Objects
             OnInit();
         }
 
+        public void AddComponent(IComponent component)
+        {
+            Components.Add(component);
+        }
+
         public T GetComponent<T>() where T : IComponent
         {
             return (T)Components.Where(x => x is T).FirstOrDefault();
@@ -34,7 +40,7 @@ namespace LOTM.Shared.Engine.Objects
         {
         }
 
-        public virtual void OnFixedUpdate(double deltaTime)
+        public virtual void OnFixedUpdate(double deltaTime, GameWorld world)
         {
         }
 

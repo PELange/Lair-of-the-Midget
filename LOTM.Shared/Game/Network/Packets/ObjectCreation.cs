@@ -1,5 +1,4 @@
-﻿using LOTM.Shared.Engine.Network;
-using LOTM.Shared.Game.Objects;
+﻿using LOTM.Shared.Game.Objects;
 using System.IO;
 using System.Net;
 
@@ -21,7 +20,7 @@ namespace LOTM.Shared.Game.Network.Packets
         {
             base.ReadBytes(reader);
 
-            Type = (ObjectType)reader.ReadByte();
+            Type = (ObjectType)reader.ReadInt16();
             PositionX = reader.ReadDouble();
             PositionY = reader.ReadDouble();
             ScaleX = reader.ReadDouble();
@@ -32,7 +31,7 @@ namespace LOTM.Shared.Game.Network.Packets
         {
             base.WriteBytes(writer);
 
-            writer.Write((byte)Type);
+            writer.Write((short)Type);
             writer.Write(PositionX);
             writer.Write(PositionY);
             writer.Write(ScaleX);

@@ -7,39 +7,64 @@ namespace LOTM.Shared.Engine.Objects.Components
         public GameObject Parent { get; }
         public BoundingBox Offset { get; }
 
+        public bool Active { get; set; }
+
+        public BoundingBox AsBoundingBox()
+        {
+            var transform = Parent.GetComponent<Transformation2D>();
+
+            return new BoundingBox(
+                transform.Position.X + (transform.Scale.X * Offset.X),
+                transform.Position.Y + (transform.Scale.Y * Offset.Y),
+                transform.Scale.X * Offset.Width,
+                transform.Scale.Y * Offset.Height);
+        }
+
         public Collider(GameObject parent, BoundingBox boundingInfo)
         {
             Parent = parent;
             Offset = boundingInfo;
+            Active = true;
         }
 
         public bool CollidesWith(Collider other, out CollisionResult collisionResult)
         {
             collisionResult = default;
 
-            var transform = Parent.GetComponent<Transformation2D>();
-            var otherTransform = other.Parent.GetComponent<Transformation2D>();
+            if (this == other) return false; //Avoid self collision
 
-            var thisBox = new BoundingBox(
-                transform.Position.X + (transform.Scale.X * Offset.X),
-                transform.Position.Y + (transform.Scale.Y * Offset.Y),
-                transform.Scale.X * Offset.Width,
-                transform.Scale.Y * Offset.Height);
+            if (!Active || !other.Active) return false; //Avoid inactive collider evaluation
 
-            var otherBox = new BoundingBox(
-                otherTransform.Position.X + (otherTransform.Scale.X * other.Offset.X),
-                otherTransform.Position.Y + (otherTransform.Scale.Y * other.Offset.Y),
-                otherTransform.Scale.X * other.Offset.Width,
-                otherTransform.Scale.Y * other.Offset.Height);
+            var thisBox = AsBoundingBox();
+            var otherBox = other.AsBoundingBox();
 
-            var maxLeft = System.Math.Max(thisBox.X, otherBox.X);
-            var minRight = System.Math.Min(thisBox.X + thisBox.Width, otherBox.X + otherBox.Width);
-            var maxTop = System.Math.Max(thisBox.Y, otherBox.Y);
-            var minBottom = System.Math.Min(thisBox.Y + thisBox.Height, otherBox.Y + otherBox.Height);
+            var intersection = thisBox.GetInsectionArea(otherBox);
 
-            if (maxLeft < minRight && maxTop < minBottom)
+            if (intersection != null)
             {
-                collisionResult = new CollisionResult(new BoundingBox(maxLeft, maxTop, minRight - maxLeft, minBottom - maxTop));
+                collisionResult = new CollisionResult(intersection);
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool CollidesAfterOffsetWith(Vector2 offset, Collider other, out CollisionResult collisionResult)
+        {
+            collisionResult = default;
+
+            if (this == other) return false; //Avoid self collision
+
+            if (!Active || !other.Active) return false; //Avoid inactive collider evaluation
+
+            var thisBox = AsBoundingBox();
+            var otherBox = other.AsBoundingBox();
+
+            var intersection = new BoundingBox(thisBox.X + offset.X, thisBox.Y + offset.Y, thisBox.Width, thisBox.Height).GetInsectionArea(otherBox);
+
+            if (intersection != null)
+            {
+                collisionResult = new CollisionResult(intersection);
                 return true;
             }
 

@@ -27,16 +27,24 @@ namespace LOTM.Shared.Game.Network
                     writer.Write(3);
                     break;
 
-                case LivingObjectCreation _:
+                case PlayerCreation _:
                     writer.Write(4);
                     break;
 
-                case ObjectHealthUpdate _:
+                case LivingObjectCreation _:
                     writer.Write(5);
                     break;
 
-                case ObjectPositionUpdate _:
+                case ObjectCreation _:
                     writer.Write(6);
+                    break;
+
+                case ObjectHealthUpdate _:
+                    writer.Write(7);
+                    break;
+
+                case ObjectPositionUpdate _:
+                    writer.Write(8);
                     break;
 
                 default:
@@ -73,14 +81,22 @@ namespace LOTM.Shared.Game.Network
                     break;
 
                 case 4:
-                    networkPacket = new LivingObjectCreation(sender);
+                    networkPacket = new PlayerCreation(sender);
                     break;
 
                 case 5:
-                    networkPacket = new ObjectHealthUpdate(sender);
+                    networkPacket = new LivingObjectCreation(sender);
                     break;
 
                 case 6:
+                    networkPacket = new ObjectCreation(sender);
+                    break;
+
+                case 7:
+                    networkPacket = new ObjectHealthUpdate(sender);
+                    break;
+
+                case 8:
                     networkPacket = new ObjectPositionUpdate(sender);
                     break;
 

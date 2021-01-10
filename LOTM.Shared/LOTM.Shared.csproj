@@ -4,8 +4,4 @@
 		<TargetFramework>netcoreapp3.1</TargetFramework>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Folder Include="Game\Objects\Environment\" />
-	</ItemGroup>
-
 </Project>

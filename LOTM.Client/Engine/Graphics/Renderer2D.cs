@@ -51,6 +51,8 @@ namespace LOTM.Client.Engine.Graphics
 
             WorldObjectShader = Shader.SpriteShader();
 
+            DebugOverlay.DebugLineShader = Shader.DebugLineShader();
+
             //Setup white placehold texture
             AssetManager.RegisterTexture(Texture2D.FromColor(Vector4.ONE), "white");
 
@@ -70,7 +72,7 @@ namespace LOTM.Client.Engine.Graphics
             glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAX_QUADS * 4, null, GL_DYNAMIC_DRAW);
 
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), "Position"));
+            glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), "Position"));
 
             glEnableVertexAttribArray(1);
             glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), "Color"));
@@ -222,6 +224,45 @@ namespace LOTM.Client.Engine.Graphics
             glBindVertexArray(0);
 
             WorldObjectShader.Unbind();
+
+            //Debug overlay
+            if (DebugOverlay.DebugLines.Count > 0)
+            {
+                DebugOverlay.DebugLineShader.Bind();
+                DebugOverlay.DebugLineShader.SetMatrix4("projection", Camera.GetProjectionMatrix());
+
+                uint lineVAO, lineVBO;
+                glGenVertexArrays(1, &lineVAO);
+                glGenBuffers(1, &lineVBO);
+                glBindVertexArray(lineVAO);
+                glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+
+                foreach (var line in DebugOverlay.DebugLines)
+                {
+                    var lineData = new float[]
+                    {
+                        (float)line.Item1.X, (float)line.Item1.Y, (float)line.Item3.X, (float)line.Item3.Y, (float)line.Item3.Z, (float)line.Item3.W,
+
+                        (float)line.Item2.X, (float)line.Item2.Y, (float)line.Item3.X, (float)line.Item3.Y, (float)line.Item3.Z, (float)line.Item3.W,
+                    };
+
+                    fixed (float* data = lineData)
+                    {
+                        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * lineData.Length, data, GL_STATIC_DRAW);
+                    }
+
+                    glEnableVertexAttribArray(0);
+                    glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(float) * 6, (void*)0);
+
+                    glEnableVertexAttribArray(1);
+                    glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(float) * 6, (void*)(sizeof(float) * 2));
+
+                    glDrawArrays(GL_LINES, 0, 2);
+                }
+
+                DebugOverlay.DebugLines.Clear();
+                DebugOverlay.DebugLineShader.Unbind();
+            }
         }
     }
 }

@@ -1,35 +1,39 @@
-﻿using LOTM.Shared.Engine.Controls;
+﻿using LOTM.Server.Game.Objects.Living;
+using LOTM.Shared.Engine.Controls;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects.Components;
+using LOTM.Shared.Engine.World;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
+using LOTM.Shared.Game.Objects.Components;
 using System.Linq;
 
 namespace LOTM.Server.Game.Objects
 {
-    public class PlayerBaseServer : MovingHealthObjectServer
+    public class PlayerBaseServer : LivingObjectServer
     {
-        public PlayerBaseServer(ObjectType type, Vector2 position, Vector2 scale, double health)
-            : base(type, position, scale, new BoundingBox(0, 0.5, 1, 0.5), health)
+        public PlayerBaseServer(int networkId, string name, ObjectType type, Vector2 position, double health)
+            : base(networkId, type, position, new Vector2(16, 32), new BoundingBox(0, 0.5, 1, 0.5), health)
         {
+            AddComponent(new PlayerInfo(name));
         }
 
-        public override void OnFixedUpdate(double deltaTime)
+        public override void OnFixedUpdate(double deltaTime, GameWorld world)
         {
             var networkSynchronization = GetComponent<NetworkSynchronization>();
 
             //1. Check for position changes and only apply the latest one
             if (networkSynchronization.PacketsInbound.Where(x => x is PlayerInput).OrderByDescending(x => x.Id).FirstOrDefault() is PlayerInput playerInput)
             {
-                ApplyPlayerinput(playerInput, deltaTime);
+                ApplyPlayerinput(playerInput, deltaTime, world);
             }
 
             networkSynchronization.PacketsInbound.Clear();
         }
 
-        protected void ApplyPlayerinput(PlayerInput playerInput, double deltaTime)
+        protected void ApplyPlayerinput(PlayerInput playerInput, double deltaTime, GameWorld world)
         {
-            var walkSpeed = 100;
+            var walkSpeed = 50;
             var walkDirection = Vector2.ZERO;
 
             if ((playerInput.Inputs & InputType.WALK_UP) != 0)
@@ -59,14 +63,19 @@ namespace LOTM.Server.Game.Objects
                 walkDirection.Y /= magnitude;
 
                 var transformation = GetComponent<Transformation2D>();
-                transformation.Position.X += walkDirection.X * walkSpeed * deltaTime;
-                transformation.Position.Y += walkDirection.Y * walkSpeed * deltaTime;
+                var desiredPosition = new Vector2(transformation.Position.X + walkDirection.X * walkSpeed * deltaTime, transformation.Position.Y + walkDirection.Y * walkSpeed * deltaTime);
 
-                GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectPositionUpdate
+                if (TryMovePosition(desiredPosition, world))
                 {
-                    PositionX = transformation.Position.X,
-                    PositionY = transformation.Position.Y,
-                });
+                    var networkSynchronization = GetComponent<NetworkSynchronization>();
+
+                    networkSynchronization.PacketsOutbound.Enqueue(new ObjectPositionUpdate
+                    {
+                        ObjectId = networkSynchronization.NetworkId,
+                        PositionX = transformation.Position.X,
+                        PositionY = transformation.Position.Y,
+                    });
+                }
             }
         }
     }

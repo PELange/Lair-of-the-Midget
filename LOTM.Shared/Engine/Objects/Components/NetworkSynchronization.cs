@@ -9,8 +9,9 @@ namespace LOTM.Shared.Engine.Objects.Components
         public List<NetworkPacket> PacketsInbound { get; }
         public Queue<NetworkPacket> PacketsOutbound { get; }
 
-        public NetworkSynchronization()
+        public NetworkSynchronization(int networkId)
         {
+            NetworkId = networkId;
             PacketsInbound = new List<NetworkPacket>();
             PacketsOutbound = new Queue<NetworkPacket>();
         }
