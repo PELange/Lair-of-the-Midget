@@ -43,6 +43,8 @@ namespace LOTM.Shared.Engine.Objects.Components
         {
             collisionResult = default;
 
+            if (other == null) return false; //Collsion with non existent collider
+
             if (this == other) return false; //Avoid self collision
 
             if (!Active || !other.Active) return false; //Avoid inactive collider evaluation
