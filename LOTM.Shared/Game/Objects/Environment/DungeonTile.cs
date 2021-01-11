@@ -71,7 +71,6 @@ namespace LOTM.Shared.Game.Objects.Environment
                     break;
                 }
 
-
                 case ObjectType.Tile_DoorFrameTop:
                 {
                     Components.Add(new Collider(this, new List<BoundingBox>

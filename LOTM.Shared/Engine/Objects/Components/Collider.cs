@@ -51,7 +51,7 @@ namespace LOTM.Shared.Engine.Objects.Components
             {
                 foreach (var otherBox in other.AsBoundingBoxes())
                 {
-                    var intersection = new BoundingBox(thisBox.X + offset.X, thisBox.Y + offset.Y, thisBox.Width, thisBox.Height).GetInsectionArea(otherBox);
+                    var intersection = new BoundingBox(thisBox.X + offset.X, thisBox.Y + offset.Y, thisBox.Width, thisBox.Height).GetIntersectionArea(otherBox);
 
                     if (intersection != null)
                     {

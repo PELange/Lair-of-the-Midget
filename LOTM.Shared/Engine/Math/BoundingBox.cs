@@ -21,7 +21,7 @@
             return !(other.X > (X + Width) || (other.X + other.Width) < X || other.Y > (Y + Height) || (other.Y + other.Height) < Y);
         }
 
-        public BoundingBox GetInsectionArea(BoundingBox other)
+        public BoundingBox GetIntersectionArea(BoundingBox other)
         {
             var maxLeft = System.Math.Max(X, other.X);
             var minRight = System.Math.Min(X + Width, other.X + other.Width);
