@@ -37,42 +37,90 @@ namespace LOTM.Client.Game
 
             //Register indivual sprites on the atlas using 16x16 grid indices
 
-            //Deamon boss
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 23, 1, 23), "demonboss_idle_0_1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 23, 2, 23), "demonboss_idle_0_2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 24, 1, 24), "demonboss_idle_0_3");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 24, 2, 24), "demonboss_idle_0_4");
 
-            //Small Skeleton
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 4, 23, 5), "skeleton_small_m_idle_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(24, 4, 24, 5), "skeleton_small_m_idle_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 4, 25, 5), "skeleton_small_m_idle_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 4, 25, 5), "skeleton_small_m_idle_anim_f3");
+            //Players
 
-            //Small Ogre
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 12, 23, 13), "ogre_small_m_idle_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(24, 12, 24, 13), "ogre_small_m_idle_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 12, 25, 13), "ogre_small_m_idle_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 12, 25, 13), "ogre_small_m_idle_anim_f3");
+            //Elf
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(8, 0, 8, 1), "elf_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(9, 0, 9, 1), "elf_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(10, 0, 10, 1), "elf_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(11, 0, 11, 1), "elf_m_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(12, 0, 12, 1), "elf_m_walk_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(13, 0, 13, 1), "elf_m_walk_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(14, 0, 14, 1), "elf_m_walk_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(15, 0, 15, 1), "elf_m_walk_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(16, 0, 16, 1), "elf_m_jump_anim_f0");
 
-            // Green Blob
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 6, 27, 7), "blob_green_m_idle_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 6, 28, 7), "blob_green_m_idle_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 6, 29, 7), "blob_green_m_idle_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 6, 30, 7), "blob_green_m_idle_anim_f3");
+            //Knight
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(8, 6, 8, 7), "knight_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(9, 6, 9, 7), "knight_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(10, 6, 10, 7), "knight_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(11, 6, 11, 7), "knight_m_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(12, 6, 12, 7), "knight_m_walk_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(13, 6, 13, 7), "knight_m_walk_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(14, 6, 14, 7), "knight_m_walk_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(15, 6, 15, 7), "knight_m_walk_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(16, 6, 16, 7), "knight_m_jump_anim_f0");
 
             //Wizard
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(8, 10, 8, 11), "wizzard_m_idle_anim_f0");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(9, 10, 9, 11), "wizzard_m_idle_anim_f1");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(10, 10, 10, 11), "wizzard_m_idle_anim_f2");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(11, 10, 11, 11), "wizzard_m_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(12, 10, 12, 11), "wizzard_m_walk_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(13, 10, 13, 11), "wizzard_m_walk_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(14, 10, 14, 11), "wizzard_m_walk_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(15, 10, 15, 11), "wizzard_m_walk_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(16, 10, 16, 11), "wizzard_m_jump_anim_f0");
 
-            //Dungeon room tiles
+            // Enemies
+
+            //Deamon boss
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 23, 2, 24), "demonboss_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(3, 23, 4, 24), "demonboss_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 23, 6, 24), "demonboss_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(7, 23, 8, 24), "demonboss_m_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(9, 23, 10, 24), "demonboss_m_walk_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(11, 23, 12, 24), "demonboss_m_walk_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(13, 23, 14, 24), "demonboss_m_walk_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(15, 23, 16, 24), "demonboss_m_walk_anim_f3");
+
+            //Small Skeleton
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 4, 23, 5), "skeleton_small_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(24, 4, 24, 5), "skeleton_small_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 4, 25, 5), "skeleton_small_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(26, 4, 26, 5), "skeleton_small_m_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 4, 27, 5), "skeleton_small_m_walk_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 4, 28, 5), "skeleton_small_m_walk_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 4, 29, 5), "skeleton_small_m_walk_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 4, 30, 5), "skeleton_small_m_walk_anim_f3");
+
+            //Small Ogre
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 12, 23, 13), "ogre_small_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(24, 12, 24, 13), "ogre_small_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 12, 25, 13), "ogre_small_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(26, 12, 26, 13), "ogre_small_m_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 12, 27, 13), "ogre_small_m_walk_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 12, 28, 13), "ogre_small_m_walk_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 12, 29, 13), "ogre_small_m_walk_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 12, 30, 13), "ogre_small_m_walk_anim_f3");
+
+            //Green Blob
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 6, 27, 7), "blob_green_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 6, 28, 7), "blob_green_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 6, 29, 7), "blob_green_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 6, 30, 7), "blob_green_m_idle_anim_f3");
+
+            //Dungeon room
+
+            //Ground tiles
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 4, 1, 4), "dungeon_tile_0");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 4, 2, 4), "dungeon_tile_1");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(3, 4, 3, 4), "dungeon_tile_2");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(2, 5, 2, 5), "dungeon_tile_3");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(6, 9, 6, 9), "dungeon_tile_hole");
+
+            //Wall tiles
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 8, 1, 8), "dungeon_wall_left");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(0, 8, 0, 8), "dungeon_wall_right");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 0, 1, 1), "dungeon_wall_standard");
@@ -89,11 +137,11 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 14, 1, 15), "dungeon_door_wall_left");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(4, 14, 4, 15), "dungeon_door_wall_right");
 
-            // Pillar
+            // Pillar tiles
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 5, 5, 5), "dungeon_pillar_top");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 6, 5, 6), "dungeon_pillar_bottom");
 
-            //PickUps
+            //Pickups
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 14, 18, 14), "pickup_pot_orange_big");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 15, 18, 15), "pickup_pot_orange_small");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(19, 14, 19, 14), "pickup_pot_blue_big");
@@ -102,6 +150,17 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(20, 15, 20, 15), "pickup_pot_green_small");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 14, 21, 14), "pickup_pot_yellow_big");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 15, 21, 15), "pickup_pot_yellow_small");
+
+            //Hearts
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 16, 18, 16), "heart_full");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(19, 16, 19, 16), "heart_half");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(20, 16, 20, 16), "heart empty");
+
+            //Weapons
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(20, 5, 20, 6), "sword");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 11, 18, 12), "spear");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 9, 21, 10), "staff");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 2, 18, 4), "hammer_big");
         }
 
         protected override void OnBeforeUpdate()
