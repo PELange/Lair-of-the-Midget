@@ -188,6 +188,12 @@ namespace LOTM.Client.Game
                         break;
                     }
 
+                    case PlayerInputAck playerInputAck:
+                    {
+                        InputManager.OnPlayerInputAck(playerInputAck);
+                        break;
+                    }
+
                     //Player creations
                     case PlayerCreation playerCreation:
                     {
@@ -271,7 +277,10 @@ namespace LOTM.Client.Game
             NetworkClient.EnsureServerConnection();
 
             //Poll controls and send input to server if needed
-            PollInputs();
+            if (InputManager.UpdateControls(out var playerInput))
+            {
+                NetworkClient.SendPacket(playerInput);
+            }
 
             //Run fixed simulation on all relevant world objects
             foreach (var worldObject in World.GetAllObjects())
@@ -312,34 +321,6 @@ namespace LOTM.Client.Game
                     //todo add other types
                 }
             }
-        }
-
-        void PollInputs()
-        {
-            var inputs = InputType.NONE;
-
-            if (InputManager.WasControlPressed(InputType.WALK_LEFT)) //check last left instead of generally was pressed.
-            {
-                inputs |= InputType.WALK_LEFT;
-            }
-            else if (InputManager.WasControlPressed(InputType.WALK_RIGHT))
-            {
-                inputs |= InputType.WALK_RIGHT;
-            }
-
-            if (InputManager.WasControlPressed(InputType.WALK_UP))
-            {
-                inputs |= InputType.WALK_UP;
-            }
-            else if (InputManager.WasControlPressed(InputType.WALK_DOWN))
-            {
-                inputs |= InputType.WALK_DOWN;
-            }
-
-            if (inputs != InputType.NONE) NetworkClient.SendPacket(new PlayerInput { Inputs = inputs });
-
-            //Clear all events such as button presses, as we processed them all for this frame.
-            InputManager.ClearEvents();
         }
 
         void UpdateCamera()

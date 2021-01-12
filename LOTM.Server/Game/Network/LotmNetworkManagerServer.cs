@@ -54,5 +54,10 @@ namespace LOTM.Server.Game.Network
                 SendPacket(packet, player);
             }
         }
+
+        public void SendPacketTo(NetworkPacket packet, IPEndPoint receiver)
+        {
+            SendPacket(packet, receiver);
+        }
     }
 }

@@ -17,6 +17,11 @@ namespace LOTM.Shared.Engine.Network
 
         private INetworkPacketSerializationProvider NetworkPacketSerializationProvider { get; }
 
+        private System.Timers.Timer DiagnosticsTimer { get; }
+        public int PacketsReceived { get; set; }
+        public int PacketsSent { get; set; }
+
+
         public NetworkManager(UdpSocket socket, INetworkPacketSerializationProvider networkPacketSerializationProvider)
         {
             Socket = socket;
@@ -29,6 +34,8 @@ namespace LOTM.Shared.Engine.Network
             //Setup receive listener
             Socket.OnMessageReceived = (socket, packet) =>
             {
+                PacketsReceived++;
+
                 //Unpack the packet into NetworkPaket C# instance
                 var networkPacket = NetworkPacketSerializationProvider.DeserializePacket(packet.data, packet.senderEndpoint);
 
@@ -39,6 +46,15 @@ namespace LOTM.Shared.Engine.Network
             //Start sender thread
             SendThread = new Thread(() => SendWorker());
             SendThread.Start();
+
+            DiagnosticsTimer = new System.Timers.Timer(1000);
+            DiagnosticsTimer.Start();
+            DiagnosticsTimer.Elapsed += (sender, args) =>
+            {
+                System.Console.WriteLine($"[NETWORK] Sent {PacketsSent}/s - Received {PacketsReceived}/s");
+                PacketsSent = 0;
+                PacketsReceived = 0;
+            };
         }
 
         public void Shutdown()
@@ -62,6 +78,8 @@ namespace LOTM.Shared.Engine.Network
                     var data = NetworkPacketSerializationProvider.SerializePacket(result.Item1);
 
                     await Socket.SendAsync(data, result.Item2);
+
+                    PacketsSent++;
                 }
             }
         }

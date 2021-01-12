@@ -9,7 +9,7 @@ namespace LOTM.Shared.Engine
     public abstract class Game
     {
         private const double MAX_REFRESH_RATE_IN_MS = 8; //Lock to 112 to 125 fps
-        private const double FIXED_DELTA_TIME = 0.016; //~60 fps
+        private double FixedTickrate { get; }
 
         private bool ShouldShutdown { get; set; }
         private DateTime LastUpdate { get; set; }
@@ -22,8 +22,10 @@ namespace LOTM.Shared.Engine
         protected GameWorld World { get; }
         protected NetworkManager NetworkManager { get; }
 
-        public Game(NetworkManager networkManager)
+        public Game(double tickRate, NetworkManager networkManager)
         {
+            FixedTickrate = tickRate;
+
             NetworkManager = networkManager;
 
             World = new GameWorld();
@@ -77,11 +79,11 @@ namespace LOTM.Shared.Engine
 
             OnBeforeUpdate();
 
-            while (Accumulator >= FIXED_DELTA_TIME)
+            while (Accumulator >= FixedTickrate)
             {
-                OnFixedUpdate(FIXED_DELTA_TIME);
+                OnFixedUpdate(FixedTickrate);
 
-                Accumulator -= FIXED_DELTA_TIME;
+                Accumulator -= FixedTickrate;
             }
 
             OnUpdate(deltaTime);

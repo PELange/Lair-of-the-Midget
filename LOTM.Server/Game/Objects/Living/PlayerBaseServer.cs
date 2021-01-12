@@ -12,6 +12,8 @@ namespace LOTM.Server.Game.Objects
 {
     public class PlayerBaseServer : LivingObjectServer
     {
+        public PlayerInput LastKownInput { get; set; }
+
         public PlayerBaseServer(int networkId, string name, ObjectType type, Vector2 position, double health)
             : base(networkId, type, position, new Vector2(16, 32), new Rectangle(0, 0.75, 1, 0.25), health)
         {
@@ -25,10 +27,12 @@ namespace LOTM.Server.Game.Objects
             //1. Check for position changes and only apply the latest one
             if (networkSynchronization.PacketsInbound.Where(x => x is PlayerInput).OrderByDescending(x => x.Id).FirstOrDefault() is PlayerInput playerInput)
             {
-                ApplyPlayerinput(playerInput, deltaTime, world);
+                LastKownInput = playerInput;
             }
 
             networkSynchronization.PacketsInbound.Clear();
+
+            ApplyPlayerinput(LastKownInput, deltaTime, world);
         }
 
         protected void ApplyPlayerinput(PlayerInput playerInput, double deltaTime, GameWorld world)

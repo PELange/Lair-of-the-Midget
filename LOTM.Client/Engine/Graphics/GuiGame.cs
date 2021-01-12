@@ -22,8 +22,10 @@ namespace LOTM.Client.Engine
 
         protected OrthographicCamera Camera { get; }
 
+        protected InputManager InputManager { get; }
+
         public GuiGame(int windowWidth, int windowHeight, string title, string iconPath, NetworkManager networkManager)
-            : base(networkManager)
+            : base(1.0 / 60, networkManager)
         {
             WindowWidth = windowWidth;
             WindowHeight = windowHeight;
@@ -78,6 +80,7 @@ namespace LOTM.Client.Engine
             glfwSetFramebufferSizeCallback(Window, Framebuffer_size_callback);
 
             //Input events
+            InputManager = new InputManager();
             glfwSetKeyCallback(Window, InputManager.KeyCallback);
             glfwSetJoystickCallback(InputManager.JoystickCallback);
 

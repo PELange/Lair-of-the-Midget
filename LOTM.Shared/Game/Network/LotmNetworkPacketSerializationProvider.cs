@@ -47,6 +47,10 @@ namespace LOTM.Shared.Game.Network
                     writer.Write(8);
                     break;
 
+                case PlayerInputAck _:
+                    writer.Write(9);
+                    break;
+
                 default:
                     throw new Exception($"Tried to serialize packet with unknown type '{packet}'.");
             }
@@ -98,6 +102,10 @@ namespace LOTM.Shared.Game.Network
 
                 case 8:
                     networkPacket = new ObjectPositionUpdate(sender);
+                    break;
+
+                case 9:
+                    networkPacket = new PlayerInputAck(sender);
                     break;
 
                 default:

@@ -21,7 +21,7 @@ namespace LOTM.Server.Game
         public int WorldSeed { get; set; }
 
         public LotmServer(string listenAddress)
-            : base(new LotmNetworkManagerServer(listenAddress))
+            : base(1.0 / 60, new LotmNetworkManagerServer(listenAddress))
         {
             NetworkServer = (LotmNetworkManagerServer)NetworkManager;
             Players = new Dictionary<string, PlayerBaseServer>();
@@ -55,6 +55,9 @@ namespace LOTM.Server.Game
                         if (Players.TryGetValue(playerInput.Sender.ToString(), out var playerObject))
                         {
                             playerObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(playerInput);
+
+                            //Ack back to the player
+                            NetworkServer.SendPacketTo(new PlayerInputAck { AckPacketId = playerInput.Id }, playerInput.Sender);
                         }
 
                         break;
