@@ -41,9 +41,9 @@ namespace LOTM.Shared.Engine.Objects.Components
             }
         }
 
-        private BoundingBox _BoundingBox;
+        private Rectangle _BoundingBox;
 
-        public BoundingBox GetBoundingBox()
+        public Rectangle GetBoundingBox()
         {
             return _BoundingBox;
         }
@@ -54,7 +54,7 @@ namespace LOTM.Shared.Engine.Objects.Components
 
             if (_BoundingBox == null)
             {
-                _BoundingBox = new BoundingBox(_Position.X, _Position.Y, _Scale.X, _Scale.Y);
+                _BoundingBox = new Rectangle(_Position.X, _Position.Y, _Scale.X, _Scale.Y);
             }
             else
             {

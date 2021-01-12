@@ -10,7 +10,7 @@ namespace LOTM.Client.Game.Objects
 {
     public class LivingObjectClient : LivingObject
     {
-        public LivingObjectClient(int networkId, ObjectType type, Vector2 position, Vector2 scale, BoundingBox colliderInfo, double health)
+        public LivingObjectClient(int networkId, ObjectType type, Vector2 position, Vector2 scale, Rectangle colliderInfo, double health)
             : base(networkId, type, position, scale, colliderInfo, health)
         {
         }

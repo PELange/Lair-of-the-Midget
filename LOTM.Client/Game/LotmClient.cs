@@ -11,6 +11,7 @@ using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects.Environment;
+using System.Linq;
 using static LOTM.Client.Engine.Graphics.OrthographicCamera;
 
 namespace LOTM.Client.Game
@@ -227,7 +228,7 @@ namespace LOTM.Client.Game
                 worldObject.OnUpdate(deltaTime);
             }
 
-            //DebugCollisions();
+            DebugCollisions();
 
             UpdateCamera();
         }
@@ -319,20 +320,73 @@ namespace LOTM.Client.Game
             if (PlayerObject == null) return;
 
             var playerCollider = PlayerObject.GetComponent<Collider>();
+            var playerTransform = PlayerObject.GetComponent<Transformation2D>();
 
-            foreach (var worldObject in World.GetObjectsInArea(PlayerObject.GetComponent<Transformation2D>().GetBoundingBox()))
+            var objectBounds = playerCollider.AsBoundingBoxes().First();
+
+            var desiredDelta = new Vector2(0, -16);
+            var possibleDelta = new Vector2(desiredDelta.X, desiredDelta.Y);
+
+            var ray = new Ray(objectBounds.X + objectBounds.Width / 2, objectBounds.Y + objectBounds.Height / 2, desiredDelta.X, desiredDelta.Y);
+
+            //DebugOverlay.DebugLines.Add((ray.Origin, new Vector2(ray.Origin.X + ray.Direction.X, ray.Origin.Y + ray.Direction.Y), new Vector4(1, 1, 0, 1)));
+
+            //foreach (var worldObject in World.GetObjectsInArea(PlayerObject.GetComponent<Transformation2D>().GetBoundingBox()))
+            foreach (var worldObject in World.GetAllObjects())
             {
+                if (worldObject == PlayerObject) continue;
+
                 var objectCollider = worldObject.GetComponent<Collider>();
 
                 if (objectCollider != null)
                 {
                     if (playerCollider.CollidesWith(objectCollider, out var collisionResult))
                     {
-                        DebugOverlay.DrawBox(collisionResult.Overlap.X, collisionResult.Overlap.Y, collisionResult.Overlap.Width, collisionResult.Overlap.Height, new Vector4(1, 0, 0, 1));
+                        foreach (var intersection in collisionResult.Intersections)
+                        {
+                            DebugOverlay.DrawBox(intersection.X, intersection.Y, intersection.Width, intersection.Height, new Vector4(1, 0, 0, 1));
+                        }
                     }
+
+                    //foreach (var rectangle in objectCollider.AsBoundingBoxes())
+                    //{
+                    //    //if (rectangle.IntersectsWith(ray, out var contactpoint, out var contactNormal, out var contactRayTime))
+                    //    //{
+                    //    //    DebugOverlay.DrawBox(contactpoint.X - 0.5, contactpoint.Y - 0.5, 1, 1, new Vector4(1, 0, 0, 1));
+
+                    //    //    //DebugOverlay.DebugLines.Add((new Vector2(contactpoint.X, contactpoint.Y), new Vector2(contactpoint.X + contactNormal.X * 16, contactpoint.Y + contactNormal.Y * 16), new Vector4(1, 0, 1, 1)));
+
+                    //    //    possibleDelta.X += contactNormal.X * System.Math.Abs(possibleDelta.X) * (1 - contactRayTime);
+                    //    //    possibleDelta.Y += contactNormal.Y * System.Math.Abs(possibleDelta.Y) * (1 - contactRayTime);
+                    //    //}
+
+                    //    //Enlarge boxes by half the dimensions of the object that wants to move to catch tunneling and find the correct position to slide along walls
+                    //    rectangle.X -= objectBounds.Width / 2;
+                    //    rectangle.Width += objectBounds.Width;
+
+                    //    rectangle.Y -= objectBounds.Height / 2;
+                    //    rectangle.Height += objectBounds.Height;
+
+                    //    var collisionRay = new Ray(objectBounds.X + objectBounds.Width / 2, objectBounds.Y + objectBounds.Height / 2, possibleDelta.X, possibleDelta.Y);
+
+                    //    if (rectangle.IntersectsWith(collisionRay, out var contactPoint, out var contactNormal, out var contactRayTime))
+                    //    {
+                    //        DebugOverlay.DrawBox(contactPoint.X - 0.5, contactPoint.Y - 0.5, 1, 1, new Vector4(1, 0, 0, 1));
+
+                    //        possibleDelta.X += contactNormal.X * System.Math.Abs(possibleDelta.X) * (1 - contactRayTime);
+                    //        possibleDelta.Y += contactNormal.Y * System.Math.Abs(possibleDelta.Y) * (1 - contactRayTime);
+                    //    }
+
+                    //}
                 }
             }
 
+            //DebugOverlay.DebugLines.Add((
+            //    new Vector2(objectBounds.X + objectBounds.Width / 2, objectBounds.Y + objectBounds.Height / 2),
+            //    new Vector2(objectBounds.X + objectBounds.Width / 2 + possibleDelta.X, objectBounds.Y + objectBounds.Height / 2 + possibleDelta.Y),
+            //    new Vector4(1, 0, 0, 1)));
+
+            //DebugOverlay.DebugLines.Add((new Vector2(contactpoint.X, contactpoint.Y), new Vector2(contactpoint.X + contactNormal.X * 16, contactpoint.Y + contactNormal.Y * 16), new Vector4(1, 0, 1, 1)));
         }
     }
 }

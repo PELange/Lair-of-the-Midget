@@ -21,7 +21,7 @@ namespace LOTM.Shared.Engine.World
             DynamicObjectLookupCache = new Dictionary<int, GameObject>();
 
             //StaticObjects = new List<GameObject>();
-            StaticObjects = new QuadTree(new BoundingBox(-10_000, -10_000, 20_000, 20_000));
+            StaticObjects = new QuadTree(new Rectangle(-10_000, -10_000, 20_000, 20_000));
             StaticObjectLookupCache = new Dictionary<int, GameObject>();
         }
 
@@ -74,7 +74,7 @@ namespace LOTM.Shared.Engine.World
             return StaticObjects.GetAllObjects().Concat(DynamicObjects);
         }
 
-        public IEnumerable<GameObject> GetObjectsInArea(BoundingBox area)
+        public IEnumerable<GameObject> GetObjectsInArea(Rectangle area)
         {
             return StaticObjects.GetObjects(area).Concat(DynamicObjects.Where(x => area.IntersectsWith(x.GetComponent<Transformation2D>().GetBoundingBox())));
         }

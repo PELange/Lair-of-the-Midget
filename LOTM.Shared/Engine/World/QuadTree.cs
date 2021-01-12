@@ -8,14 +8,14 @@ namespace LOTM.Shared.Engine.World
     public class QuadTree
     {
         protected List<GameObject> Objects { get; set; } // The list holding all objects in this QuadTree
-        protected BoundingBox BoundingRect { get; set; } // The area this QuadTree represents
+        protected Rectangle BoundingRect { get; set; } // The area this QuadTree represents
 
         protected QuadTree ChildTL { get; set; } // Top Left Child
         protected QuadTree ChildTR { get; set; } // Top Right Child
         protected QuadTree ChildBL { get; set; } // Bottom Left Child
         protected QuadTree ChildBR { get; set; } // Bottom Right Child
 
-        public QuadTree(BoundingBox rect)
+        public QuadTree(Rectangle rect)
         {
             BoundingRect = rect;
             Objects = new List<GameObject>();
@@ -52,10 +52,10 @@ namespace LOTM.Shared.Engine.World
             var size = new Vector2(BoundingRect.Width / 2, BoundingRect.Height / 2);
             var mid = new Vector2(BoundingRect.X + size.X, BoundingRect.Y + size.Y);
 
-            ChildTL = new QuadTree(new BoundingBox(BoundingRect.X, BoundingRect.Y, size.X, size.Y));
-            ChildTR = new QuadTree(new BoundingBox(mid.X, BoundingRect.Y, size.X, size.Y));
-            ChildBL = new QuadTree(new BoundingBox(BoundingRect.X, mid.Y, size.X, size.Y));
-            ChildBR = new QuadTree(new BoundingBox(mid.X, mid.Y, size.X, size.Y));
+            ChildTL = new QuadTree(new Rectangle(BoundingRect.X, BoundingRect.Y, size.X, size.Y));
+            ChildTR = new QuadTree(new Rectangle(mid.X, BoundingRect.Y, size.X, size.Y));
+            ChildBL = new QuadTree(new Rectangle(BoundingRect.X, mid.Y, size.X, size.Y));
+            ChildBR = new QuadTree(new Rectangle(mid.X, mid.Y, size.X, size.Y));
 
             // If they're completely contained by the quad, bump objects down
             for (int i = 0; i < Objects.Count; i++)
@@ -194,7 +194,7 @@ namespace LOTM.Shared.Engine.World
             }
         }
 
-        public List<GameObject> GetObjects(BoundingBox rect)
+        public List<GameObject> GetObjects(Rectangle rect)
         {
             var results = new List<GameObject>();
 

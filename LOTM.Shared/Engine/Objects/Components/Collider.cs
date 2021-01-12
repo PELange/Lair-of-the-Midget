@@ -7,30 +7,30 @@ namespace LOTM.Shared.Engine.Objects.Components
     public class Collider : IComponent
     {
         protected GameObject Parent { get; }
-        protected List<BoundingBox> Meshes { get; }
+        protected List<Rectangle> Rects { get; }
 
         public bool Active { get; set; }
 
-        public List<BoundingBox> AsBoundingBoxes()
+        public List<Rectangle> AsBoundingBoxes()
         {
             var transform = Parent.GetComponent<Transformation2D>();
 
-            return Meshes.Select(mesh => new BoundingBox(
+            return Rects.Select(mesh => new Rectangle(
                 transform.Position.X + (transform.Scale.X * mesh.X),
                 transform.Position.Y + (transform.Scale.Y * mesh.Y),
                 transform.Scale.X * mesh.Width,
                 transform.Scale.Y * mesh.Height)).ToList();
         }
 
-        public Collider(GameObject parent, BoundingBox boundingInfo)
-            : this(parent, new List<BoundingBox> { boundingInfo })
+        public Collider(GameObject parent, Rectangle boundingInfo)
+            : this(parent, new List<Rectangle> { boundingInfo })
         {
         }
 
-        public Collider(GameObject parent, List<BoundingBox> colliderBoxes)
+        public Collider(GameObject parent, List<Rectangle> colliderBoxes)
         {
             Parent = parent;
-            Meshes = colliderBoxes;
+            Rects = colliderBoxes;
             Active = true;
         }
 
@@ -53,26 +53,30 @@ namespace LOTM.Shared.Engine.Objects.Components
             {
                 foreach (var otherBox in other.AsBoundingBoxes())
                 {
-                    var intersection = new BoundingBox(thisBox.X + offset.X, thisBox.Y + offset.Y, thisBox.Width, thisBox.Height).GetIntersectionArea(otherBox);
+                    var intersection = new Rectangle(thisBox.X + offset.X, thisBox.Y + offset.Y, thisBox.Width, thisBox.Height).GetIntersectionArea(otherBox);
 
                     if (intersection != null)
                     {
-                        collisionResult = new CollisionResult(intersection);
-                        return true;
+                        if (collisionResult == null)
+                        {
+                            collisionResult = new CollisionResult();
+                        }
+
+                        collisionResult.Intersections.Add(intersection);
                     }
                 }
             }
 
-            return false;
+            return collisionResult != default;
         }
 
         public class CollisionResult
         {
-            public BoundingBox Overlap { get; }
+            public List<Rectangle> Intersections { get; }
 
-            public CollisionResult(BoundingBox overlap)
+            public CollisionResult()
             {
-                Overlap = overlap;
+                Intersections = new List<Rectangle>();
             }
         }
     }
