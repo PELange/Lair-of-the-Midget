@@ -276,7 +276,7 @@ namespace LOTM.Client.Game
             //Run fixed simulation on all relevant world objects
             foreach (var worldObject in World.GetAllObjects())
             {
-                worldObject.OnFixedUpdate(FixedUpdateDeltaTime, World);
+                worldObject.OnFixedUpdate(deltaTime, World);
             }
         }
 

@@ -2,36 +2,29 @@
 using LOTM.Shared.Engine.World;
 using LOTM.Shared.Utils;
 using System;
-using System.Diagnostics;
 using System.Threading;
 
 namespace LOTM.Shared.Engine
 {
     public abstract class Game
     {
-        private const double MAX_REFRESH_RATE_IN_MS = 6; //165 fps in ms
+        private const double MAX_REFRESH_RATE_IN_MS = 8; //Lock to 112 to 125 fps
+        private const double FIXED_DELTA_TIME = 0.016; //~60 fps
 
         private bool ShouldShutdown { get; set; }
-
-        protected double FixedUpdateDeltaTime { get; }
-
-        protected NetworkManager NetworkManager { get; }
+        private DateTime LastUpdate { get; set; }
+        private double Accumulator { get; set; }
+        private HighPrecisionTimer Timer { get; set; }
+        private DateTime GameLoopLastRun { get; set; }
+        private AutoResetEvent GameLoopReset { get; set; }
+        private long GameloopRunningFlag;
 
         protected GameWorld World { get; }
-
-
-        public DateTime LastUpdate { get; set; }
-        public double Accumulator { get; set; }
-        public HighPrecisionTimer Timer { get; set; }
-        public Stopwatch Stopwatch { get; set; }
-        public AutoResetEvent GameLoopReset { get; set; }
-        public long GameloopRunningFlag;
+        protected NetworkManager NetworkManager { get; }
 
         public Game(NetworkManager networkManager)
         {
             NetworkManager = networkManager;
-
-            FixedUpdateDeltaTime = 1.0 / 60; //60 fps
 
             World = new GameWorld();
         }
@@ -41,24 +34,17 @@ namespace LOTM.Shared.Engine
             OnInit();
 
             LastUpdate = DateTime.Now;
-
-            Stopwatch = Stopwatch.StartNew();
+            GameLoopLastRun = DateTime.Now;
 
             GameLoopReset = new AutoResetEvent(false);
 
             Timer = new HighPrecisionTimer();
-            Timer.Timer += (sender, args) => GameLoopTick();
+            Timer.Timer += (sender, args) => TimerTick();
             Timer.Start(1, true);
 
             while (!ShouldShutdown)
             {
-                ////GameLoopTick();
-
-                ////Wait 100 ms to see if we should exit then
-                //Task.Delay(10).GetAwaiter().GetResult();
-
                 GameLoopReset.WaitOne();
-
                 GameLoopInner();
             }
 
@@ -66,28 +52,18 @@ namespace LOTM.Shared.Engine
             OnShutdown();
         }
 
-        protected void GameLoopTick()
+        protected void TimerTick()
         {
             //Avoid two GameLoopTicks running in parallel because of the timer
-            if (Interlocked.Read(ref GameloopRunningFlag) == 1)
-            {
-                return;
-            }
+            if (Interlocked.Read(ref GameloopRunningFlag) == 1) return;
 
             //Do not run if above rate limit
-            if (Stopwatch.Elapsed.TotalMilliseconds < MAX_REFRESH_RATE_IN_MS)
-            {
-                return;
-            }
+            if ((DateTime.Now - GameLoopLastRun).TotalMilliseconds < MAX_REFRESH_RATE_IN_MS) return;
+            GameLoopLastRun = DateTime.Now;
 
             //Lock the gameloop and restart rate limit counter
-            Stopwatch.Restart();
             Interlocked.Increment(ref GameloopRunningFlag);
-
-            //GameLoopInner();
             GameLoopReset.Set();
-
-            //Interlocked.Decrement(ref GameloopRunningFlag);
         }
 
         void GameLoopInner()
@@ -101,11 +77,11 @@ namespace LOTM.Shared.Engine
 
             OnBeforeUpdate();
 
-            while (Accumulator >= FixedUpdateDeltaTime)
+            while (Accumulator >= FIXED_DELTA_TIME)
             {
-                OnFixedUpdate(FixedUpdateDeltaTime);
+                OnFixedUpdate(FIXED_DELTA_TIME);
 
-                Accumulator -= FixedUpdateDeltaTime;
+                Accumulator -= FIXED_DELTA_TIME;
             }
 
             OnUpdate(deltaTime);
