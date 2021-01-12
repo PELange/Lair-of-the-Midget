@@ -19,6 +19,7 @@ namespace LOTM.Server.Game.Objects.Living
             var transformation = GetComponent<Transformation2D>();
             var collider = GetComponent<Collider>();
             var objectBounds = collider.AsBoundingBoxes().First(); //Optimzation based on the assumtion that living objects only have one convex collider bbox
+            var objectBoundsCenter = new Vector2(objectBounds.X + objectBounds.Width / 2, objectBounds.Y + objectBounds.Height / 2);
 
             var desiredDelta = new Vector2(desiredPosition.X - transformation.Position.X, desiredPosition.Y - transformation.Position.Y);
             var possibleDelta = new Vector2(desiredDelta.X, desiredDelta.Y);
@@ -45,26 +46,33 @@ namespace LOTM.Server.Game.Objects.Living
                     foreach (var rect in objectCollider.AsBoundingBoxes())
                     {
                         //Enlarge boxes by half the dimensions of the object that wants to move to catch tunneling and find the correct position to slide along walls
-                        rect.X -= objectBounds.Width / 2;
+                        rect.X -= objectBounds.Width * 0.5;
                         rect.Width += objectBounds.Width;
 
-                        rect.Y -= objectBounds.Height / 2;
+                        rect.Y -= objectBounds.Height * 0.5;
                         rect.Height += objectBounds.Height;
 
-                        var collisionRay = new Ray(objectBounds.X + objectBounds.Width / 2, objectBounds.Y + objectBounds.Height / 2, possibleDelta.X, possibleDelta.Y);
+                        //var collisionRay = new Ray(objectBounds.X + objectBounds.Width / 2, objectBounds.Y + objectBounds.Height / 2, possibleDelta.X, possibleDelta.Y);
 
-                        if (rect.IntersectsWith(collisionRay, out var contactPoint, out var contactNormal, out var contactTime))
-                        {
-                            //Store collision rects to be able to later sort them by time of contact
-                            collisions.Add((rect, contactTime));
-                        }
+                        //if (rect.IntersectsWith(collisionRay, out var contactPoint, out var contactNormal, out var contactTime))
+                        //{
+                        //    //Store collision rects to be able to later sort them by time of contact
+                        //    collisions.Add((rect, contactTime));
+                        //}
+
+                        //Optimzation, instead of performing the collision to accurately know which collider we hit first, we approximate based on distance between both centers
+                        //Distance metric: Squared Euclidian
+                        var rectCenterX = rect.X + rect.Width * 0.5;
+                        var rectCenterY = rect.Y + rect.Height * 0.5;
+
+                        collisions.Add((rect, (objectBoundsCenter.X - rectCenterX) * (objectBoundsCenter.X - rectCenterX) + (objectBoundsCenter.Y - rectCenterY) * (objectBoundsCenter.Y - rectCenterY)));
                     }
                 }
             }
 
             foreach (var collision in collisions.OrderBy(x => x.Item2))
             {
-                var collisionRay = new Ray(objectBounds.X + objectBounds.Width / 2, objectBounds.Y + objectBounds.Height / 2, possibleDelta.X, possibleDelta.Y);
+                var collisionRay = new Ray(objectBounds.X + objectBounds.Width * 0.5, objectBounds.Y + objectBounds.Height * 0.5, possibleDelta.X, possibleDelta.Y);
 
                 if (collision.Item1.IntersectsWith(collisionRay, out var contactPoint, out var contactNormal, out var contactTime))
                 {
