@@ -119,11 +119,11 @@ namespace LOTM.Shared.Game.Logic
             // Create door frame
             if (top)
             {
-                DungeonObjectList.Add(new DungeonTile(ObjectType.Tile_DoorFrameTop, new Vector2(xCoord, yCoord), new Vector2(64, 64)));
+                DungeonObjectList.Add(new DungeonTile(ObjectType.Tile_DoorFrameTop, new Vector2(xCoord - 16, yCoord - 16), new Vector2(64, 64)));
             }
             else
             {
-                DungeonObjectList.Add(new DungeonTile(ObjectType.Tile_DoorFrameBottom, new Vector2(xCoord, yCoord), new Vector2(64, 64)));
+                DungeonObjectList.Add(new DungeonTile(ObjectType.Tile_DoorFrameBottom, new Vector2(xCoord - 16, yCoord - 16), new Vector2(64, 64)));
             }
 
             // Create door

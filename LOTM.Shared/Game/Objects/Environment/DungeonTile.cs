@@ -63,10 +63,10 @@ namespace LOTM.Shared.Game.Objects.Environment
                 {
                     Components.Add(new Collider(this, new List<Rectangle>
                     {
-                        new Rectangle(-0.25, 0.535, 0.25, 0.13),
-                        new Rectangle(0, 0.3, 0.1, 0.37),
-                        new Rectangle(0.45, 0.3, 0.05, 0.37),
-                        new Rectangle(0.5, 0.535, 0.25, 0.13)
+                        new Rectangle(0, 0.65, 0.25, 0.5 * 0.2),
+                        new Rectangle(0.75, 0.65, 0.25, 0.5 * 0.2),
+                        new Rectangle(0.25, 0.5, 0.1, 0.25),
+                        new Rectangle(0.7, 0.5, 0.05, 0.25),
                     }));
                     break;
                 }
@@ -75,10 +75,10 @@ namespace LOTM.Shared.Game.Objects.Environment
                 {
                     Components.Add(new Collider(this, new List<Rectangle>
                     {
-                        new Rectangle(-0.25, 0.337, 0.25, 0.33),
-                        new Rectangle(0, 0, 0.1, 0.67),
-                        new Rectangle(0.45, 0, 0.05, 0.67),
-                        new Rectangle(0.5, 0.337, 0.25, 0.33)
+                        new Rectangle(0, 0.5, 0.25, 0.25),
+                        new Rectangle(0.75, 0.5, 0.25, 0.25),
+                        new Rectangle(0.25, 0.25, 0.1, 0.5),
+                        new Rectangle(0.7, 0.25, 0.05, 0.5),
                     }));
                     break;
                 }
