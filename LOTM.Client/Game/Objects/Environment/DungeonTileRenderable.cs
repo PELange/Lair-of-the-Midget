@@ -80,15 +80,16 @@ namespace LOTM.Client.Game.Objects.Environment
 
                 // Door section
                 case ObjectType.Tile_DoorFrameTop:
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_left"), new Vector2(0.25, (float)2 / 3), new Vector2(-0.25, 0.0), null, 0));
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_right"), new Vector2(0.25, (float)2 / 3), new Vector2(0.5, 0.0), null, 0));
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_arch"), new Vector2(0.5, (float)1 / 3), new Vector2(0.0, (float)-1 / 3), null, 2000));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_left"), new Vector2(0.25, 0.5), new Vector2(-0.25, 0.0), null, 0));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_right"), new Vector2(0.25, 0.5), new Vector2(0.5, 0.0), null, 0));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_arch"), new Vector2(0.5, 0.25), new Vector2(0.0, -0.25), null, 2000));
+
                     break;
 
                 case ObjectType.Tile_DoorFrameBottom:
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_left"), new Vector2(0.25, (float)2 / 3), new Vector2(-0.25, 0.0), null, 2000));
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_right"), new Vector2(0.25, (float)2 / 3), new Vector2(0.5, 0.0), null, 2000));
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_arch"), new Vector2(0.5, (float)1 / 3), new Vector2(0.0, (float)-1 / 3), null, 2000));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_left"), new Vector2(0.25, 0.5), new Vector2(-0.25, 0.0), null, 2000));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_wall_right"), new Vector2(0.25, 0.5), new Vector2(0.5, 0.0), null, 2000));
+                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_arch"), new Vector2(0.5, 0.25), new Vector2(0.0, -0.25), null, 2000));
                     break;
 
                 case ObjectType.Tile_DoorClosed:
