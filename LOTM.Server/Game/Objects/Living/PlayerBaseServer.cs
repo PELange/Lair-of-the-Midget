@@ -32,7 +32,10 @@ namespace LOTM.Server.Game.Objects
 
             networkSynchronization.PacketsInbound.Clear();
 
-            ApplyPlayerinput(LastKownInput, deltaTime, world);
+            if (LastKownInput != null)
+            {
+                ApplyPlayerinput(LastKownInput, deltaTime, world);
+            }
         }
 
         protected void ApplyPlayerinput(PlayerInput playerInput, double deltaTime, GameWorld world)
