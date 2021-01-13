@@ -18,18 +18,23 @@ namespace LOTM.Shared.Game.Logic
             int tunnelLength = 5;
 
             // Create rooms
-            for (int nRoom = 0; nRoom < roomCount; nRoom++)
+            for (int nRoom = -1; nRoom < roomCount; nRoom++)
             {
-                var roomCoords = new Vector2(0, -nRoom * (roomHeight + tunnelLength) * 16 + 32);
-
-                var dungeonRoom = new DungeonRoom(roomCoords, roomWidth, roomHeight, tunnelLength, playerCount, seed);
-
-                if (nRoom == 0)
+                if (nRoom == -1)
                 {
-                    dungeonRoom.CreateDungeonEntrance();
+                    var roomCoords = new Vector2(0, 0);
+                    var dungeonRoom = new DungeonRoom(roomCoords, 10, 10, 0, playerCount, seed, false);
+                    dungeonRoom.CreateRoomStructure(true);
+                    result.AddRange(dungeonRoom.DungeonObjectList);
+                } else
+                {
+                    var roomCoords = new Vector2(0, -nRoom * (roomHeight + tunnelLength) * 16 - 160); // -160 is the offset for the spawnroom
+                    var dungeonRoom = new DungeonRoom(roomCoords, roomWidth, roomHeight, tunnelLength, playerCount, seed, true);
+                    dungeonRoom.CreateRoom();
+                    result.AddRange(dungeonRoom.DungeonObjectList);
                 }
 
-                result.AddRange(dungeonRoom.DungeonObjectList);
+
             }
 
             return result;

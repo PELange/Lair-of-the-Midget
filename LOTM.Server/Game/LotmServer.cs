@@ -30,7 +30,7 @@ namespace LOTM.Server.Game
         protected override void OnInit()
         {
             //WorldSeed = new System.Random().Next(0, 100000);
-            WorldSeed = 130;
+            WorldSeed = 120;
 
             GenerateTestWorld();
         }
@@ -101,7 +101,7 @@ namespace LOTM.Server.Game
                 playerJoin.PlayerType = ObjectType.Player_Wizard_Male;
             }
 
-            var spawnPos = new Vector2(-26, 97);
+            var spawnPos = new Vector2(0, -100);
             //var spawnPos = new Vector2(-8, 12 * 16);
             var spawnHp = 100;
 
