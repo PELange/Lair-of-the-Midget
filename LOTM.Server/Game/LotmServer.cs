@@ -14,17 +14,22 @@ namespace LOTM.Server.Game
     {
         protected LotmNetworkManagerServer NetworkServer { get; set; }
 
-        public int NextFreeEntityId { get; set; }
+        protected int NextFreeEntityId { get; set; }
 
         protected Dictionary<string, PlayerBaseServer> Players { get; set; }
 
-        public int WorldSeed { get; set; }
+        protected int WorldSeed { get; set; }
 
-        public LotmServer(string listenAddress)
+        protected bool GameActive { get; set; }
+
+        protected uint LobbySize { get; }
+
+        public LotmServer(string listenAddress, uint lobbySize)
             : base(1.0 / 60, new LotmNetworkManagerServer(listenAddress))
         {
             NetworkServer = (LotmNetworkManagerServer)NetworkManager;
             Players = new Dictionary<string, PlayerBaseServer>();
+            LobbySize = lobbySize;
         }
 
         protected override void OnInit()
@@ -49,6 +54,17 @@ namespace LOTM.Server.Game
                         break;
                     }
 
+                    case GameStateRequest gameStateRequest:
+                    {
+                        if (Players.TryGetValue(gameStateRequest.Sender.ToString(), out var playerObject))
+                        {
+                            //Respond back to client
+                            NetworkServer.SendPacketTo(new GameStateUpdate { Active = GameActive }, gameStateRequest.Sender);
+                        }
+
+                        break;
+                    }
+
                     //A player sends input for the character he controls
                     case PlayerInput playerInput:
                     {
@@ -65,30 +81,44 @@ namespace LOTM.Server.Game
                 }
             }
 
-            //Run fixed simulation on all relevant world objects
-            foreach (var worldObject in World.GetAllObjects())
+            if (GameActive)
             {
-                worldObject.OnFixedUpdate(deltaTime, World);
-            }
-
-            //Process broadcast all outbound packets
-            foreach (var gameObject in World.GetAllObjects())
-            {
-                if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
+                //Run fixed simulation on all relevant world objects
+                foreach (var worldObject in World.GetAllObjects())
                 {
-                    while (networkSynchronization.PacketsOutbound.TryDequeue(out var outbound))
+                    worldObject.OnFixedUpdate(deltaTime, World);
+                }
+
+                //Process broadcast all outbound packets
+                foreach (var gameObject in World.GetAllObjects())
+                {
+                    if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
                     {
-                        NetworkServer.Broadcast(outbound);
+                        while (networkSynchronization.PacketsOutbound.TryDequeue(out var outbound))
+                        {
+                            NetworkServer.Broadcast(outbound);
+                        }
                     }
+                }
+            }
+            else if (!GameActive)
+            {
+                if (Players.Count >= LobbySize)
+                {
+                    GameActive = true;
+                    NetworkServer.Broadcast(new GameStateUpdate { Active = true });
                 }
             }
         }
 
         protected override void OnUpdate(double deltaTime)
         {
-            foreach (var worldObject in World.GetAllObjects())
+            if (GameActive)
             {
-                worldObject.OnUpdate(deltaTime);
+                foreach (var worldObject in World.GetAllObjects())
+                {
+                    worldObject.OnUpdate(deltaTime);
+                }
             }
         }
 

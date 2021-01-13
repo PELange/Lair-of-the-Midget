@@ -4,13 +4,13 @@ using LOTM.Client.Engine.Graphics;
 using LOTM.Client.Game.Network;
 using LOTM.Client.Game.Objects.Environment;
 using LOTM.Client.Game.Objects.Player;
-using LOTM.Shared.Engine.Controls;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects.Environment;
+using System;
 using System.Linq;
 using static LOTM.Client.Engine.Graphics.OrthographicCamera;
 
@@ -23,11 +23,23 @@ namespace LOTM.Client.Game
         protected int PlayerGameObjectId { get; set; }
         protected GameObject PlayerObject { get; set; }
 
+
+        protected enum GameState
+        {
+            Connecting,
+            Lobby,
+            Gameplay
+        }
+
+        protected GameState State { get; set; }
+        public DateTime LastStateSyncAttempt { get; set; }
+
         public LotmClient(int windowWidth, int windowHeight, string connectionString, string playerName)
             : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", new LotmNetworkManagerClient(connectionString, playerName))
         {
             NetworkClient = (LotmNetworkManagerClient)NetworkManager;
             PlayerGameObjectId = -1;
+            State = GameState.Connecting;
         }
 
         protected override void OnInit()
@@ -191,6 +203,16 @@ namespace LOTM.Client.Game
                         break;
                     }
 
+                    case GameStateUpdate gameStateUpdate:
+                    {
+                        if (gameStateUpdate.Active && State == GameState.Lobby)
+                        {
+                            State = GameState.Gameplay;
+                        }
+
+                        break;
+                    }
+
                     case PlayerInputAck playerInputAck:
                     {
                         InputManager.OnPlayerInputAck(playerInputAck);
@@ -279,16 +301,28 @@ namespace LOTM.Client.Game
             //Make sure we are "connected" to the server -> If we did not get an ack from server yet, resend our join request.
             NetworkClient.EnsureServerConnection();
 
-            //Poll controls and send input to server if needed
-            if (InputManager.UpdateControls(out var playerInput))
+            //If we are waiting in the lobby, ask the server if the game has started in case we missed the inital start packet
+            if (State == GameState.Lobby && (LastStateSyncAttempt == null || (DateTime.Now - LastStateSyncAttempt).TotalMilliseconds > 1))
             {
-                NetworkClient.SendPacket(playerInput);
+                LastStateSyncAttempt = DateTime.Now;
+
+                NetworkClient.SendPacket(new GameStateRequest());
             }
 
-            //Run fixed simulation on all relevant world objects
-            foreach (var worldObject in World.GetAllObjects())
+            //Tasks during active gameplay aka connected and past the lobby
+            if (State == GameState.Gameplay)
             {
-                worldObject.OnFixedUpdate(deltaTime, World);
+                //Poll controls and send input to server if needed
+                if (InputManager.UpdateControls(out var playerInput))
+                {
+                    NetworkClient.SendPacket(playerInput);
+                }
+
+                //Run fixed simulation on all relevant world objects
+                foreach (var worldObject in World.GetAllObjects())
+                {
+                    worldObject.OnFixedUpdate(deltaTime, World);
+                }
             }
         }
 
@@ -304,15 +338,41 @@ namespace LOTM.Client.Game
             UpdateCamera();
         }
 
+        protected override void Render()
+        {
+            switch (State)
+            {
+                case GameState.Connecting:
+                {
+                    Console.WriteLine($"Connecting to {NetworkClient.CurrentServer} ...");
+                    break;
+                }
+
+                case GameState.Lobby:
+                {
+                    Console.WriteLine($"Waiting for game to start ...");
+                    break;
+                }
+
+                case GameState.Gameplay:
+                {
+                    base.Render();
+                    break;
+                }
+            }
+        }
+
         void OnJoin(int seed, int playerGameObjectId)
         {
-            System.Console.WriteLine($"Successfully joined {NetworkClient.CurrentServer}");
+            Console.WriteLine($"Successfully joined {NetworkClient.CurrentServer}");
+
+            //Joined the lobby
+            State = GameState.Lobby;
 
             PlayerGameObjectId = playerGameObjectId;
 
-            var result = LevelGenerator.PreGenerate(4, seed);
-
-            foreach (var obj in result)
+            //During lobby idle, pregenerate the world while waiting
+            foreach (var obj in LevelGenerator.PreGenerate(4, seed))
             {
                 if (obj is DungeonTile dungeonTile)
                 {
