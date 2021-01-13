@@ -9,14 +9,20 @@ namespace LOTM.Client.Engine
         protected static Dictionary<string, Texture2D> Textures { get; set; } = new Dictionary<string, Texture2D>();
         protected static Dictionary<string, Sprite> Sprites { get; set; } = new Dictionary<string, Sprite>();
 
-        public static void RegisterTexture(string texturePath, string textureName)
+        public static bool RegisterTexture(string texturePath, string textureName)
         {
-            Textures[textureName] = Texture2D.FromFile(texturePath);
+            var texture = Texture2D.FromFile(texturePath);
+
+            Textures[textureName] = texture;
+
+            return texture != null;
         }
 
-        public static void RegisterTexture(Texture2D texture, string textureName)
+        public static bool RegisterTexture(Texture2D texture, string textureName)
         {
             Textures[textureName] = texture;
+
+            return texture != null;
         }
 
         public static void RegisterSpriteByGridIndex(string textureName, int gridsize, Vector4Int textureCoordinates, string spriteName)

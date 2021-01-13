@@ -45,10 +45,12 @@ namespace LOTM.Client.Game
         protected override void OnInit()
         {
             //Register main texture atlas
-            AssetManager.RegisterTexture("Game/Assets/Textures/0x72_DungeonTilesetII_v1.3.png", "dungeonTiles");
+            if (!AssetManager.RegisterTexture("Game/Assets/Textures/0x72_DungeonTilesetII_v1.3.png", "dungeonTiles")) return;
 
             //Register indivual sprites on the atlas using 16x16 grid indices
 
+            //Plain white
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 30, 30, 30), "solid_white");
 
             //Players
 

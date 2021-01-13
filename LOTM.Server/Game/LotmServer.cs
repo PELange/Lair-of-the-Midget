@@ -152,7 +152,7 @@ namespace LOTM.Server.Game
                 PositionY = transform.Position.Y,
                 ScaleX = transform.Scale.X,
                 ScaleY = transform.Scale.Y,
-                Health = health.Value,
+                Health = health.CurrentHealth,
                 Name = playerInfo.Name,
             });
 

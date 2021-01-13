@@ -4,11 +4,18 @@ namespace LOTM.Shared.Game.Objects.Components
 {
     public class Health : IComponent
     {
-        public double Value { get; set; }
+        public double MaxHealth { get; set; }
+        public double CurrentHealth { get; set; }
 
-        public Health(double value)
+        public Health(double maxHealth, double currentHealth)
         {
-            Value = value;
+            MaxHealth = maxHealth;
+            CurrentHealth = currentHealth;
+        }
+
+        public void DeplateHealthAbsolute(double amount)
+        {
+            CurrentHealth = System.Math.Max(0, CurrentHealth - amount);
         }
     }
 }
