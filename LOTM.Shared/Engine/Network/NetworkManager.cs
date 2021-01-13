@@ -34,7 +34,7 @@ namespace LOTM.Shared.Engine.Network
             //Setup receive listener
             Socket.OnMessageReceived = (socket, packet) =>
             {
-                PacketsReceived++;
+                //PacketsReceived++;
 
                 //Unpack the packet into NetworkPaket C# instance
                 var networkPacket = NetworkPacketSerializationProvider.DeserializePacket(packet.data, packet.senderEndpoint);
@@ -47,14 +47,14 @@ namespace LOTM.Shared.Engine.Network
             SendThread = new Thread(() => SendWorker());
             SendThread.Start();
 
-            DiagnosticsTimer = new System.Timers.Timer(1000);
-            DiagnosticsTimer.Start();
-            DiagnosticsTimer.Elapsed += (sender, args) =>
-            {
-                System.Console.WriteLine($"[NETWORK] Sent {PacketsSent}/s - Received {PacketsReceived}/s");
-                PacketsSent = 0;
-                PacketsReceived = 0;
-            };
+            //DiagnosticsTimer = new System.Timers.Timer(1000);
+            //DiagnosticsTimer.Start();
+            //DiagnosticsTimer.Elapsed += (sender, args) =>
+            //{
+            //    System.Console.WriteLine($"[NETWORK] Sent {PacketsSent}/s - Received {PacketsReceived}/s");
+            //    PacketsSent = 0;
+            //    PacketsReceived = 0;
+            //};
         }
 
         public void Shutdown()
@@ -79,7 +79,7 @@ namespace LOTM.Shared.Engine.Network
 
                     await Socket.SendAsync(data, result.Item2);
 
-                    PacketsSent++;
+                    //PacketsSent++;
                 }
             }
         }
