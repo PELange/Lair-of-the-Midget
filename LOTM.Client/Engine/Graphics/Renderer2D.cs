@@ -17,8 +17,9 @@ namespace LOTM.Client.Engine.Graphics
             public fixed float Position[2];
             public fixed float Color[4];
             public fixed float TextureCoordinates[2];
+            public float IsColorMasked;
 
-            public Vertex(Vector2 position, Vector4 color, Vector2 textureCoordinates, float textureIndex)
+            public Vertex(Vector2 position, Vector4 color, Vector2 textureCoordinates, float isColorMasked = 0)
             {
                 Position[0] = (float)position.X;
                 Position[1] = (float)position.Y;
@@ -28,6 +29,7 @@ namespace LOTM.Client.Engine.Graphics
                 Color[3] = (float)color.W;
                 TextureCoordinates[0] = (float)textureCoordinates.X;
                 TextureCoordinates[1] = (float)textureCoordinates.Y;
+                IsColorMasked = isColorMasked;
             }
         }
 
@@ -41,7 +43,7 @@ namespace LOTM.Client.Engine.Graphics
 
         protected OrthographicCamera Camera { get; set; }
 
-        public Shader WorldObjectShader { get; set; }
+        public Shader QuadTextureShader { get; set; }
         public uint VertexArray { get; set; }
         public uint VertexBuffer { get; set; }
 
@@ -49,7 +51,7 @@ namespace LOTM.Client.Engine.Graphics
         {
             Camera = camera;
 
-            WorldObjectShader = Shader.SpriteShader();
+            QuadTextureShader = Shader.QuadTextureShader();
 
             DebugOverlay.DebugLineShader = Shader.DebugLineShader();
 
@@ -80,6 +82,9 @@ namespace LOTM.Client.Engine.Graphics
             glEnableVertexAttribArray(2);
             glVertexAttribPointer(2, 2, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), "TextureCoordinates"));
 
+            glEnableVertexAttribArray(3);
+            glVertexAttribPointer(3, 1, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), "IsColorMasked"));
+
             //Create index buffer
             const int maxIndices = MAX_QUADS * 6;
             var indices = new uint[maxIndices];
@@ -107,10 +112,14 @@ namespace LOTM.Client.Engine.Graphics
 
         public unsafe void Render(GameWorld world)
         {
-            WorldObjectShader.Bind();
+            QuadTextureShader.Bind();
 
             //Set current camera projection
-            WorldObjectShader.SetMatrix4("projection", Camera.GetProjectionMatrix());
+            QuadTextureShader.SetMatrix4("projection", Camera.GetProjectionMatrix());
+
+            //Setup texture slots
+            QuadTextureShader.SetInteger("textureSlot", 1);
+            QuadTextureShader.SetInteger("colorMaskSlot", 2);
 
             //Collect all verticies to be drawn for the current view
             var viewPort = Camera.GetViewport();
@@ -120,27 +129,25 @@ namespace LOTM.Client.Engine.Graphics
 
             var layeredVerticies = new List<LayeredVertex>();
 
-            int currentTextureBound = -1;
+            bool spriteTextureBound = false;
+            bool fontTextureBound = false;
 
             foreach (var worldObject in worldObjects)
             {
                 if (worldObject.GetComponent<SpriteRenderer>() is SpriteRenderer spriteRenderer)
                 {
-                    if (spriteRenderer.Segments.Count > 0 && currentTextureBound != spriteRenderer.Segments[0].Sprite.Texture.ID)
+                    if (!spriteTextureBound && spriteRenderer.Segments.Count > 0)
                     {
                         //Bind sprite textures
                         glActiveTexture(GL_TEXTURE1);
                         glBindTexture(GL_TEXTURE_2D, spriteRenderer.Segments[0].Sprite.Texture.ID);
-                        WorldObjectShader.SetInteger("textureSlot", 1);
+                        spriteTextureBound = true;
                     }
 
                     foreach (var segment in spriteRenderer.Segments)
                     {
                         var textureCoordinates = segment.Sprite.TextureCoordinates;
                         var transformation = worldObject.GetComponent<Transformation2D>();
-
-                        var width = (segment.Sprite.TextureCoordinates.Z * segment.Sprite.Texture.Width) - (segment.Sprite.TextureCoordinates.X * segment.Sprite.Texture.Width);
-                        var height = (segment.Sprite.TextureCoordinates.W * segment.Sprite.Texture.Height) - (segment.Sprite.TextureCoordinates.Y * segment.Sprite.Texture.Height);
 
                         var offsetX = transformation.Scale.X * segment.Offset.X;
                         var offsetY = transformation.Scale.Y * segment.Offset.Y;
@@ -151,29 +158,25 @@ namespace LOTM.Client.Engine.Graphics
                             new Vertex(
                                 new Vector2(transformation.Position.X + offsetX, transformation.Position.Y + offsetY),
                                 segment.Color,
-                                new Vector2(textureCoordinates.X, textureCoordinates.Y),
-                                segment.Sprite.Texture.ID),
+                                new Vector2(textureCoordinates.X, textureCoordinates.Y)),
 
                             //Top right quad vertex
                             new Vertex(
                                 new Vector2(transformation.Position.X + offsetX + transformation.Scale.X * segment.Size.X, transformation.Position.Y + offsetY),
                                 segment.Color,
-                                new Vector2(textureCoordinates.Z, textureCoordinates.Y),
-                                segment.Sprite.Texture.ID),
+                                new Vector2(textureCoordinates.Z, textureCoordinates.Y)),
 
                             //Bottom left quad vertex
                             new Vertex(
                                 new Vector2(transformation.Position.X + offsetX, transformation.Position.Y + offsetY + transformation.Scale.Y * segment.Size.Y),
                                 segment.Color,
-                                new Vector2(textureCoordinates.X, textureCoordinates.W),
-                                segment.Sprite.Texture.ID),
+                                new Vector2(textureCoordinates.X, textureCoordinates.W)),
 
                             //Bottom right quad vertex
                             new Vertex(
                                 new Vector2(transformation.Position.X + offsetX + transformation.Scale.X * segment.Size.X, transformation.Position.Y + offsetY + transformation.Scale.Y * segment.Size.Y),
                                 segment.Color,
-                                new Vector2(textureCoordinates.Z, textureCoordinates.W),
-                                segment.Sprite.Texture.ID)
+                                new Vector2(textureCoordinates.Z, textureCoordinates.W))
                         };
 
                         //Apply quad center rotation
@@ -181,26 +184,122 @@ namespace LOTM.Client.Engine.Graphics
                         {
                             var vertex = quad[nVertex];
 
-                            var translate = glm.translate(
-                                mat4.identity(),
-                                new vec3(
-                                    (float)(transformation.Position.X + (transformation.Scale.X / 2)),
-                                    (float)(transformation.Position.Y + (transformation.Scale.Y / 2)),
-                                    0));
+                            if (transformation.Rotation != default)
+                            {
+                                var translate = glm.translate(
+                                    mat4.identity(),
+                                    new vec3(
+                                        (float)(transformation.Position.X + (transformation.Scale.X / 2)),
+                                        (float)(transformation.Position.Y + (transformation.Scale.Y / 2)),
+                                        0));
 
-                            var rotated = translate
-                                * glm.rotate(glm.radians((float)transformation.Rotation), new vec3(0.0f, 0.0f, 1.0f))
-                                * glm.inverse(translate)
-                                * new vec4(vertex.Position[0], vertex.Position[1], 0.0f, 1.0f);
+                                var rotated = translate
+                                    * glm.rotate(glm.radians((float)transformation.Rotation), new vec3(0.0f, 0.0f, 1.0f))
+                                    * glm.inverse(translate)
+                                    * new vec4(vertex.Position[0], vertex.Position[1], 0.0f, 1.0f);
 
-                            vertex.Position[0] = rotated.x;
-                            vertex.Position[1] = rotated.y;
+                                vertex.Position[0] = rotated.x;
+                                vertex.Position[1] = rotated.y;
+                            }
 
                             layeredVerticies.Add(new LayeredVertex
                             {
                                 Vertex = vertex,
                                 Layer = segment.RenderLayer
                             });
+                        }
+                    }
+                }
+
+                if (worldObject.GetComponent<TextRenderer>() is TextRenderer textRenderer && textRenderer.Segments.Count > 0)
+                {
+                    var preloadFont = textRenderer.Segments.Where(x => x.Active).FirstOrDefault();
+
+                    if (preloadFont == null) continue;
+
+                    var font = AssetManager.GetFont(preloadFont.FontName);
+
+                    if (!fontTextureBound)
+                    {
+                        //Bind sprite textures
+                        glActiveTexture(GL_TEXTURE2);
+                        glBindTexture(GL_TEXTURE_2D, font.Bitmap.ID);
+                        fontTextureBound = true;
+                    }
+
+                    foreach (var segment in textRenderer.Segments)
+                    {
+                        var transformation = worldObject.GetComponent<Transformation2D>();
+
+                        var startX = transformation.Position.X + transformation.Scale.X * segment.Offset.X;
+                        var initialX = startX;
+                        var startY = transformation.Position.Y + transformation.Scale.Y * segment.Offset.Y;
+
+                        var fontSizeScale = segment.FontSize / (font.BitMapFontSize * 1.0);
+
+                        var textVerticies = new List<LayeredVertex>();
+
+                        foreach (var character in segment.Text)
+                        {
+                            if (!font.Charaters.TryGetValue(character, out var charInfo))
+                            {
+                                charInfo = font.Charaters['?']; //Replace unknown chars by questionmarks
+                            }
+
+                            var left = startX + charInfo.Bearing.X * fontSizeScale;
+                            var top = startY - charInfo.Bearing.Y * fontSizeScale;
+
+                            //Top left quad vertex
+                            textVerticies.Add(new LayeredVertex
+                            {
+                                Vertex = new Vertex(new Vector2(left, top), segment.Color, new Vector2(charInfo.TextureCoordinates.X, charInfo.TextureCoordinates.Y), 1),
+                                Layer = segment.RenderLayer
+                            });
+
+                            //Top right quad vertex
+                            textVerticies.Add(new LayeredVertex
+                            {
+                                Vertex = new Vertex(new Vector2(left + charInfo.Size.X * fontSizeScale, top), segment.Color, new Vector2(charInfo.TextureCoordinates.Z, charInfo.TextureCoordinates.Y), 1),
+                                Layer = segment.RenderLayer
+                            });
+
+                            //Bottom left quad vertex
+                            textVerticies.Add(new LayeredVertex
+                            {
+                                Vertex = new Vertex(new Vector2(left, top + charInfo.Size.Y * fontSizeScale), segment.Color, new Vector2(charInfo.TextureCoordinates.X, charInfo.TextureCoordinates.W), 1),
+                                Layer = segment.RenderLayer
+                            });
+
+                            //Bottom right quad vertex
+                            textVerticies.Add(new LayeredVertex
+                            {
+                                Vertex = new Vertex(new Vector2(left + charInfo.Size.X * fontSizeScale, top + charInfo.Size.Y * fontSizeScale), segment.Color, new Vector2(charInfo.TextureCoordinates.Z, charInfo.TextureCoordinates.W), 1),
+                                Layer = segment.RenderLayer
+                            });
+
+                            startX += charInfo.Advance * fontSizeScale;
+                        }
+
+                        if (segment.UseCenterPosition && textVerticies.Count > 2)
+                        {
+                            var xCenterOffset = (startX - initialX) / 2.0;
+
+                            for (int nVertex = 0; nVertex < textVerticies.Count; nVertex++)
+                            {
+                                var element = textVerticies[nVertex].Vertex;
+
+                                element.Position[0] -= (float)xCenterOffset;
+
+                                layeredVerticies.Add(new LayeredVertex
+                                {
+                                    Vertex = element,
+                                    Layer = segment.RenderLayer
+                                });
+                            }
+                        }
+                        else
+                        {
+                            layeredVerticies.AddRange(textVerticies);
                         }
                     }
                 }
@@ -223,7 +322,7 @@ namespace LOTM.Client.Engine.Graphics
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
 
-            WorldObjectShader.Unbind();
+            QuadTextureShader.Unbind();
 
             //Debug overlay
             if (DebugOverlay.DebugLines.Count > 0)

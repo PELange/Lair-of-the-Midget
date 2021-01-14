@@ -93,6 +93,38 @@ namespace LOTM.Client.Engine.Graphics
             return null;
         }
 
+        public static unsafe Texture2D FromFontData(byte[] fontData, uint width, uint height)
+        {
+            var texture = new Texture2D
+            {
+                Width = width,
+                Height = height
+            };
+
+            uint texId;
+            glGenTextures(1, &texId);
+            texture.ID = texId;
+
+            // create Texture
+            glBindTexture(GL_TEXTURE_2D, texture.ID);
+
+            fixed (byte* data = fontData)
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, (int)GL_RED, (int)width, (int)height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+            }
+
+            // set Texture wrap and filter modes
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (int)GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (int)GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (int)GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (int)GL_NEAREST);
+
+            // unbind texture
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+            return texture;
+        }
+
         public void Bind()
         {
             glBindTexture(GL_TEXTURE_2D, ID);

@@ -33,7 +33,7 @@ namespace LOTM.Client.Engine.Graphics
             glUniform1i(glGetUniformLocation(ID, name), value);
         }
 
-        public static unsafe Shader SpriteShader()
+        public static unsafe Shader QuadTextureShader()
         {
             var shader = new Shader
             {
@@ -45,17 +45,20 @@ namespace LOTM.Client.Engine.Graphics
                 layout (location = 0) in vec2 position;
                 layout (location = 1) in vec4 color;
                 layout (location = 2) in vec2 textureCoord;
+                layout (location = 3) in float isColorMask;
                 
                 uniform mat4 projection;
 
                 out vec4 vertexColor;
                 out vec2 vertexTextureCoord;
+                out float vertexIsColorMask;
 
                 void main()
                 {
                     gl_Position = projection * vec4(position.x, position.y, 1.0, 1.0);
                     vertexColor = color;
                     vertexTextureCoord = textureCoord;
+                    vertexIsColorMask = isColorMask;
                 }
             ";
 
@@ -65,12 +68,23 @@ namespace LOTM.Client.Engine.Graphics
   
                 in vec4 vertexColor;
                 in vec2 vertexTextureCoord;
+                in float vertexIsColorMask;
                 
                 uniform sampler2D textureSlot;
+                uniform sampler2D colorMaskSlot;
 
                 void main()
                 {
-                    color = texture(textureSlot, vertexTextureCoord) * vertexColor;
+                    int isColorMask = int(vertexIsColorMask);
+
+                    if(isColorMask == 0)
+                    {
+                        color = texture(textureSlot, vertexTextureCoord) * vertexColor;
+                    }
+                    else
+                    {
+                        color = vec4(1.0, 1.0, 1.0, texture(colorMaskSlot, vertexTextureCoord).r) * vertexColor;
+                    }
                 } 
             ";
 

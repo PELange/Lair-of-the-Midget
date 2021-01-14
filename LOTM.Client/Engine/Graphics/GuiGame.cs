@@ -127,7 +127,7 @@ namespace LOTM.Client.Engine
             glfwTerminate();
         }
 
-        protected virtual void Render()
+        private void Render()
         {
             Renderer.Render(World);
         }

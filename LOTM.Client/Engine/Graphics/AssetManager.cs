@@ -7,6 +7,7 @@ namespace LOTM.Client.Engine
     public class AssetManager
     {
         protected static Dictionary<string, Texture2D> Textures { get; set; } = new Dictionary<string, Texture2D>();
+        protected static Dictionary<string, Font> Fonts { get; set; } = new Dictionary<string, Font>();
         protected static Dictionary<string, Sprite> Sprites { get; set; } = new Dictionary<string, Sprite>();
 
         public static bool RegisterTexture(string texturePath, string textureName)
@@ -54,6 +55,20 @@ namespace LOTM.Client.Engine
         public static Sprite GetSprite(string spriteName)
         {
             return Sprites[spriteName];
+        }
+
+        public static bool RegisterFont(string fontFilePath, uint fontSize, string fontName)
+        {
+            var font = Font.FromFile(fontFilePath, fontSize);
+
+            Fonts[fontName] = font;
+
+            return font != null;
+        }
+
+        public static Font GetFont(string fontName)
+        {
+            return Fonts[fontName];
         }
     }
 }

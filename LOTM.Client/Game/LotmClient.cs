@@ -1,6 +1,7 @@
 ﻿using LOTM.Client.Engine;
 using LOTM.Client.Engine.Controls;
 using LOTM.Client.Engine.Graphics;
+using LOTM.Client.Engine.Objects;
 using LOTM.Client.Game.Network;
 using LOTM.Client.Game.Objects.Environment;
 using LOTM.Client.Game.Objects.Player;
@@ -22,7 +23,7 @@ namespace LOTM.Client.Game
 
         protected int PlayerGameObjectId { get; set; }
         protected GameObject PlayerObject { get; set; }
-
+        protected TextCanvas TextCanvas { get; set; }
 
         protected enum GameState
         {
@@ -46,6 +47,10 @@ namespace LOTM.Client.Game
         {
             //Register main texture atlas
             if (!AssetManager.RegisterTexture("Game/Assets/Textures/0x72_DungeonTilesetII_v1.3.png", "dungeonTiles")) return;
+
+            //Register fonts
+            if (!AssetManager.RegisterFont("Game/Assets/Fonts/Showcard Gothic.ttf", 64, "showcard_gothic")) return;
+            if (!AssetManager.RegisterFont("Game/Assets/Fonts/Arial.ttf", 64, "arial")) return;
 
             //Register indivual sprites on the atlas using 16x16 grid indices
 
@@ -178,6 +183,13 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 11, 18, 12), "spear");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 9, 21, 10), "staff");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 2, 18, 4), "hammer_big");
+
+            //Setup inital states
+
+            //Join screen
+            Camera.SetViewport(new Viewport(new Vector2(0, 0), new Vector2(100, 100)));
+            TextCanvas = new TextCanvas(new Vector2(50, 50), $"Connecting to {NetworkClient.CurrentServer} ...");
+            World.AddObject(TextCanvas);
         }
 
         protected override void OnBeforeUpdate()
@@ -210,6 +222,7 @@ namespace LOTM.Client.Game
                         if (gameStateUpdate.Active && State == GameState.Lobby)
                         {
                             State = GameState.Gameplay;
+                            TextCanvas.Show = false;
                         }
 
                         break;
@@ -337,31 +350,7 @@ namespace LOTM.Client.Game
 
             DebugCollisions();
 
-            UpdateCamera();
-        }
-
-        protected override void Render()
-        {
-            switch (State)
-            {
-                case GameState.Connecting:
-                {
-                    Console.WriteLine($"Connecting to {NetworkClient.CurrentServer} ...");
-                    break;
-                }
-
-                case GameState.Lobby:
-                {
-                    Console.WriteLine($"Waiting for game to start ...");
-                    break;
-                }
-
-                case GameState.Gameplay:
-                {
-                    base.Render();
-                    break;
-                }
-            }
+            UpdateSpectator();
         }
 
         void OnJoin(int seed, int playerGameObjectId)
@@ -369,6 +358,7 @@ namespace LOTM.Client.Game
             Console.WriteLine($"Successfully joined {NetworkClient.CurrentServer}");
 
             //Joined the lobby
+            TextCanvas.Text = $"Waiting for the game to start ...";
             State = GameState.Lobby;
 
             PlayerGameObjectId = playerGameObjectId;
@@ -388,8 +378,13 @@ namespace LOTM.Client.Game
             }
         }
 
-        void UpdateCamera()
+        void UpdateSpectator()
         {
+            if (State != GameState.Gameplay) return;
+
+            var cameraCenterPos = Vector2.ZERO;
+            var viewportPadding = 16 * 5;
+
             //Try find the player object if we did not already have it
             if (PlayerObject == null)
             {
@@ -400,16 +395,13 @@ namespace LOTM.Client.Game
             {
                 var transformation = PlayerObject.GetComponent<Transformation2D>();
 
-                var cameraCenterPos = Vector2.ZERO;
                 cameraCenterPos.X += transformation.Position.X + transformation.Scale.X / 2;
                 cameraCenterPos.Y += transformation.Position.Y + transformation.Scale.Y / 2;
-
-                var viewportPadding = 16 * 10;
-
-                Camera.SetViewport(new Viewport(
-                    new Vector2(cameraCenterPos.X - viewportPadding, cameraCenterPos.Y - viewportPadding),
-                    new Vector2(cameraCenterPos.X + viewportPadding, cameraCenterPos.Y + viewportPadding)));
             }
+
+            Camera.SetViewport(new Viewport(
+                new Vector2(cameraCenterPos.X - viewportPadding, cameraCenterPos.Y - viewportPadding),
+                new Vector2(cameraCenterPos.X + viewportPadding, cameraCenterPos.Y + viewportPadding)));
         }
 
         void DebugCollisions()
