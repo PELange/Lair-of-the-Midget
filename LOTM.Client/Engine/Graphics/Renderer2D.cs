@@ -37,6 +37,7 @@ namespace LOTM.Client.Engine.Graphics
         {
             public Vertex Vertex { get; set; }
             public int Layer { get; set; }
+            public double ZSort { get; set; }
         }
 
         protected const int MAX_QUADS = 25000;
@@ -213,7 +214,8 @@ namespace LOTM.Client.Engine.Graphics
                             layeredVerticies.Add(new LayeredVertex
                             {
                                 Vertex = vertex,
-                                Layer = segment.RenderLayer
+                                Layer = segment.RenderLayer,
+                                ZSort = transformation.Position.Y
                             });
                         }
                     }
@@ -261,28 +263,32 @@ namespace LOTM.Client.Engine.Graphics
                             textVerticies.Add(new LayeredVertex
                             {
                                 Vertex = new Vertex(new Vector2(left, top), segment.Color, new Vector2(charInfo.TextureCoordinates.X, charInfo.TextureCoordinates.Y), 1),
-                                Layer = segment.RenderLayer
+                                Layer = segment.RenderLayer,
+                                ZSort = transformation.Position.Y
                             });
 
                             //Top right quad vertex
                             textVerticies.Add(new LayeredVertex
                             {
                                 Vertex = new Vertex(new Vector2(left + charInfo.Size.X * fontSizeScale, top), segment.Color, new Vector2(charInfo.TextureCoordinates.Z, charInfo.TextureCoordinates.Y), 1),
-                                Layer = segment.RenderLayer
+                                Layer = segment.RenderLayer,
+                                ZSort = transformation.Position.Y
                             });
 
                             //Bottom left quad vertex
                             textVerticies.Add(new LayeredVertex
                             {
                                 Vertex = new Vertex(new Vector2(left, top + charInfo.Size.Y * fontSizeScale), segment.Color, new Vector2(charInfo.TextureCoordinates.X, charInfo.TextureCoordinates.W), 1),
-                                Layer = segment.RenderLayer
+                                Layer = segment.RenderLayer,
+                                ZSort = transformation.Position.Y
                             });
 
                             //Bottom right quad vertex
                             textVerticies.Add(new LayeredVertex
                             {
                                 Vertex = new Vertex(new Vector2(left + charInfo.Size.X * fontSizeScale, top + charInfo.Size.Y * fontSizeScale), segment.Color, new Vector2(charInfo.TextureCoordinates.Z, charInfo.TextureCoordinates.W), 1),
-                                Layer = segment.RenderLayer
+                                Layer = segment.RenderLayer,
+                                ZSort = transformation.Position.Y
                             });
 
                             startX += charInfo.Advance * fontSizeScale;
@@ -301,7 +307,8 @@ namespace LOTM.Client.Engine.Graphics
                                 layeredVerticies.Add(new LayeredVertex
                                 {
                                     Vertex = element,
-                                    Layer = segment.RenderLayer
+                                    Layer = segment.RenderLayer,
+                                    ZSort = transformation.Position.Y
                                 });
                             }
                         }
@@ -314,7 +321,7 @@ namespace LOTM.Client.Engine.Graphics
             }
 
             //Sort layers and select the result verticies again
-            var verticies = layeredVerticies.OrderBy(x => x.Layer).Select(x => x.Vertex).ToList();
+            var verticies = layeredVerticies.OrderBy(x => x.Layer).ThenBy(x => x.ZSort).Select(x => x.Vertex).ToList();
 
             //Set dynamic vertex buffer
             glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
