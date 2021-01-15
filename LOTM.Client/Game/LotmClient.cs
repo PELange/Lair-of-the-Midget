@@ -271,33 +271,6 @@ namespace LOTM.Client.Game
                         break;
                     }
 
-                    //Enemy creations
-                    case LivingObjectCreation livingObjectCreation:
-                    {
-                        //Try to loctate the object using the network id
-                        var gameObject = World.GetGameObjectByNetworkId(livingObjectCreation.ObjectId);
-
-                        //We seem to already know the object? Dublicate packet arrival or faulty serverside logic. Either way, we keep the local version and wait for more updates to come to refresh it's state
-                        if (gameObject != null)
-                        {
-                            break;
-                        }
-
-                        //switch enemy types here
-
-                        ////Create the object based on remote info
-                        //gameObject = new LivingObjectClient(
-                        //    livingObjectCreation.ObjectId,
-                        //    livingObjectCreation.Type,
-                        //    new Vector2(livingObjectCreation.PositionX, livingObjectCreation.PositionY),
-                        //    new Vector2(livingObjectCreation.ScaleX, livingObjectCreation.ScaleY),
-                        //    livingObjectCreation.Health);
-
-                        //World.AddObject(gameObject);
-
-                        break;
-                    }
-
                     case ObjectPositionUpdate objectPositionUpdate:
                     {
                         var gameObject = World.GetGameObjectByNetworkId(objectPositionUpdate.ObjectId);
@@ -496,16 +469,16 @@ namespace LOTM.Client.Game
 
             foreach (var obj in dungeonRoom.Objects)
             {
-                if (obj is DungeonTile dungeonTile)
+                if (obj.Item2 is DungeonTile dungeonTile)
                 {
                     DungeonTileRenderable.AddRenderable(dungeonTile);
                 }
-                else if (obj is Pickup pickup) //todo disable
-                {
-                    PickupRenderable.AddRenderable(pickup);
-                }
+                //else if (obj.Item2 is Pickup pickup) //todo disable
+                //{
+                //    PickupRenderable.AddRenderable(pickup);
+                //}
 
-                World.AddObject(obj);
+                World.AddObject(obj.Item2);
             }
 
             //Add room label
@@ -552,7 +525,7 @@ namespace LOTM.Client.Game
 
                 foreach (var room in outOfRangeRooms)
                 {
-                    room.Objects.ForEach(x => World.RemoveObject(x));
+                    room.Objects.ForEach(x => World.RemoveObject(x.Item2));
                 }
 
                 DungeonRooms.RemoveAll(x => outOfRangeRooms.Contains(x));

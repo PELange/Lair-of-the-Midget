@@ -232,10 +232,10 @@ namespace LOTM.Server.Game
             //System.Console.WriteLine($"Added room no. {dungeonRoom.RoomNumber} at <{dungeonRoom.Position.X};{dungeonRoom.Position.Y}>");
 
             //Only remember objects that have a collider or that are moveable
-            dungeonRoom.Objects.RemoveAll(obj => !(obj.GetComponent<Collider>() != null || obj is IMoveable));
+            dungeonRoom.Objects.RemoveAll(obj => !(obj.Item2.GetComponent<Collider>() != null || obj.Item2 is IMoveable));
 
             //Add the relevant objects to the world
-            dungeonRoom.Objects.ForEach(obj => World.AddObject(obj));
+            dungeonRoom.Objects.ForEach(obj => World.AddObject(obj.Item2));
 
             DungeonRooms.Add(dungeonRoom);
         }

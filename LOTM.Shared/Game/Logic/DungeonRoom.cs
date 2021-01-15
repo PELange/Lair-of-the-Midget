@@ -9,9 +9,9 @@ namespace LOTM.Shared.Game.Logic
         public int RoomNumber { get; set; }
         public Vector2 Position { get; }
         public Vector2 Size { get; }
-        public List<GameObject> Objects { get; }
+        public List<(int, GameObject)> Objects { get; }
 
-        public DungeonRoom(int roomNumber, Vector2 position, Vector2 size, List<GameObject> objects)
+        public DungeonRoom(int roomNumber, Vector2 position, Vector2 size, List<(int, GameObject)> objects)
         {
             RoomNumber = roomNumber;
             Position = position;
