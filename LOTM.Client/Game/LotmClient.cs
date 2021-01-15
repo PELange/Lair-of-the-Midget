@@ -12,6 +12,7 @@ using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects.Environment;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using static LOTM.Client.Engine.Graphics.OrthographicCamera;
 
@@ -24,6 +25,10 @@ namespace LOTM.Client.Game
         protected int PlayerGameObjectId { get; set; }
         protected GameObject PlayerObject { get; set; }
         protected TextCanvas TextCanvas { get; set; }
+
+        protected int LobbySize { get; set; }
+        protected int WorldSeed { get; set; }
+        protected List<DungeonRoom> DungeonRooms { get; }
 
         protected enum GameState
         {
@@ -40,6 +45,7 @@ namespace LOTM.Client.Game
         {
             NetworkClient = (LotmNetworkManagerClient)NetworkManager;
             PlayerGameObjectId = -1;
+            DungeonRooms = new List<DungeonRoom>();
             State = GameState.Connecting;
         }
 
@@ -214,7 +220,7 @@ namespace LOTM.Client.Game
                     {
                         if (NetworkClient.OnPlayerJoinAck(playerJoinAck))
                         {
-                            OnJoin(playerJoinAck.WorldSeed, playerJoinAck.PlayerObjectNetworkId);
+                            OnJoin(playerJoinAck.LobbySize, playerJoinAck.WorldSeed, playerJoinAck.PlayerObjectNetworkId);
                         }
 
                         break;
@@ -342,6 +348,8 @@ namespace LOTM.Client.Game
                     worldObject.OnFixedUpdate(deltaTime, World);
                 }
             }
+
+            MaintainDungeonRooomBuffer();
         }
 
         protected override void OnUpdate(double deltaTime)
@@ -356,9 +364,12 @@ namespace LOTM.Client.Game
             UpdateSpectator();
         }
 
-        void OnJoin(int seed, int playerGameObjectId)
+        protected void OnJoin(int lobbySize, int seed, int playerGameObjectId)
         {
             Console.WriteLine($"Successfully joined {NetworkClient.CurrentServer}");
+
+            WorldSeed = seed;
+            LobbySize = lobbySize;
 
             //Joined the lobby
             TextCanvas.Text = $"Waiting for the game to start ...";
@@ -366,27 +377,15 @@ namespace LOTM.Client.Game
 
             PlayerGameObjectId = playerGameObjectId;
 
-            //During lobby idle, pregenerate the world while waiting
-            foreach (var obj in LevelGenerator.PreGenerate(4, seed))
-            {
-                if (obj is DungeonTile dungeonTile)
-                {
-                    var transform = dungeonTile.GetComponent<Transformation2D>();
-                    World.AddObject(new DungeonTileRenderable(dungeonTile.Type, transform.Position, transform.Scale));
-                }
-                else
-                {
-                    //todo add other types
-                }
-            }
+            AddDungeonRoom(LevelGenerator.AddSpawn(Vector2.ZERO));
         }
 
-        void UpdateSpectator()
+        protected void UpdateSpectator()
         {
             if (State != GameState.Gameplay) return;
 
             var cameraCenterPos = Vector2.ZERO;
-            var viewportPadding = 16 * 5;
+            var viewportPadding = 16 * 50;
 
             //Try find the player object if we did not already have it
             if (PlayerObject == null)
@@ -407,7 +406,7 @@ namespace LOTM.Client.Game
                 new Vector2(cameraCenterPos.X + viewportPadding, cameraCenterPos.Y + viewportPadding)));
         }
 
-        void DebugCollisions()
+        protected void DebugCollisions()
         {
             foreach (var worldObject in World.GetAllObjects())
             {
@@ -487,6 +486,90 @@ namespace LOTM.Client.Game
             //    new Vector4(1, 0, 0, 1)));
 
             //DebugOverlay.DebugLines.Add((new Vector2(contactpoint.X, contactpoint.Y), new Vector2(contactpoint.X + contactNormal.X * 16, contactpoint.Y + contactNormal.Y * 16), new Vector4(1, 0, 1, 1)));
+        }
+
+        protected void AddDungeonRoom(DungeonRoom dungeonRoom)
+        {
+            //System.Console.WriteLine($"Added room no. {dungeonRoom.RoomNumber} at <{dungeonRoom.Position.X};{dungeonRoom.Position.Y}>");
+
+            foreach (var obj in dungeonRoom.Objects)
+            {
+                if (obj is DungeonTile dungeonTile)
+                {
+                    DungeonTileRenderable.AddRenderable(dungeonTile);
+                }
+                else
+                {
+                    //todo add other types
+                }
+
+                World.AddObject(obj);
+            }
+
+            DungeonRooms.Add(dungeonRoom);
+        }
+
+        protected void MaintainDungeonRooomBuffer()
+        {
+            if (PlayerObject == null) return;
+
+            var transformation = PlayerObject.GetComponent<Transformation2D>();
+            var playerY = transformation.Position.Y + transformation.Scale.Y;
+
+            //Find roomnumber
+            DungeonRoom currentRoom = default;
+
+            foreach (var room in DungeonRooms)
+            {
+                if (playerY < room.Position.Y && playerY >= room.Position.Y - room.Size.Y)
+                {
+                    currentRoom = room;
+                    break;
+                }
+            }
+
+            const int ROOM_BUFFER_COUNT = 1;
+
+            if (currentRoom != default)
+            {
+                //System.Console.WriteLine(currentRoom.RoomNumber);
+
+                /*
+                    * Remove rooms that are out of range 
+                    * 
+                    * Range is buffer count + 1, so we avoid rapid removal and readding when player is on threshold of one room to the next one.
+                    * We rather keep one more room in memory and free later, than constant recration requests to server
+                    */
+                var outOfRangeRooms = DungeonRooms.Where(x => x.RoomNumber < currentRoom.RoomNumber - (ROOM_BUFFER_COUNT + 1) || x.RoomNumber > currentRoom.RoomNumber + (ROOM_BUFFER_COUNT + 1)).ToList();
+
+                foreach (var room in outOfRangeRooms)
+                {
+                    room.Objects.ForEach(x => World.RemoveObject(x));
+                }
+
+                DungeonRooms.RemoveAll(x => outOfRangeRooms.Contains(x));
+
+                //Re-addd rooms above if needed
+                for (int nAbove = 1; nAbove <= ROOM_BUFFER_COUNT; nAbove++)
+                {
+                    if (!DungeonRooms.Any(x => x.RoomNumber == currentRoom.RoomNumber + nAbove))
+                    {
+                        AddDungeonRoom(LevelGenerator.AppendRoom(DungeonRooms.First(x => x.RoomNumber == currentRoom.RoomNumber + nAbove - 1), LobbySize, WorldSeed));
+                    }
+                }
+
+                //Re-addd rooms below if needed
+                if (currentRoom.RoomNumber > 0)
+                {
+                    for (int nBelow = 1; nBelow <= ROOM_BUFFER_COUNT; nBelow++)
+                    {
+                        if (!DungeonRooms.Any(x => x.RoomNumber == currentRoom.RoomNumber - nBelow))
+                        {
+                            AddDungeonRoom(LevelGenerator.PrependRoom(DungeonRooms.First(x => x.RoomNumber == currentRoom.RoomNumber - nBelow + 1), LobbySize, WorldSeed));
+                        }
+                    }
+                }
+            }
         }
     }
 }

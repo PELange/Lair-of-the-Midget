@@ -7,14 +7,13 @@ using System.Collections.Generic;
 
 namespace LOTM.Client.Game.Objects.Interactable
 {
-    class PickupRenderable : Pickup
+    class PickupRenderable
     {
-        public PickupRenderable(ObjectType type, Vector2 position)
-            : base(type, position)
+        public static Pickup AddRenderable(Pickup pickup)
         {
             string pickupName = "";
 
-            switch (Type)
+            switch (pickup.Type)
             {
                 case ObjectType.Pickup_Health_Minor:
                     pickupName = "pickup_pot_orange_small";
@@ -26,11 +25,13 @@ namespace LOTM.Client.Game.Objects.Interactable
 
             if (!string.IsNullOrEmpty(pickupName))
             {
-                AddComponent(new SpriteRenderer(new List<SpriteRenderer.Segment>
+                pickup.AddComponent(new SpriteRenderer(new List<SpriteRenderer.Segment>
                 {
                     new SpriteRenderer.Segment(AssetManager.GetSprite(pickupName))
                 }));
             }
+
+            return pickup;
         }
     }
 }

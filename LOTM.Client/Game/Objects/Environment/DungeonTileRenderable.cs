@@ -7,14 +7,13 @@ using System.Collections.Generic;
 
 namespace LOTM.Client.Game.Objects.Environment
 {
-    class DungeonTileRenderable : DungeonTile
+    class DungeonTileRenderable
     {
-        public DungeonTileRenderable(ObjectType type, Vector2 position, Vector2 scale)
-            : base(type, position, scale)
+        public static DungeonTile AddRenderable(DungeonTile tile)
         {
             var spriteSegments = new List<SpriteRenderer.Segment>();
 
-            switch (Type)
+            switch (tile.Type)
             {
                 // Ground section
                 case ObjectType.Tile_Ground_0:
@@ -110,8 +109,10 @@ namespace LOTM.Client.Game.Objects.Environment
 
             if (spriteSegments.Count > 0)
             {
-                Components.Add(new SpriteRenderer(spriteSegments));
+                tile.AddComponent(new SpriteRenderer(spriteSegments));
             }
+
+            return tile;
         }
     }
 }

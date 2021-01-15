@@ -1,12 +1,14 @@
 ﻿using LOTM.Server.Game.Network;
 using LOTM.Server.Game.Objects;
 using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LOTM.Server.Game
 {
@@ -24,12 +26,15 @@ namespace LOTM.Server.Game
 
         protected uint LobbySize { get; }
 
+        protected List<DungeonRoom> DungeonRooms { get; }
+
         public LotmServer(string listenAddress, uint lobbySize)
             : base(1.0 / 60, new LotmNetworkManagerServer(listenAddress))
         {
             NetworkServer = (LotmNetworkManagerServer)NetworkManager;
             Players = new Dictionary<string, PlayerBaseServer>();
             LobbySize = lobbySize;
+            DungeonRooms = new List<DungeonRoom>();
         }
 
         protected override void OnInit()
@@ -37,7 +42,7 @@ namespace LOTM.Server.Game
             //WorldSeed = new System.Random().Next(0, 100000);
             WorldSeed = 120;
 
-            GenerateTestWorld();
+            PreGenerateWorld();
         }
 
         protected override void OnFixedUpdate(double deltaTime)
@@ -80,6 +85,8 @@ namespace LOTM.Server.Game
                     }
                 }
             }
+
+            MaintainDungeonRooomBuffer();
 
             if (GameActive)
             {
@@ -131,8 +138,7 @@ namespace LOTM.Server.Game
                 playerJoin.PlayerType = ObjectType.Player_Wizard_Male;
             }
 
-            var spawnPos = new Vector2(0, -100);
-            //var spawnPos = new Vector2(-8, 12 * 16);
+            var spawnPos = new Vector2(-8, -116);
             var spawnHp = 100;
 
             var netId = NextFreeEntityId++;
@@ -166,21 +172,72 @@ namespace LOTM.Server.Game
             return new PlayerJoinAck
             {
                 PlayerObjectNetworkId = netId,
-                WorldSeed = WorldSeed
+                WorldSeed = WorldSeed,
+                LobbySize = (int)LobbySize
             };
         }
 
-        protected void GenerateTestWorld()
+        protected void PreGenerateWorld()
         {
-            var result = LevelGenerator.PreGenerate(4, WorldSeed);
+            const int PREGENERATE_COUNT = 1;
 
-            foreach (var obj in result)
+            var rooms = new List<DungeonRoom>
             {
-                if (obj.GetComponent<Collider>() != null)
+                LevelGenerator.AddSpawn(Vector2.ZERO)
+            };
+
+            for (int preGenerate = 0; preGenerate < PREGENERATE_COUNT; preGenerate++)
+            {
+                rooms.Add(LevelGenerator.AppendRoom(rooms.Last(), (int)LobbySize, WorldSeed));
+            }
+
+            rooms.ForEach(x => AddDungeonRoom(x));
+        }
+
+        protected void MaintainDungeonRooomBuffer()
+        {
+            if (Players.Values.Count < 1) return; //No players yet
+
+            //Find out how far the players did advance
+            DungeonRoom highestActiveRoom = default;
+
+            var lowestY = Players.Values.Min(x => x.GetComponent<Transformation2D>().Position.Y);
+
+            foreach (var room in DungeonRooms)
+            {
+                if (lowestY < room.Position.Y && lowestY >= room.Position.Y - room.Size.Y)
                 {
-                    World.AddObject(obj);
+                    highestActiveRoom = room;
+                    break;
                 }
             }
+
+            if (highestActiveRoom != default)
+            {
+                const int ROOM_BUFFER_COUNT = 2; //Clientside has 1 ... so we make it 2 in order to have all data prepared for the client as soon as he could ask for it
+
+                //Re-addd rooms above if needed
+                for (int nAbove = 1; nAbove <= ROOM_BUFFER_COUNT; nAbove++)
+                {
+                    if (!DungeonRooms.Any(x => x.RoomNumber == highestActiveRoom.RoomNumber + nAbove))
+                    {
+                        AddDungeonRoom(LevelGenerator.AppendRoom(DungeonRooms.First(x => x.RoomNumber == highestActiveRoom.RoomNumber + nAbove - 1), (int)LobbySize, WorldSeed));
+                    }
+                }
+            }
+        }
+
+        protected void AddDungeonRoom(DungeonRoom dungeonRoom)
+        {
+            //System.Console.WriteLine($"Added room no. {dungeonRoom.RoomNumber} at <{dungeonRoom.Position.X};{dungeonRoom.Position.Y}>");
+
+            //Only remember objects that have a collider or that are moveable
+            dungeonRoom.Objects.RemoveAll(obj => !(obj.GetComponent<Collider>() != null || obj is IMoveable));
+
+            //Add the relevant objects to the world
+            dungeonRoom.Objects.ForEach(obj => World.AddObject(obj));
+
+            DungeonRooms.Add(dungeonRoom);
         }
     }
 }
