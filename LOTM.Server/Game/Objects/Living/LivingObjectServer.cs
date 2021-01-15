@@ -2,6 +2,7 @@
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Engine.World;
 using LOTM.Shared.Game.Objects;
+using LOTM.Shared.Game.Objects.Interactable;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -38,7 +39,7 @@ namespace LOTM.Server.Game.Objects.Living
             {
                 if (worldObject == this) continue; //Avoid self collision
 
-                if (worldObject is EnemyBaseServer || worldObject is PlayerBaseServer) continue; //No movement collision between enemies <-> enemies, player <-> enemy, player <-> player
+                if (worldObject is EnemyBaseServer || worldObject is PlayerBaseServer || worldObject is Pickup) continue; //No movement collision between enemies <-> enemies, player <-> enemy, player <-> player, player <-> pickup
 
                 var objectCollider = worldObject.GetComponent<Collider>();
 
@@ -78,8 +79,11 @@ namespace LOTM.Server.Game.Objects.Living
 
                 if (collision.Item1.IntersectsWith(collisionRay, out var contactPoint, out var contactNormal, out var contactTime))
                 {
-                    possibleDelta.X += contactNormal.X * System.Math.Abs(possibleDelta.X) * (1 - contactTime);
-                    possibleDelta.Y += contactNormal.Y * System.Math.Abs(possibleDelta.Y) * (1 - contactTime);
+                    if (contactNormal.X != 0) possibleDelta.X = 0;
+                    if (contactNormal.Y != 0) possibleDelta.Y = 0;
+
+                    //possibleDelta.X += contactNormal.X * System.Math.Abs(possibleDelta.X) * (1 - contactTime);
+                    //possibleDelta.Y += contactNormal.Y * System.Math.Abs(possibleDelta.Y) * (1 - contactTime);
                 }
             }
 
