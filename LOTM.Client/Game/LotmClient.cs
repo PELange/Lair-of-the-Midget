@@ -4,6 +4,7 @@ using LOTM.Client.Engine.Graphics;
 using LOTM.Client.Engine.Objects;
 using LOTM.Client.Game.Network;
 using LOTM.Client.Game.Objects.Environment;
+using LOTM.Client.Game.Objects.Interactable;
 using LOTM.Client.Game.Objects.Player;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
@@ -11,6 +12,7 @@ using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects.Environment;
+using LOTM.Shared.Game.Objects.Interactable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -498,9 +500,9 @@ namespace LOTM.Client.Game
                 {
                     DungeonTileRenderable.AddRenderable(dungeonTile);
                 }
-                else
+                else if (obj is Pickup pickup) //todo disable
                 {
-                    //todo add other types
+                    PickupRenderable.AddRenderable(pickup);
                 }
 
                 World.AddObject(obj);

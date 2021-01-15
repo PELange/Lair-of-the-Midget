@@ -3,6 +3,7 @@ using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Environment;
+using LOTM.Shared.Game.Objects.Interactable;
 using System;
 using System.Collections.Generic;
 
@@ -178,7 +179,7 @@ namespace LOTM.Shared.Game.Logic
                 Vector2 pickupCoords = GetFreeObjectCoords();
                 ObjectCoordList.Add(pickupCoords);
 
-                //DungeonObjectList.Add(new Pickup(Random, pickupCoords, 0, DefaultScaleVector));
+                DungeonObjectList.Add(new Pickup((ObjectType)Random.Next((int)ObjectType.Pickup_Health_Minor, (int)ObjectType.Pickup_Health_Major + 1), pickupCoords));
                 pickupCount--;
             }
 
