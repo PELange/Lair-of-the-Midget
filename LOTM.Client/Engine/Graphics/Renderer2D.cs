@@ -147,6 +147,12 @@ namespace LOTM.Client.Engine.Graphics
                     foreach (var segment in spriteRenderer.Segments)
                     {
                         var textureCoordinates = segment.Sprite.TextureCoordinates;
+
+                        if (segment.HorizontalFlip)
+                        {
+                            textureCoordinates = new Vector4(textureCoordinates.Z, textureCoordinates.Y, textureCoordinates.X, textureCoordinates.W);
+                        }
+
                         var transformation = worldObject.GetComponent<Transformation2D>();
 
                         var offsetX = transformation.Scale.X * segment.Offset.X;
