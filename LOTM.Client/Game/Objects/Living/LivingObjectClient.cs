@@ -27,8 +27,8 @@ namespace LOTM.Client.Game.Objects
 
         private Vector2 LastLocalPosition { get; }
 
-        public LivingObjectClient(int networkId, ObjectType type, Vector2 position, Vector2 scale, Rectangle colliderInfo, double health)
-            : base(networkId, type, position, scale, colliderInfo, health)
+        public LivingObjectClient(int objectId, ObjectType type, Vector2 position, Vector2 scale, Rectangle colliderInfo, double health)
+            : base(objectId, type, position, scale, colliderInfo, health)
         {
             LastLocalPosition = new Vector2(position.X, position.Y); //Copy not reference!!!
 
@@ -38,6 +38,9 @@ namespace LOTM.Client.Game.Objects
             AnimationSpriteSet = Type switch
             {
                 ObjectType.Player_Wizard_Male => $"wizzard_m",
+                ObjectType.Enemy_Ogre_Small => $"ogre_small_m",
+                ObjectType.Enemy_Skeleton_Small => $"skeleton_small_m",
+                ObjectType.Enemy_Blob_Small => $"blob_green_m",
                 _ => ""
             };
 

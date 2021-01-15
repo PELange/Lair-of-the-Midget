@@ -3,6 +3,7 @@ using LOTM.Client.Engine.Controls;
 using LOTM.Client.Engine.Graphics;
 using LOTM.Client.Engine.Objects;
 using LOTM.Client.Game.Network;
+using LOTM.Client.Game.Objects;
 using LOTM.Client.Game.Objects.Environment;
 using LOTM.Client.Game.Objects.Interactable;
 using LOTM.Client.Game.Objects.Player;
@@ -11,6 +12,8 @@ using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
+using LOTM.Shared.Game.Objects;
+using LOTM.Shared.Game.Objects.Components;
 using LOTM.Shared.Game.Objects.Environment;
 using LOTM.Shared.Game.Objects.Interactable;
 using System;
@@ -102,15 +105,15 @@ namespace LOTM.Client.Game
 
             // Enemies
 
-            //Deamon boss
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(1, 23, 2, 24), "demonboss_m_idle_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(3, 23, 4, 24), "demonboss_m_idle_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(5, 23, 6, 24), "demonboss_m_idle_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(7, 23, 8, 24), "demonboss_m_idle_anim_f3");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(9, 23, 10, 24), "demonboss_m_walk_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(11, 23, 12, 24), "demonboss_m_walk_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(13, 23, 14, 24), "demonboss_m_walk_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(15, 23, 16, 24), "demonboss_m_walk_anim_f3");
+            //Small Ogre
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 12, 23, 13), "ogre_small_m_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(24, 12, 24, 13), "ogre_small_m_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 12, 25, 13), "ogre_small_m_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(26, 12, 26, 13), "ogre_small_m_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 12, 27, 13), "ogre_small_m_walk_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 12, 28, 13), "ogre_small_m_walk_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 12, 29, 13), "ogre_small_m_walk_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 12, 30, 13), "ogre_small_m_walk_anim_f3");
 
             //Small Skeleton
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 4, 23, 5), "skeleton_small_m_idle_anim_f0");
@@ -122,21 +125,15 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 4, 29, 5), "skeleton_small_m_walk_anim_f2");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 4, 30, 5), "skeleton_small_m_walk_anim_f3");
 
-            //Small Ogre
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(23, 12, 23, 13), "ogre_small_m_idle_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(24, 12, 24, 13), "ogre_small_m_idle_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(25, 12, 25, 13), "ogre_small_m_idle_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(26, 12, 26, 13), "ogre_small_m_idle_anim_f3");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 12, 27, 13), "ogre_small_m_walk_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 12, 28, 13), "ogre_small_m_walk_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 12, 29, 13), "ogre_small_m_walk_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 12, 30, 13), "ogre_small_m_walk_anim_f3");
-
             //Green Blob
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 6, 27, 7), "blob_green_m_idle_anim_f0");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 6, 28, 7), "blob_green_m_idle_anim_f1");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 6, 29, 7), "blob_green_m_idle_anim_f2");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 6, 30, 7), "blob_green_m_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(27, 6, 27, 7), "blob_green_m_walk_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(28, 6, 28, 7), "blob_green_m_walk_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(29, 6, 29, 7), "blob_green_m_walk_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(30, 6, 30, 7), "blob_green_m_walk_anim_f3");
 
             //Dungeon room
 
@@ -467,8 +464,10 @@ namespace LOTM.Client.Game
         {
             //System.Console.WriteLine($"Added room no. {dungeonRoom.RoomNumber} at <{dungeonRoom.Position.X};{dungeonRoom.Position.Y}>");
 
-            foreach (var obj in dungeonRoom.Objects)
+            for (int nObject = 0; nObject < dungeonRoom.Objects.Count; nObject++)
             {
+                var obj = dungeonRoom.Objects[nObject];
+
                 if (obj is DungeonTile dungeonTile)
                 {
                     DungeonTileRenderable.AddRenderable(dungeonTile);
@@ -477,9 +476,20 @@ namespace LOTM.Client.Game
                 {
                     PickupRenderable.AddRenderable(pickup);
                 }
+                else if (obj is LivingObject livingObject)
+                {
+                    var transform = livingObject.GetComponent<Transformation2D>();
+                    var collider = livingObject.GetComponent<Collider>().Rects;
+                    var health = livingObject.GetComponent<Health>();
 
-                World.AddObject(obj);
+                    //Replace object with upgraded instance
+                    dungeonRoom.Objects[nObject] = new LivingObjectClient(livingObject.ObjectId, livingObject.Type, transform.Position, transform.Scale, collider.FirstOrDefault(), health.CurrentHealth);
+
+                    continue;
+                }
             }
+
+            dungeonRoom.Objects.ForEach(x => World.AddObject(x));
 
             //Add room label
             if (dungeonRoom.RoomNumber > 0)

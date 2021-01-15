@@ -213,17 +213,17 @@ namespace LOTM.Shared.Game.Logic
         /// </summary>
         public void CreateEnemies()
         {
-            //int maxEnemyCount = PlayerCount * 2;
-            //int enemyCount = Random.Next(maxEnemyCount / 2, maxEnemyCount + 1);
+            int maxEnemyCount = PlayerCount * 2;
+            int enemyCount = Random.Next(maxEnemyCount / 2, maxEnemyCount + 1);
 
-            //while (enemyCount > 0)
-            //{
-            //    Vector2 enemyCoords = GetFreeObjectCoords();
-            //    ObjectCoordList.Add(enemyCoords);
+            while (enemyCount > 0)
+            {
+                Vector2 enemyCoords = GetFreeObjectCoords();
+                ObjectCoordList.Add(enemyCoords);
 
-            //    DungeonObjectList.Add(GetRandomEnemy(enemyCoords));
-            //    enemyCount--;
-            //}
+                DungeonObjectList.Add(GetRandomEnemy(enemyCoords));
+                enemyCount--;
+            }
         }
 
         /// <summary>
@@ -233,19 +233,21 @@ namespace LOTM.Shared.Game.Logic
         /// <returns></returns>
         public GameObject GetRandomEnemy(Vector2 enemyCoords)
         {
-            //Array enemyTypes = Enum.GetValues(typeof(EnemyType));
-            //EnemyType enemyType = (EnemyType)enemyTypes.GetValue(Random.Next(enemyTypes.Length));
-            //switch (enemyType)
-            //{
-            //    //case EnemyType.SkeletonSmall:
-            //    //    return new SkeletonSmall(enemyCoords, 0, new Vector2(16, 32));
-            //    //case EnemyType.OgreSmall:
-            //    //    return new OgreSmall(enemyCoords, 0, new Vector2(16, 32));
-            //    //case EnemyType.BlobGreen:
-            //    //    return new BlobGreen(enemyCoords, 0, new Vector2(16, 32));
-            //    default:
-            //        return null;
-            //}
+            switch ((ObjectType)Random.Next((int)ObjectType.Enemy_Ogre_Small, (int)ObjectType.Enemy_Blob_Small + 1))
+            {
+                case ObjectType.Enemy_Ogre_Small:
+                {
+                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Ogre_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.25, 0.5, 0.7, 0.5), 100);
+                }
+                case ObjectType.Enemy_Skeleton_Small:
+                {
+                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Skeleton_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.2, 0.55, 0.6, 0.45), 100);
+                }
+                case ObjectType.Enemy_Blob_Small:
+                {
+                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Blob_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.1, 0.5, 0.8, 0.5), 100);
+                }
+            }
 
             return null;
         }

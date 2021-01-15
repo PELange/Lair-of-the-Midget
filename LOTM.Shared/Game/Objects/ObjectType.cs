@@ -27,5 +27,9 @@
 
         Pickup_Health_Minor,
         Pickup_Health_Major,
+
+        Enemy_Ogre_Small,
+        Enemy_Skeleton_Small,
+        Enemy_Blob_Small,
     }
 }

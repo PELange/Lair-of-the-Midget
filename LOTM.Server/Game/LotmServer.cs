@@ -1,5 +1,6 @@
 ﻿using LOTM.Server.Game.Network;
 using LOTM.Server.Game.Objects;
+using LOTM.Server.Game.Objects.Living;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
@@ -7,6 +8,7 @@ using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
+using LOTM.Shared.Game.Objects.Interactable;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -234,6 +236,27 @@ namespace LOTM.Server.Game
 
             //Only remember objects that have a collider or that are moveable
             dungeonRoom.Objects.RemoveAll(obj => !(obj.GetComponent<Collider>() != null || obj is IMoveable));
+
+            for (int nObject = 0; nObject < dungeonRoom.Objects.Count; nObject++)
+            {
+                var obj = dungeonRoom.Objects[nObject];
+
+                if (obj is Pickup pickup)
+                {
+                    //upgrade to serverside pickup?
+                }
+                else if (obj is LivingObject livingObject)
+                {
+                    var transform = livingObject.GetComponent<Transformation2D>();
+                    var collider = livingObject.GetComponent<Collider>().Rects;
+                    var health = livingObject.GetComponent<Health>();
+
+                    //Replace object with upgraded instance
+                    dungeonRoom.Objects[nObject] = new EnemyBaseServer(livingObject.ObjectId, livingObject.Type, transform.Position, transform.Scale, collider.FirstOrDefault(), health.CurrentHealth);
+
+                    continue;
+                }
+            }
 
             //Add the relevant objects to the world
             dungeonRoom.Objects.ForEach(obj => World.AddObject(obj));

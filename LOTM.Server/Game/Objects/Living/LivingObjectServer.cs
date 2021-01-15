@@ -9,8 +9,8 @@ namespace LOTM.Server.Game.Objects.Living
 {
     public class LivingObjectServer : LivingObject
     {
-        public LivingObjectServer(int networkId, ObjectType type, Vector2 position = default, Vector2 scale = default, Rectangle colliderInfo = default, double health = default)
-            : base(networkId, type, position, scale, colliderInfo, health)
+        public LivingObjectServer(int objectId, ObjectType type, Vector2 position = default, Vector2 scale = default, Rectangle colliderInfo = default, double health = default)
+            : base(objectId, type, position, scale, colliderInfo, health)
         {
         }
 
@@ -37,6 +37,8 @@ namespace LOTM.Server.Game.Objects.Living
             foreach (var worldObject in world.GetObjectsInArea(collisionDetectionBounds))
             {
                 if (worldObject == this) continue; //Avoid self collision
+
+                if (worldObject is EnemyBaseServer || worldObject is PlayerBaseServer) continue; //No movement collision between enemies <-> enemies, player <-> enemy, player <-> player
 
                 var objectCollider = worldObject.GetComponent<Collider>();
 

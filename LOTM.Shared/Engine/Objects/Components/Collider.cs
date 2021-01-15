@@ -7,7 +7,7 @@ namespace LOTM.Shared.Engine.Objects.Components
     public class Collider : IComponent
     {
         protected GameObject Parent { get; }
-        protected List<Rectangle> Rects { get; }
+        public List<Rectangle> Rects { get; }
 
         public bool Active { get; set; }
 
