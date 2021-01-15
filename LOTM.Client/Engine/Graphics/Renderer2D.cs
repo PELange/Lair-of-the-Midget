@@ -146,6 +146,8 @@ namespace LOTM.Client.Engine.Graphics
 
                     foreach (var segment in spriteRenderer.Segments)
                     {
+                        if (!segment.Active) continue;
+
                         var textureCoordinates = segment.Sprite.TextureCoordinates;
 
                         if (segment.VerticalFlip)

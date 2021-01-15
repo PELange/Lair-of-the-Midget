@@ -184,6 +184,9 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 9, 21, 10), "staff");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 2, 18, 4), "hammer_big");
 
+            //Misc
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 20, 18, 20), "skull");
+
             //Setup inital states
 
             //Join screen
