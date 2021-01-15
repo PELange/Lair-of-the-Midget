@@ -148,7 +148,7 @@ namespace LOTM.Client.Engine.Graphics
                     {
                         var textureCoordinates = segment.Sprite.TextureCoordinates;
 
-                        if (segment.HorizontalFlip)
+                        if (segment.VerticalFlip)
                         {
                             textureCoordinates = new Vector4(textureCoordinates.Z, textureCoordinates.Y, textureCoordinates.X, textureCoordinates.W);
                         }

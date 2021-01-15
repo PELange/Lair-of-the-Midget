@@ -14,16 +14,16 @@ namespace LOTM.Client.Engine.Objects.Components
             public Vector2 Offset { get; set; }
             public Sprite Sprite { get; set; }
             public Vector4 Color { get; set; }
-            public bool HorizontalFlip { get; set; }
+            public bool VerticalFlip { get; set; }
 
-            public Segment(Sprite sprite = null, Vector2 size = null, Vector2 offset = null, Vector4 color = null, bool horizontalFlip = false, int layer = 1000)
+            public Segment(Sprite sprite = null, Vector2 size = null, Vector2 offset = null, Vector4 color = null, bool verticalFlip = false, int layer = 1000)
             {
                 RenderLayer = layer;
                 Size = size ?? new Vector2(1, 1);
                 Offset = offset ?? Vector2.ZERO;
                 Sprite = sprite;
                 Color = color ?? new Vector4(1, 1, 1, 1);
-                HorizontalFlip = horizontalFlip;
+                VerticalFlip = verticalFlip;
             }
         }
 
