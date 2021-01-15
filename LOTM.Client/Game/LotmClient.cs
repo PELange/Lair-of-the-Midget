@@ -506,6 +506,12 @@ namespace LOTM.Client.Game
                 World.AddObject(obj);
             }
 
+            //Add room label
+            if (dungeonRoom.RoomNumber > 0)
+            {
+                World.AddObject(new TextCanvas(new Vector2(dungeonRoom.Position.X - 48, dungeonRoom.Position.Y - 86), $"Room {dungeonRoom.RoomNumber}"));
+            }
+
             DungeonRooms.Add(dungeonRoom);
         }
 
