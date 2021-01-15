@@ -78,7 +78,7 @@ namespace LOTM.Server.Game.Objects
 
                     networkSynchronization.PacketsOutbound.Enqueue(new ObjectPositionUpdate
                     {
-                        ObjectId = networkSynchronization.NetworkId,
+                        ObjectId = ObjectId,
                         PositionX = transformation.Position.X,
                         PositionY = transformation.Position.Y,
                     });

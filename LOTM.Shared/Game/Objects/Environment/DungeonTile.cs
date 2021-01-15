@@ -6,8 +6,8 @@ namespace LOTM.Shared.Game.Objects.Environment
 {
     public class DungeonTile : TypedObject
     {
-        public DungeonTile(ObjectType type, Vector2 position, Vector2 scale)
-            : base(type, position, 0, scale)
+        public DungeonTile(int id, ObjectType type, Vector2 position, Vector2 scale)
+            : base(id, type, position, 0, scale)
         {
             switch (Type)
             {

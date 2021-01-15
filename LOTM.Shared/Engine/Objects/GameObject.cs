@@ -8,11 +8,17 @@ namespace LOTM.Shared.Engine.Objects
 {
     public class GameObject
     {
-        protected ICollection<IComponent> Components { get; } = new LinkedList<IComponent>();
+        public int ObjectId { get; }
 
-        public GameObject(Vector2 position = null, double rotation = 0, Vector2 scale = null)
+        protected ICollection<IComponent> Components { get; }
+
+        public GameObject(int id, Vector2 position = null, double rotation = 0, Vector2 scale = null)
         {
-            Components.Add(new Transformation2D
+            ObjectId = id;
+
+            Components = new LinkedList<IComponent>();
+
+            AddComponent(new Transformation2D
             {
                 Position = position ?? Vector2.ZERO,
                 Rotation = rotation,

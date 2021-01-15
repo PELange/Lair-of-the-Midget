@@ -199,7 +199,7 @@ namespace LOTM.Client.Game
 
             //Join screen
             Camera.SetViewport(new Viewport(new Vector2(0, 0), new Vector2(100, 100)));
-            TextCanvas = new TextCanvas(new Vector2(50, 50), $"Connecting to {NetworkClient.CurrentServer} ...");
+            TextCanvas = new TextCanvas(-10, new Vector2(50, 50), $"Connecting to {NetworkClient.CurrentServer} ...");
             World.AddObject(TextCanvas);
         }
 
@@ -222,7 +222,7 @@ namespace LOTM.Client.Game
                     {
                         if (NetworkClient.OnPlayerJoinAck(playerJoinAck))
                         {
-                            OnJoin(playerJoinAck.LobbySize, playerJoinAck.WorldSeed, playerJoinAck.PlayerObjectNetworkId);
+                            OnJoin(playerJoinAck.LobbySize, playerJoinAck.WorldSeed, playerJoinAck.PlayerObjectId);
                         }
 
                         break;
@@ -249,7 +249,7 @@ namespace LOTM.Client.Game
                     case PlayerCreation playerCreation:
                     {
                         //Try to loctate the object using the network id
-                        var gameObject = World.GetGameObjectByNetworkId(playerCreation.ObjectId);
+                        var gameObject = World.GetObjectById(playerCreation.ObjectId);
 
                         //We seem to already know the object? Dublicate packet arrival or faulty serverside logic. Either way, we keep the local version and wait for more updates to come to refresh it's state
                         if (gameObject != null)
@@ -273,7 +273,7 @@ namespace LOTM.Client.Game
 
                     case ObjectPositionUpdate objectPositionUpdate:
                     {
-                        var gameObject = World.GetGameObjectByNetworkId(objectPositionUpdate.ObjectId);
+                        var gameObject = World.GetObjectById(objectPositionUpdate.ObjectId);
 
                         if (gameObject != null)
                         {
@@ -285,7 +285,7 @@ namespace LOTM.Client.Game
 
                     case ObjectHealthUpdate objectHealthUpdate:
                     {
-                        var gameObject = World.GetGameObjectByNetworkId(objectHealthUpdate.ObjectId);
+                        var gameObject = World.GetObjectById(objectHealthUpdate.ObjectId);
 
                         if (gameObject != null)
                         {
@@ -360,12 +360,12 @@ namespace LOTM.Client.Game
             if (State != GameState.Gameplay) return;
 
             var cameraCenterPos = Vector2.ZERO;
-            var viewportPadding = 16 * 50;
+            var viewportPadding = 16 * 6;
 
             //Try find the player object if we did not already have it
             if (PlayerObject == null)
             {
-                PlayerObject = World.GetGameObjectByNetworkId(PlayerGameObjectId);
+                PlayerObject = World.GetObjectById(PlayerGameObjectId);
             }
 
             if (PlayerObject != null)
@@ -469,22 +469,22 @@ namespace LOTM.Client.Game
 
             foreach (var obj in dungeonRoom.Objects)
             {
-                if (obj.Item2 is DungeonTile dungeonTile)
+                if (obj is DungeonTile dungeonTile)
                 {
                     DungeonTileRenderable.AddRenderable(dungeonTile);
                 }
-                //else if (obj.Item2 is Pickup pickup) //todo disable
-                //{
-                //    PickupRenderable.AddRenderable(pickup);
-                //}
+                else if (obj is Pickup pickup)
+                {
+                    PickupRenderable.AddRenderable(pickup);
+                }
 
-                World.AddObject(obj.Item2);
+                World.AddObject(obj);
             }
 
             //Add room label
             if (dungeonRoom.RoomNumber > 0)
             {
-                World.AddObject(new TextCanvas(new Vector2(dungeonRoom.Position.X - 48, dungeonRoom.Position.Y - 86), $"Room {dungeonRoom.RoomNumber}"));
+                World.AddObject(new TextCanvas(dungeonRoom.RoomNumber * 10000, new Vector2(dungeonRoom.Position.X - 48, dungeonRoom.Position.Y - 86), $"Room {dungeonRoom.RoomNumber}"));
             }
 
             DungeonRooms.Add(dungeonRoom);
@@ -525,7 +525,7 @@ namespace LOTM.Client.Game
 
                 foreach (var room in outOfRangeRooms)
                 {
-                    room.Objects.ForEach(x => World.RemoveObject(x.Item2));
+                    room.Objects.ForEach(x => World.RemoveObject(x));
                 }
 
                 DungeonRooms.RemoveAll(x => outOfRangeRooms.Contains(x));

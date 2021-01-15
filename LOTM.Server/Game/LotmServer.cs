@@ -33,8 +33,9 @@ namespace LOTM.Server.Game
         {
             NetworkServer = (LotmNetworkManagerServer)NetworkManager;
             Players = new Dictionary<string, PlayerBaseServer>();
-            LobbySize = lobbySize;
             DungeonRooms = new List<DungeonRoom>();
+            NextFreeEntityId = 100;
+            LobbySize = lobbySize;
         }
 
         protected override void OnInit()
@@ -141,8 +142,8 @@ namespace LOTM.Server.Game
             var spawnPos = new Vector2(-8, -116);
             var spawnHp = 100;
 
-            var netId = NextFreeEntityId++;
-            var playerObject = new PlayerBaseServer(netId, playerJoin.PlayerName, playerJoin.PlayerType, spawnPos, spawnHp);
+            var objectId = NextFreeEntityId++;
+            var playerObject = new PlayerBaseServer(objectId, playerJoin.PlayerName, playerJoin.PlayerType, spawnPos, spawnHp);
 
             //Send inital create packet for the player
             var netSync = playerObject.GetComponent<NetworkSynchronization>();
@@ -152,7 +153,7 @@ namespace LOTM.Server.Game
 
             netSync.PacketsOutbound.Enqueue(new PlayerCreation
             {
-                ObjectId = netSync.NetworkId,
+                ObjectId = playerObject.ObjectId,
                 Type = playerObject.Type,
                 PositionX = transform.Position.X,
                 PositionY = transform.Position.Y,
@@ -171,7 +172,7 @@ namespace LOTM.Server.Game
             //Respond to client
             return new PlayerJoinAck
             {
-                PlayerObjectNetworkId = netId,
+                PlayerObjectId = objectId,
                 WorldSeed = WorldSeed,
                 LobbySize = (int)LobbySize
             };
@@ -232,10 +233,10 @@ namespace LOTM.Server.Game
             //System.Console.WriteLine($"Added room no. {dungeonRoom.RoomNumber} at <{dungeonRoom.Position.X};{dungeonRoom.Position.Y}>");
 
             //Only remember objects that have a collider or that are moveable
-            dungeonRoom.Objects.RemoveAll(obj => !(obj.Item2.GetComponent<Collider>() != null || obj.Item2 is IMoveable));
+            dungeonRoom.Objects.RemoveAll(obj => !(obj.GetComponent<Collider>() != null || obj is IMoveable));
 
             //Add the relevant objects to the world
-            dungeonRoom.Objects.ForEach(obj => World.AddObject(obj.Item2));
+            dungeonRoom.Objects.ForEach(obj => World.AddObject(obj));
 
             DungeonRooms.Add(dungeonRoom);
         }

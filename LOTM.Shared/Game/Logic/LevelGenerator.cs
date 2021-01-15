@@ -6,7 +6,7 @@ namespace LOTM.Shared.Game.Logic
     {
         public static DungeonRoom AddSpawn(Vector2 position)
         {
-            var dungeonRoomGenerator = new DungeonRoomGenerator(position, 10, 10, 0, 0, 0, false);
+            var dungeonRoomGenerator = new DungeonRoomGenerator(0, position, 10, 10, 0, 0, 0, false);
             dungeonRoomGenerator.CreateRoomStructure(true);
             return new DungeonRoom(0, position, new Vector2(dungeonRoomGenerator.Width * 16, (dungeonRoomGenerator.Height + dungeonRoomGenerator.TunnelLength) * 16), dungeonRoomGenerator.DungeonObjectList);
         }
@@ -22,7 +22,7 @@ namespace LOTM.Shared.Game.Logic
 
             int tunnelLength = 5;
 
-            var dungeonRoomGenerator = new DungeonRoomGenerator(position, roomWidth, roomHeight, tunnelLength, playerCount, seed, true);
+            var dungeonRoomGenerator = new DungeonRoomGenerator(roomNumber, position, roomWidth, roomHeight, tunnelLength, playerCount, seed, true);
             dungeonRoomGenerator.CreateRoom();
             return new DungeonRoom(roomNumber, position, new Vector2(dungeonRoomGenerator.Width * 16, (dungeonRoomGenerator.Height + dungeonRoomGenerator.TunnelLength) * 16), dungeonRoomGenerator.DungeonObjectList);
         }

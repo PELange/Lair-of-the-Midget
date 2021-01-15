@@ -9,19 +9,17 @@ namespace LOTM.Shared.Engine.World
     public class GameWorld
     {
         protected List<GameObject> DynamicObjects { get; }
-        protected Dictionary<int, GameObject> DynamicObjectLookupCache { get; set; }
+        protected Dictionary<int, GameObject> DynamicObjectLookupCache { get; }
 
-        //protected List<GameObject> StaticObjects { get; }
         protected QuadTree StaticObjects { get; }
-        protected Dictionary<int, GameObject> StaticObjectLookupCache { get; set; }
+        protected Dictionary<int, GameObject> StaticObjectLookupCache { get; }
 
         public GameWorld()
         {
             DynamicObjects = new List<GameObject>();
             DynamicObjectLookupCache = new Dictionary<int, GameObject>();
 
-            //StaticObjects = new List<GameObject>();
-            StaticObjects = new QuadTree(new Rectangle(-10_000, -10_000, 20_000, 20_000));
+            StaticObjects = new QuadTree(new Rectangle(-10_000, -10_000, 20_000, 20_000)); //Todo adjust quadtree to dungeon dimensions -> use world constructor parameter for this?
             StaticObjectLookupCache = new Dictionary<int, GameObject>();
         }
 
@@ -30,20 +28,12 @@ namespace LOTM.Shared.Engine.World
             if (gameObject is IMoveable)
             {
                 DynamicObjects.Add(gameObject);
-
-                if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
-                {
-                    DynamicObjectLookupCache.Add(networkSynchronization.NetworkId, gameObject);
-                }
+                DynamicObjectLookupCache.Add(gameObject.ObjectId, gameObject);
             }
             else
             {
                 StaticObjects.Add(gameObject);
-
-                if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
-                {
-                    StaticObjectLookupCache.Add(networkSynchronization.NetworkId, gameObject);
-                }
+                StaticObjectLookupCache.Add(gameObject.ObjectId, gameObject);
             }
         }
 
@@ -52,20 +42,12 @@ namespace LOTM.Shared.Engine.World
             if (gameObject is IMoveable)
             {
                 DynamicObjects.Remove(gameObject);
-
-                if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
-                {
-                    DynamicObjectLookupCache.Remove(networkSynchronization.NetworkId);
-                }
+                DynamicObjectLookupCache.Remove(gameObject.ObjectId);
             }
             else
             {
                 StaticObjects.Remove(gameObject);
-
-                if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
-                {
-                    StaticObjectLookupCache.Remove(networkSynchronization.NetworkId);
-                }
+                StaticObjectLookupCache.Remove(gameObject.ObjectId);
             }
         }
 
@@ -79,11 +61,11 @@ namespace LOTM.Shared.Engine.World
             return StaticObjects.GetObjects(area).Concat(DynamicObjects.Where(x => area.IntersectsWith(x.GetComponent<Transformation2D>().GetBoundingBox())));
         }
 
-        public GameObject GetGameObjectByNetworkId(int networkId)
+        public GameObject GetObjectById(int objectId)
         {
-            if (DynamicObjectLookupCache.TryGetValue(networkId, out var dynamicObject)) return dynamicObject;
+            if (DynamicObjectLookupCache.TryGetValue(objectId, out var dynamicObject)) return dynamicObject;
 
-            if (StaticObjectLookupCache.TryGetValue(networkId, out var staticObject)) return staticObject;
+            if (StaticObjectLookupCache.TryGetValue(objectId, out var staticObject)) return staticObject;
 
             return null;
         }

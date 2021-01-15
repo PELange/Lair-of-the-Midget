@@ -7,8 +7,8 @@ namespace LOTM.Shared.Game.Objects
     {
         public ObjectType Type { get; }
 
-        public TypedObject(ObjectType type, Vector2 position = default, double rotation = 0, Vector2 scale = default)
-             : base(position, rotation, scale)
+        public TypedObject(int id, ObjectType type, Vector2 position = default, double rotation = 0, Vector2 scale = default)
+             : base(id, position, rotation, scale)
         {
             Type = type;
         }

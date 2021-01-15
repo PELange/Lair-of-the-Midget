@@ -12,7 +12,7 @@ namespace LOTM.Shared.Game.Network.Packets
 
         public int LobbySize { get; set; }
         public int WorldSeed { get; set; }
-        public int PlayerObjectNetworkId { get; set; }
+        public int PlayerObjectId { get; set; }
 
         public override void ReadBytes(BinaryReader reader)
         {
@@ -20,7 +20,7 @@ namespace LOTM.Shared.Game.Network.Packets
 
             LobbySize = reader.ReadInt32();
             WorldSeed = reader.ReadInt32();
-            PlayerObjectNetworkId = reader.ReadInt32();
+            PlayerObjectId = reader.ReadInt32();
         }
 
         public override void WriteBytes(BinaryWriter writer)
@@ -29,7 +29,7 @@ namespace LOTM.Shared.Game.Network.Packets
 
             writer.Write(LobbySize);
             writer.Write(WorldSeed);
-            writer.Write(PlayerObjectNetworkId);
+            writer.Write(PlayerObjectId);
         }
     }
 }

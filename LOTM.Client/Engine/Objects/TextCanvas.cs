@@ -12,8 +12,8 @@ namespace LOTM.Client.Engine.Objects
         public string Text { get; set; }
         public bool Show { get; set; }
 
-        public TextCanvas(Vector2 position, string text = "")
-            : base(position)
+        public TextCanvas(int id, Vector2 position, string text = "")
+            : base(id, position)
         {
             Text = text;
             Show = true;
