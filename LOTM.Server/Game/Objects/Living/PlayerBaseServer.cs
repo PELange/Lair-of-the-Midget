@@ -15,7 +15,7 @@ namespace LOTM.Server.Game.Objects
         public PlayerInput LastKownInput { get; set; }
 
         public PlayerBaseServer(int networkId, string name, ObjectType type, Vector2 position, double health)
-            : base(networkId, type, position, new Vector2(16, 32), new Rectangle(0, 0.75, 1, 0.25), health)
+            : base(networkId, type, position, new Vector2(16, 32), new Rectangle(0.2, 0.75, 0.7, 0.25), health)
         {
             AddComponent(new PlayerInfo(name));
         }

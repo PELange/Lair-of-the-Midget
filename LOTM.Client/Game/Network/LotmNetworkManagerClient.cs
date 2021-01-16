@@ -1,6 +1,7 @@
 ﻿using LOTM.Shared.Engine.Network;
 using LOTM.Shared.Game.Network;
 using LOTM.Shared.Game.Network.Packets;
+using LOTM.Shared.Game.Objects;
 using System;
 using System.Net;
 
@@ -37,13 +38,17 @@ namespace LOTM.Client.Game.Network
             return true;
         }
 
-        public void EnsureServerConnection()
+        public void EnsureServerConnection(ObjectType playerType)
         {
             if (!IsConnected && (LastConnectionAttempt == null || (DateTime.Now - LastConnectionAttempt).TotalSeconds > 1))
             {
                 LastConnectionAttempt = DateTime.Now;
 
-                SendPacket(new PlayerJoin { PlayerName = PlayerName });
+                SendPacket(new PlayerJoin
+                {
+                    PlayerName = PlayerName,
+                    PlayerType = playerType
+                });
             }
         }
 

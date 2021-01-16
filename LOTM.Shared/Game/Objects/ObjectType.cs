@@ -2,6 +2,8 @@
 {
     public enum ObjectType : short
     {
+        Player_Elf_Female,
+        Player_Knight_Male,
         Player_Wizard_Male,
 
         Tile_Ground_0,

@@ -37,6 +37,8 @@ namespace LOTM.Client.Game.Objects
 
             AnimationSpriteSet = Type switch
             {
+                ObjectType.Player_Elf_Female => $"elf_f",
+                ObjectType.Player_Knight_Male => $"knight_m",
                 ObjectType.Player_Wizard_Male => $"wizzard_m",
                 ObjectType.Enemy_Ogre_Small => $"ogre_small_m",
                 ObjectType.Enemy_Skeleton_Small => $"skeleton_small_m",

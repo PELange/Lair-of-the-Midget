@@ -137,9 +137,9 @@ namespace LOTM.Server.Game
         {
             System.Console.WriteLine($"{playerJoin.PlayerName}({playerJoin.Sender}) joined the server.");
 
-            if (playerJoin.PlayerType < ObjectType.Player_Wizard_Male || playerJoin.PlayerType > ObjectType.Player_Wizard_Male)
+            if (playerJoin.PlayerType < ObjectType.Player_Elf_Female || playerJoin.PlayerType > ObjectType.Player_Wizard_Male)
             {
-                playerJoin.PlayerType = ObjectType.Player_Wizard_Male;
+                playerJoin.PlayerType = ObjectType.Player_Knight_Male;
             }
 
             var spawnPos = new Vector2(-8, -116);

@@ -35,6 +35,8 @@ namespace LOTM.Client.Game
         protected int WorldSeed { get; set; }
         protected List<DungeonRoom> DungeonRooms { get; }
 
+        protected ObjectType DesiredPlayerType { get; set; }
+
         protected enum GameState
         {
             Connecting,
@@ -45,13 +47,26 @@ namespace LOTM.Client.Game
         protected GameState State { get; set; }
         public DateTime LastStateSyncAttempt { get; set; }
 
-        public LotmClient(int windowWidth, int windowHeight, string connectionString, string playerName)
+        public LotmClient(int windowWidth, int windowHeight, string connectionString, string playerName, string desiredPlayerType)
             : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", new LotmNetworkManagerClient(connectionString, playerName))
         {
             NetworkClient = (LotmNetworkManagerClient)NetworkManager;
             PlayerGameObjectId = -1;
             DungeonRooms = new List<DungeonRoom>();
             State = GameState.Connecting;
+
+            if (desiredPlayerType.ToLower() == "elf")
+            {
+                DesiredPlayerType = ObjectType.Player_Elf_Female;
+            }
+            else if (desiredPlayerType.ToLower() == "knight")
+            {
+                DesiredPlayerType = ObjectType.Player_Knight_Male;
+            }
+            else if (desiredPlayerType.ToLower() == "wizard")
+            {
+                DesiredPlayerType = ObjectType.Player_Wizard_Male;
+            }
         }
 
         protected override void OnInit()
@@ -71,15 +86,15 @@ namespace LOTM.Client.Game
             //Players
 
             //Elf
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(8, 0, 8, 1), "elf_m_idle_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(9, 0, 9, 1), "elf_m_idle_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(10, 0, 10, 1), "elf_m_idle_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(11, 0, 11, 1), "elf_m_idle_anim_f3");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(12, 0, 12, 1), "elf_m_walk_anim_f0");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(13, 0, 13, 1), "elf_m_walk_anim_f1");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(14, 0, 14, 1), "elf_m_walk_anim_f2");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(15, 0, 15, 1), "elf_m_walk_anim_f3");
-            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(16, 0, 16, 1), "elf_m_jump_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(8, 0, 8, 1), "elf_f_idle_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(9, 0, 9, 1), "elf_f_idle_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(10, 0, 10, 1), "elf_f_idle_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(11, 0, 11, 1), "elf_f_idle_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(12, 0, 12, 1), "elf_f_walk_anim_f0");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(13, 0, 13, 1), "elf_f_walk_anim_f1");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(14, 0, 14, 1), "elf_f_walk_anim_f2");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(15, 0, 15, 1), "elf_f_walk_anim_f3");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(16, 0, 16, 1), "elf_f_jump_anim_f0");
 
             //Knight
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(8, 6, 8, 7), "knight_m_idle_anim_f0");
@@ -285,7 +300,7 @@ namespace LOTM.Client.Game
             }
 
             //Make sure we are "connected" to the server -> If we did not get an ack from server yet, resend our join request.
-            NetworkClient.EnsureServerConnection();
+            NetworkClient.EnsureServerConnection(DesiredPlayerType);
 
             //If we are waiting in the lobby, ask the server if the game has started in case we missed the inital start packet
             if (State == GameState.Lobby && (LastStateSyncAttempt == null || (DateTime.Now - LastStateSyncAttempt).TotalMilliseconds > 1))
