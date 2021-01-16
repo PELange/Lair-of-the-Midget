@@ -6,10 +6,15 @@ using System.Net;
 
 namespace LOTM.Shared.Game.Network
 {
-    public class LotmNetworkPacketSerializationProvider : INetworkPacketSerializationProvider
+    public class LotmNetworkPacketSerializationProvider : NetworkPacketSerializationProvider
     {
-        public byte[] SerializePacket(NetworkPacket packet)
+        public override bool SerializePacket(NetworkPacket packet, out byte[] data)
         {
+            if (base.SerializePacket(packet, out data))
+            {
+                return true;
+            }
+
             using var memoryStream = new MemoryStream();
             using var writer = new BinaryWriter(memoryStream);
 
@@ -65,18 +70,23 @@ namespace LOTM.Shared.Game.Network
 
             packet.WriteBytes(writer);
 
-            return memoryStream.ToArray();
+            data = memoryStream.ToArray();
+
+            return true;
         }
 
-        public NetworkPacket DeserializePacket(byte[] data, IPEndPoint sender)
+        public override NetworkPacket DeserializePacket(byte[] data, IPEndPoint sender)
         {
+            var networkPacket = base.DeserializePacket(data, sender);
+
+            if (networkPacket != null) return networkPacket;
+
             if (data == null || sender == null || data.Length < 1) return null;
 
             using MemoryStream memoryStream = new MemoryStream(data);
             using BinaryReader reader = new BinaryReader(memoryStream);
 
             var type = reader.ReadInt32();
-            NetworkPacket networkPacket = null;
 
             switch (type)
             {
