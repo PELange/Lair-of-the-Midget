@@ -218,7 +218,7 @@ namespace LOTM.Shared.Game.Logic
 
             while (enemyCount > 0)
             {
-                Vector2 enemyCoords = GetFreeObjectCoords();
+                Vector2 enemyCoords = GetFreeObjectCoords("enemy");
                 ObjectCoordList.Add(enemyCoords);
 
                 DungeonObjectList.Add(GetRandomEnemy(enemyCoords));
@@ -261,7 +261,7 @@ namespace LOTM.Shared.Game.Logic
             for (int nIteration = 0; nIteration < 100000; nIteration++)
             {
                 var objectX = Random.Next(-WidthHalf, WidthHalf);
-                var objectY = Random.Next(-Height, -1);
+                var objectY = Random.Next(-Height, -2);
 
                 var objectCoords = new Vector2(RoomStartCoords.X + objectX * 16, RoomStartCoords.Y + objectY * 16);
 
@@ -274,32 +274,29 @@ namespace LOTM.Shared.Game.Logic
 
                 if (objectType == "pillar")
                 {
+                    // Pillars should not spawn directly at walls
                     if (objectCoords.Y == RoomStartCoords.Y - 32) continue;
                     if (objectCoords.Y == RoomStartCoords.Y - (Height + 2) * 16) continue;
+                    if (objectCoords.Y == RoomStartCoords.Y - (Height + 1) * 16) continue;
                     if (objectCoords.X == RoomStartCoords.X + (WidthHalf - 1) * 16) continue;
                     if (objectCoords.X == RoomStartCoords.X - WidthHalf * 16) continue;
-                    //if (objectCoords.Y == RoomStartCoords.Y - (Height + 16) * 16) continue;
 
-                    //for (int y = (int)objectCoords.Y - 16; y <= objectCoords.Y + 16; y += 16)
-                    //{
-                    //    for (int x = (int)objectCoords.X - 16; x <= objectCoords.X + 16; x += 16)
-                    //    {
-                    //        if (ListContainsVector(new Vector2(x, y))) continue;
-                    //    }
-                    //}
                     // Between pillars should be at least one free tile
-                    if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y))) continue;
-                    if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y - 16))) continue;
-                    if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y + 16))) continue;
-                    if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y))) continue;
                     if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y - 16))) continue;
-                    if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y + 16))) continue;
-                    if (ListContainsVector(new Vector2(objectCoords.X, objectCoords.Y + 16))) continue;
-                    if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y + 16))) continue;
-                    if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y + 16))) continue;
                     if (ListContainsVector(new Vector2(objectCoords.X, objectCoords.Y - 16))) continue;
                     if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y - 16))) continue;
-                    if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y - 16))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y + 16))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X, objectCoords.Y + 16))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y + 16))) continue;
+                }
+
+                if (objectType == "enemy")
+                {
+                    // Prevent enemies from stucking in wall colliders
+                    if (objectCoords.X == RoomStartCoords.X + (WidthHalf - 1) * 16) continue;
+                    if (objectCoords.X == RoomStartCoords.X - WidthHalf * 16) continue;
                 }
 
                 return objectCoords;
