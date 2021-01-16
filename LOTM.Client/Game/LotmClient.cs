@@ -384,7 +384,7 @@ namespace LOTM.Client.Game
             {
                 if (worldObject.GetComponent<Collider>() is Collider collider)
                 {
-                    collider.AsBoundingBoxes().ForEach(dbgBox => DebugOverlay.DrawBox(dbgBox.X, dbgBox.Y, dbgBox.Width, dbgBox.Height, new Vector4(0, 1, 0, 0.5)));
+                    if (collider.Active) collider.AsBoundingBoxes().ForEach(dbgBox => DebugOverlay.DrawBox(dbgBox.X, dbgBox.Y, dbgBox.Width, dbgBox.Height, new Vector4(0, 1, 0, 0.5)));
                 }
             }
 
