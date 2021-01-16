@@ -5,23 +5,13 @@ namespace LOTM.Shared.Engine.Network
 {
     public class NetworkPacket
     {
-        protected static int NEXT_PACKET_ID = 1;
-
         public int Id { get; set; }
         public IPEndPoint Sender { get; }
         public bool RequiresAck { get; set; }
 
         public NetworkPacket(IPEndPoint sender = default, bool requiresAck = false)
         {
-            if (sender == default)
-            {
-                Id = NEXT_PACKET_ID++; //Outboind packet. Set unique id
-            }
-            else
-            {
-                Sender = sender; //Inbound packet, we will know the id afer we read the packet bytes. Just store the sender from IP layer
-            }
-
+            Sender = sender; //Only interesting on receiver side. Will be default on a packet that is being prepared to be sent
             RequiresAck = requiresAck;
         }
 

@@ -12,6 +12,8 @@ namespace LOTM.Shared.Engine.Network
         private const int MAX_ACK_TIMEOUT_MS = 1_000;
         private const int ACK_RETRANSMIT_COOLDOWN_MS = 250;
 
+        private int NEXT_PACKET_ID = 1;
+
         private UdpSocket Socket { get; }
 
         private AutoResetEvent SendEvent { get; }
@@ -194,6 +196,7 @@ namespace LOTM.Shared.Engine.Network
 
         protected void SendPacket(NetworkPacket packet, IPEndPoint receiver)
         {
+            packet.Id = NEXT_PACKET_ID++;
             SendQueue.Enqueue((packet, receiver));
             SendEvent.Set();
         }
