@@ -21,13 +21,16 @@ namespace LOTM.Server.Game.Objects.Living
         {
             var health = GetComponent<Health>();
 
-            health.DeplateHealthAbsolute(5 * deltaTime);
-
-            GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate
+            if (health.CurrentHealth > 0)
             {
-                ObjectId = ObjectId,
-                Health = health.CurrentHealth,
-            });
+                health.DeplateHealthAbsolute(50 * deltaTime);
+
+                GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate
+                {
+                    ObjectId = ObjectId,
+                    Health = health.CurrentHealth,
+                });
+            }
         }
 
         protected bool TryMovePosition(Vector2 desiredPosition, GameWorld world, bool considerPartialMovementSuccess = true)
