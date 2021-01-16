@@ -37,7 +37,7 @@ namespace LOTM.Server.Game
             NetworkServer = (LotmNetworkManagerServer)NetworkManager;
             Players = new Dictionary<string, PlayerBaseServer>();
             DungeonRooms = new List<DungeonRoom>();
-            NextFreeEntityId = 100;
+            NextFreeEntityId = -1;
             LobbySize = lobbySize;
         }
 
@@ -145,7 +145,7 @@ namespace LOTM.Server.Game
             var spawnPos = new Vector2(-8, -116);
             var spawnHp = 100;
 
-            var objectId = NextFreeEntityId++;
+            var objectId = NextFreeEntityId--;
             var playerObject = new PlayerBaseServer(objectId, playerJoin.PlayerName, playerJoin.PlayerType, spawnPos, spawnHp);
 
             //Send inital create packet for the player
