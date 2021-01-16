@@ -10,6 +10,7 @@ namespace LOTM.Shared.Game.Network.Packets
         {
         }
 
+        public bool GameActive { get; set; }
         public int LobbySize { get; set; }
         public int WorldSeed { get; set; }
         public int PlayerObjectId { get; set; }
@@ -18,6 +19,7 @@ namespace LOTM.Shared.Game.Network.Packets
         {
             base.ReadBytes(reader);
 
+            GameActive = reader.ReadBoolean();
             LobbySize = reader.ReadInt32();
             WorldSeed = reader.ReadInt32();
             PlayerObjectId = reader.ReadInt32();
@@ -27,6 +29,7 @@ namespace LOTM.Shared.Game.Network.Packets
         {
             base.WriteBytes(writer);
 
+            writer.Write(GameActive);
             writer.Write(LobbySize);
             writer.Write(WorldSeed);
             writer.Write(PlayerObjectId);

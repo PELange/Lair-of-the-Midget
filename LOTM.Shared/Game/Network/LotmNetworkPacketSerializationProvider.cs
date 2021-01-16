@@ -56,20 +56,16 @@ namespace LOTM.Shared.Game.Network
                     writer.Write(9);
                     break;
 
-                case GameStateRequest _:
+                case GameStateUpdate _:
                     writer.Write(10);
                     break;
 
-                case GameStateUpdate _:
+                case PickupStateUpdate _:
                     writer.Write(11);
                     break;
 
-                case PickupStateUpdate _:
-                    writer.Write(12);
-                    break;
-
                 case DoorStateUpdate _:
-                    writer.Write(13);
+                    writer.Write(12);
                     break;
 
                 default:
@@ -135,18 +131,14 @@ namespace LOTM.Shared.Game.Network
                     break;
 
                 case 10:
-                    networkPacket = new GameStateRequest(sender);
-                    break;
-
-                case 11:
                     networkPacket = new GameStateUpdate(sender);
                     break;
 
-                case 12:
+                case 11:
                     networkPacket = new PickupStateUpdate(sender);
                     break;
 
-                case 13:
+                case 12:
                     networkPacket = new DoorStateUpdate(sender);
                     break;
 

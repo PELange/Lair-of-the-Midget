@@ -45,28 +45,26 @@ namespace LOTM.Client.Game
         }
 
         protected GameState State { get; set; }
-        public DateTime LastStateSyncAttempt { get; set; }
 
         public LotmClient(int windowWidth, int windowHeight, string connectionString, string playerName, string desiredPlayerType)
-            : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", new LotmNetworkManagerClient(connectionString, playerName))
+            : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", new LotmNetworkManagerClient(connectionString))
         {
             NetworkClient = (LotmNetworkManagerClient)NetworkManager;
             PlayerGameObjectId = -1;
             DungeonRooms = new List<DungeonRoom>();
             State = GameState.Connecting;
 
-            if (desiredPlayerType.ToLower() == "elf")
+            NetworkClient.SendPacket(new PlayerJoin
             {
-                DesiredPlayerType = ObjectType.Player_Elf_Female;
-            }
-            else if (desiredPlayerType.ToLower() == "knight")
-            {
-                DesiredPlayerType = ObjectType.Player_Knight_Male;
-            }
-            else if (desiredPlayerType.ToLower() == "wizard")
-            {
-                DesiredPlayerType = ObjectType.Player_Wizard_Male;
-            }
+                RequiresAck = true, //Guarantee delivery
+                PlayerName = playerName,
+                PlayerType = desiredPlayerType.ToLower() switch
+                {
+                    "elf" => ObjectType.Player_Elf_Female,
+                    "wizard" => ObjectType.Player_Wizard_Male,
+                    _ => ObjectType.Player_Knight_Male
+                }
+            });
         }
 
         protected override void OnInit()
@@ -232,22 +230,13 @@ namespace LOTM.Client.Game
                     //Received an answer to join
                     case PlayerJoinAck playerJoinAck:
                     {
-                        if (NetworkClient.OnPlayerJoinAck(playerJoinAck))
-                        {
-                            OnJoin(playerJoinAck.LobbySize, playerJoinAck.WorldSeed, playerJoinAck.PlayerObjectId);
-                        }
-
+                        OnJoin(playerJoinAck);
                         break;
                     }
 
                     case GameStateUpdate gameStateUpdate:
                     {
-                        if (gameStateUpdate.Active && State == GameState.Lobby)
-                        {
-                            State = GameState.Gameplay;
-                            TextCanvas.Show = false;
-                        }
-
+                        ApplyGameStateUpdate(gameStateUpdate.Active);
                         break;
                     }
 
@@ -300,17 +289,6 @@ namespace LOTM.Client.Game
                 }
             }
 
-            //Make sure we are "connected" to the server -> If we did not get an ack from server yet, resend our join request.
-            NetworkClient.EnsureServerConnection(DesiredPlayerType);
-
-            //If we are waiting in the lobby, ask the server if the game has started in case we missed the inital start packet
-            if (State == GameState.Lobby && (LastStateSyncAttempt == null || (DateTime.Now - LastStateSyncAttempt).TotalMilliseconds > 1))
-            {
-                LastStateSyncAttempt = DateTime.Now;
-
-                NetworkClient.SendPacket(new GameStateRequest());
-            }
-
             //Tasks during active gameplay aka connected and past the lobby
             if (State == GameState.Gameplay)
             {
@@ -342,20 +320,43 @@ namespace LOTM.Client.Game
             UpdateSpectator();
         }
 
-        protected void OnJoin(int lobbySize, int seed, int playerGameObjectId)
+        protected void OnJoin(PlayerJoinAck playerJoinAck)
         {
+            if (State != GameState.Connecting) return; //Ignore join packet if we are already connected.
+
             Console.WriteLine($"Successfully joined {NetworkClient.CurrentServer}");
 
-            WorldSeed = seed;
-            LobbySize = lobbySize;
+            WorldSeed = playerJoinAck.WorldSeed;
+            LobbySize = playerJoinAck.LobbySize;
 
-            //Joined the lobby
-            TextCanvas.Text = $"Waiting for the game to start ...";
-            State = GameState.Lobby;
+            if (!playerJoinAck.GameActive) //Joined the lobby
+            {
+                TextCanvas.Text = $"Waiting for the game to start ...";
+                State = GameState.Lobby;
+            }
+            else if (State != GameState.Gameplay) //Joined into the active game
+            {
+                State = GameState.Gameplay;
+                ApplyGameStateUpdate(true);
+            }
 
-            PlayerGameObjectId = playerGameObjectId;
+            PlayerGameObjectId = playerJoinAck.PlayerObjectId;
 
             AddDungeonRoom(LevelGenerator.AddSpawn(Vector2.ZERO));
+        }
+
+        protected void ApplyGameStateUpdate(bool gameStarted)
+        {
+            if (gameStarted && State != GameState.Gameplay)
+            {
+                State = GameState.Gameplay;
+                OnGameStart();
+            }
+        }
+
+        protected void OnGameStart()
+        {
+            TextCanvas.Show = false;
         }
 
         protected void UpdateSpectator()
