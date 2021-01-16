@@ -61,7 +61,7 @@ namespace LOTM.Server.Game.Objects.Living
 
                 var objectCollider = worldObject.GetComponent<Collider>();
 
-                if (objectCollider != null)
+                if (objectCollider != null && objectCollider.Active)
                 {
                     //Foreach found collider box
                     foreach (var rect in objectCollider.AsBoundingBoxes())
