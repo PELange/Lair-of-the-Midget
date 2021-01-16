@@ -30,7 +30,7 @@ namespace LOTM.Server.Game.Objects.Living
             });
         }
 
-        protected bool TryMovePosition(Vector2 desiredPosition, GameWorld world, bool allowPartialMovement = true)
+        protected bool TryMovePosition(Vector2 desiredPosition, GameWorld world, bool considerPartialMovementSuccess = true)
         {
             var transformation = GetComponent<Transformation2D>();
             var collider = GetComponent<Collider>();
@@ -38,6 +38,9 @@ namespace LOTM.Server.Game.Objects.Living
             var objectBoundsCenter = new Vector2(objectBounds.X + objectBounds.Width / 2, objectBounds.Y + objectBounds.Height / 2);
 
             var desiredDelta = new Vector2(desiredPosition.X - transformation.Position.X, desiredPosition.Y - transformation.Position.Y);
+
+            if (desiredDelta.X == 0 && desiredDelta.Y == 0) return true;
+
             var possibleDelta = new Vector2(desiredDelta.X, desiredDelta.Y);
 
             //Rect from from current topleft to desired bottomright
@@ -102,13 +105,12 @@ namespace LOTM.Server.Game.Objects.Living
                 }
             }
 
-            //Some collision makes it impossible to achieve the desired position channge. If only full collision free movement was allowed abort here
-            if ((possibleDelta.X != desiredDelta.X || possibleDelta.Y != desiredDelta.Y) && !allowPartialMovement) return false;
-
-            //No collision was detected and hence the desiredDelta == possibleDelta, or we allow partial movement to as much delta as possible
 
             transformation.Position.X = transformation.Position.X + possibleDelta.X;
             transformation.Position.Y = transformation.Position.Y + possibleDelta.Y;
+
+            //Some collision makes it impossible to achieve the desired position channge. If only full collision free movement was allowed abort here
+            if ((possibleDelta.X != desiredDelta.X || possibleDelta.Y != desiredDelta.Y) && !considerPartialMovementSuccess) return false;
 
             return true;
         }

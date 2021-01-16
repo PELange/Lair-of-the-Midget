@@ -52,5 +52,18 @@ namespace LOTM.Shared.Engine.Math
             X = x;
             Y = y;
         }
+
+        /// <summary>
+        /// Normalize vector in place
+        /// </summary>
+        public void Normalize()
+        {
+            var magnitude = System.Math.Sqrt(X * X + Y * Y);
+
+            if (magnitude == 0) return;
+
+            X /= magnitude;
+            Y /= magnitude;
+        }
     }
 }

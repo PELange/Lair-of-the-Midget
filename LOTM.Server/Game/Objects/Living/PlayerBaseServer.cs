@@ -66,10 +66,7 @@ namespace LOTM.Server.Game.Objects
             if (walkDirection.X != 0 || walkDirection.Y != 0)
             {
                 //Normalize direction vector
-                var magnitude = System.Math.Sqrt(walkDirection.X * walkDirection.X + walkDirection.Y * walkDirection.Y);
-
-                walkDirection.X /= magnitude;
-                walkDirection.Y /= magnitude;
+                walkDirection.Normalize();
 
                 var transformation = GetComponent<Transformation2D>();
                 var desiredPosition = new Vector2(transformation.Position.X + walkDirection.X * walkSpeed * deltaTime, transformation.Position.Y + walkDirection.Y * walkSpeed * deltaTime);
