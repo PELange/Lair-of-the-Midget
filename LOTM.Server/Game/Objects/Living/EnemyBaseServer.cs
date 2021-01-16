@@ -104,7 +104,7 @@ namespace LOTM.Server.Game.Objects.Living
                     var missingStep = new Vector2(nextPosition.X - transformation.Position.X, nextPosition.Y - transformation.Position.Y);
                     var remaininDirection = new Vector2(targetCenter.X - enemyCenter.X, targetCenter.Y - enemyCenter.Y);
 
-                    System.Console.WriteLine($"{System.DateTime.Now} <{missingStep.X};{missingStep.Y}>");
+                    //System.Console.WriteLine($"{System.DateTime.Now} <{missingStep.X};{missingStep.Y}>");
 
                     if (missingStep.Y != 0)
                     {
