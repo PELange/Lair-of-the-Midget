@@ -68,6 +68,10 @@ namespace LOTM.Shared.Game.Network
                     writer.Write(12);
                     break;
 
+                case DoorStateUpdate _:
+                    writer.Write(13);
+                    break;
+
                 default:
                     throw new Exception($"Tried to serialize packet with unknown type '{packet}'.");
             }
@@ -140,6 +144,10 @@ namespace LOTM.Shared.Game.Network
 
                 case 12:
                     networkPacket = new PickupStateUpdate(sender);
+                    break;
+
+                case 13:
+                    networkPacket = new DoorStateUpdate(sender);
                     break;
 
                 default:

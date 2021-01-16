@@ -286,6 +286,7 @@ namespace LOTM.Client.Game
                     case ObjectPositionUpdate _:
                     case ObjectHealthUpdate _:
                     case PickupStateUpdate _:
+                    case DoorStateUpdate _:
                     {
                         var gameObject = World.GetObjectById((inbound as ObjectBoundPacket).ObjectId);
 
@@ -473,7 +474,11 @@ namespace LOTM.Client.Game
             {
                 var obj = dungeonRoom.Objects[nObject];
 
-                if (obj is DungeonTile dungeonTile)
+                if (obj is DungeonDoor dungeonDoor)
+                {
+                    dungeonRoom.Objects[nObject] = new DungeonDoorRenderable(dungeonDoor.ObjectId, dungeonDoor.Type, dungeonDoor.GetComponent<Transformation2D>().Position, dungeonDoor.Open);
+                }
+                else if (obj is DungeonTile dungeonTile)
                 {
                     DungeonTileRenderable.AddRenderable(dungeonTile);
                 }

@@ -83,12 +83,6 @@ namespace LOTM.Shared.Game.Objects.Environment
                     break;
                 }
 
-                case ObjectType.Tile_DoorClosed:
-                {
-                    Components.Add(new Collider(this, new Rectangle(0, 0, 1, 1)));
-                    break;
-                }
-
                 case ObjectType.Tile_Pillar:
                 {
                     Components.Add(new Collider(this, new Rectangle(0, 0.5, 1, 0.5)));

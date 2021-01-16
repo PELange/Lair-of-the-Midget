@@ -116,8 +116,8 @@ namespace LOTM.Shared.Game.Logic
                 DungeonObjectList.Add(new DungeonTile(GetNextObjectId(), ObjectType.Tile_BottomWall, new Vector2(RoomStartCoords.X + (i * 16), RoomStartCoords.Y - 32), new Vector2(16, 32)));
             }
 
-            // TODO make doors changeable from closed to opened
-            CreateDoor(true, true); // Top door
+            CreateDoor(true, spawnRoom); // Top door
+
             if (!spawnRoom)
             {
                 CreateDoor(false, true); // Bottom door
@@ -145,15 +145,7 @@ namespace LOTM.Shared.Game.Logic
             }
 
             // Create door
-            if (open)
-            {
-                DungeonObjectList.Add(new DungeonTile(GetNextObjectId(), ObjectType.Tile_DoorOpened, new Vector2(xCoord, yCoord), new Vector2(32, 32)));
-            }
-            else
-            {
-                DungeonObjectList.Add(new DungeonTile(GetNextObjectId(), ObjectType.Tile_DoorClosed, new Vector2(xCoord, yCoord), new Vector2(32, 32)));
-            }
-
+            DungeonObjectList.Add(new DungeonDoor(GetNextObjectId(), ObjectType.Tile_DungeonDoor, new Vector2(xCoord, yCoord), open));
         }
 
         /// <summary>
@@ -171,8 +163,6 @@ namespace LOTM.Shared.Game.Logic
                     DungeonObjectList.Add(new DungeonTile(GetNextObjectId(), ObjectType.Tile_LeftWall, new Vector2(StartCoords.X + XDoorLeft * 16, StartCoords.Y - i * 16), DefaultScaleVector));
                     DungeonObjectList.Add(new DungeonTile(GetNextObjectId(), ObjectType.Tile_RightWall, new Vector2(StartCoords.X + XDoorRight * 16, StartCoords.Y - i * 16), DefaultScaleVector));
                 }
-
-
             }
         }
 

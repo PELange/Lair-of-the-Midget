@@ -22,16 +22,16 @@ namespace LOTM.Shared.Engine.Objects.Components
                 transform.Scale.Y * mesh.Height)).ToList();
         }
 
-        public Collider(GameObject parent, Rectangle boundingInfo)
-            : this(parent, new List<Rectangle> { boundingInfo })
+        public Collider(GameObject parent, Rectangle boundingInfo, bool active = true)
+            : this(parent, new List<Rectangle> { boundingInfo }, active)
         {
         }
 
-        public Collider(GameObject parent, List<Rectangle> colliderBoxes)
+        public Collider(GameObject parent, List<Rectangle> colliderBoxes, bool active = true)
         {
             Parent = parent;
             Rects = colliderBoxes;
-            Active = true;
+            Active = active;
         }
 
         public bool CollidesWith(Collider other, out CollisionResult collisionResult)

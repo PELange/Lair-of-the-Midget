@@ -91,15 +91,6 @@ namespace LOTM.Client.Game.Objects.Environment
                     spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_arch"), new Vector2(0.5, 0.25), new Vector2(0.25, 0), layer: 2000));
                     break;
 
-                case ObjectType.Tile_DoorClosed:
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_closed")));
-                    break;
-
-                case ObjectType.Tile_DoorOpened:
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_opened_top"), new Vector2(1, 0.5), new Vector2(0, 0.0), layer: 2000));
-                    spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_door_opened_bottom"), new Vector2(1, 0.5), new Vector2(0, 0.5), layer: 100));
-                    break;
-
                 // Pillar section
                 case ObjectType.Tile_Pillar:
                     spriteSegments.Add(new SpriteRenderer.Segment(AssetManager.GetSprite("dungeon_pillar_top"), new Vector2(1, 0.5), new Vector2(0, 0), layer: 1100));

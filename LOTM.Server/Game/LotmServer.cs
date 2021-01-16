@@ -1,5 +1,6 @@
 ﻿using LOTM.Server.Game.Network;
 using LOTM.Server.Game.Objects;
+using LOTM.Server.Game.Objects.Environment;
 using LOTM.Server.Game.Objects.Interactable;
 using LOTM.Server.Game.Objects.Living;
 using LOTM.Shared.Engine.Math;
@@ -9,6 +10,7 @@ using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
+using LOTM.Shared.Game.Objects.Environment;
 using LOTM.Shared.Game.Objects.Interactable;
 using System.Collections.Generic;
 using System.Linq;
@@ -198,6 +200,46 @@ namespace LOTM.Server.Game
             rooms.ForEach(x => AddDungeonRoom(x));
         }
 
+        protected void AddDungeonRoom(DungeonRoom dungeonRoom)
+        {
+            //System.Console.WriteLine($"Added room no. {dungeonRoom.RoomNumber} at <{dungeonRoom.Position.X};{dungeonRoom.Position.Y}>");
+
+            //Only remember objects that have a collider or that are moveable
+            dungeonRoom.Objects.RemoveAll(obj => !(obj.GetComponent<Collider>() != null || obj is IMoveable));
+
+            for (int nObject = 0; nObject < dungeonRoom.Objects.Count; nObject++)
+            {
+                var obj = dungeonRoom.Objects[nObject];
+
+                if (obj is DungeonDoor dungeonDoor)
+                {
+                    //Replace pickups with upgraded instance
+                    dungeonRoom.Objects[nObject] = new DungeonDoorServer(dungeonDoor.ObjectId, dungeonDoor.Type, dungeonDoor.GetComponent<Transformation2D>().Position, dungeonDoor.Open, dungeonRoom);
+                }
+                else if (obj is Pickup pickup)
+                {
+                    //Replace pickups with upgraded instance
+                    dungeonRoom.Objects[nObject] = new PickupServer(pickup.ObjectId, pickup.Type, pickup.GetComponent<Transformation2D>().Position);
+                }
+                else if (obj is LivingObject livingObject)
+                {
+                    var transform = livingObject.GetComponent<Transformation2D>();
+                    var collider = livingObject.GetComponent<Collider>().Rects;
+                    var health = livingObject.GetComponent<Health>();
+
+                    //Replace object with upgraded instance
+                    dungeonRoom.Objects[nObject] = new EnemyBaseServer(livingObject.ObjectId, livingObject.Type, transform.Position, transform.Scale, collider.FirstOrDefault(), health.CurrentHealth);
+
+                    continue;
+                }
+            }
+
+            //Add the relevant objects to the world
+            dungeonRoom.Objects.ForEach(obj => World.AddObject(obj));
+
+            DungeonRooms.Add(dungeonRoom);
+        }
+
         protected void MaintainDungeonRooomBuffer()
         {
             if (Players.Values.Count < 1) return; //No players yet
@@ -229,41 +271,6 @@ namespace LOTM.Server.Game
                     }
                 }
             }
-        }
-
-        protected void AddDungeonRoom(DungeonRoom dungeonRoom)
-        {
-            //System.Console.WriteLine($"Added room no. {dungeonRoom.RoomNumber} at <{dungeonRoom.Position.X};{dungeonRoom.Position.Y}>");
-
-            //Only remember objects that have a collider or that are moveable
-            dungeonRoom.Objects.RemoveAll(obj => !(obj.GetComponent<Collider>() != null || obj is IMoveable));
-
-            for (int nObject = 0; nObject < dungeonRoom.Objects.Count; nObject++)
-            {
-                var obj = dungeonRoom.Objects[nObject];
-
-                if (obj is Pickup pickup)
-                {
-                    //Replace pickups with upgraded instance
-                    dungeonRoom.Objects[nObject] = new PickupServer(pickup.ObjectId, pickup.Type, pickup.GetComponent<Transformation2D>().Position);
-                }
-                else if (obj is LivingObject livingObject)
-                {
-                    var transform = livingObject.GetComponent<Transformation2D>();
-                    var collider = livingObject.GetComponent<Collider>().Rects;
-                    var health = livingObject.GetComponent<Health>();
-
-                    //Replace object with upgraded instance
-                    dungeonRoom.Objects[nObject] = new EnemyBaseServer(livingObject.ObjectId, livingObject.Type, transform.Position, transform.Scale, collider.FirstOrDefault(), health.CurrentHealth);
-
-                    continue;
-                }
-            }
-
-            //Add the relevant objects to the world
-            dungeonRoom.Objects.ForEach(obj => World.AddObject(obj));
-
-            DungeonRooms.Add(dungeonRoom);
         }
     }
 }

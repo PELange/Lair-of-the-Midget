@@ -23,8 +23,7 @@
         Tile_BottomRightCorner,
         Tile_DoorFrameTop,
         Tile_DoorFrameBottom,
-        Tile_DoorClosed,
-        Tile_DoorOpened,
+        Tile_DungeonDoor,
         Tile_Pillar,
 
         Pickup_Health_Minor,
