@@ -22,6 +22,8 @@ namespace LOTM.Server.Game.Objects
 
         public override void OnFixedUpdate(double deltaTime, GameWorld world)
         {
+            base.OnFixedUpdate(deltaTime, world);
+
             var networkSynchronization = GetComponent<NetworkSynchronization>();
 
             //1. Check for position changes and only apply the latest one

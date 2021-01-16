@@ -17,5 +17,10 @@ namespace LOTM.Shared.Game.Objects.Components
         {
             CurrentHealth = System.Math.Max(0, CurrentHealth - amount);
         }
+
+        public void AddHealthAbsolute(double amount)
+        {
+            CurrentHealth = System.Math.Min(MaxHealth, CurrentHealth + amount);
+        }
     }
 }

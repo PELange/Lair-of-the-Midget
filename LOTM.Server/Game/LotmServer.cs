@@ -1,5 +1,6 @@
 ﻿using LOTM.Server.Game.Network;
 using LOTM.Server.Game.Objects;
+using LOTM.Server.Game.Objects.Interactable;
 using LOTM.Server.Game.Objects.Living;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
@@ -243,7 +244,8 @@ namespace LOTM.Server.Game
 
                 if (obj is Pickup pickup)
                 {
-                    //upgrade to serverside pickup?
+                    //Replace pickups with upgraded instance
+                    dungeonRoom.Objects[nObject] = new PickupServer(pickup.ObjectId, pickup.Type, pickup.GetComponent<Transformation2D>().Position);
                 }
                 else if (obj is LivingObject livingObject)
                 {

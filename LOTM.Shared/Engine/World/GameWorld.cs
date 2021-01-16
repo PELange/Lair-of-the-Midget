@@ -61,6 +61,11 @@ namespace LOTM.Shared.Engine.World
             return StaticObjects.GetObjects(area).Concat(DynamicObjects.Where(x => area.IntersectsWith(x.GetComponent<Transformation2D>().GetBoundingBox())));
         }
 
+        public IEnumerable<GameObject> GetDynamicObjectsInArea(Rectangle area)
+        {
+            return DynamicObjects.Where(x => area.IntersectsWith(x.GetComponent<Transformation2D>().GetBoundingBox()));
+        }
+
         public GameObject GetObjectById(int objectId)
         {
             if (DynamicObjectLookupCache.TryGetValue(objectId, out var dynamicObject)) return dynamicObject;
