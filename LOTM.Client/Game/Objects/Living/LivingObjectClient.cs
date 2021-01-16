@@ -44,16 +44,24 @@ namespace LOTM.Client.Game.Objects
                 _ => ""
             };
 
+            var baseRenderLayer = Type switch
+            {
+                ObjectType.Enemy_Ogre_Small => 1001,
+                ObjectType.Enemy_Skeleton_Small => 1002,
+                ObjectType.Enemy_Blob_Small => 1003,
+                _ => 1000
+            };
+
             Components.Add(new SpriteRenderer(new List<SpriteRenderer.Segment>
             {
                 //primary body sprite
-                new SpriteRenderer.Segment(GetCurrentBodySprite() ?? AssetManager.GetSprite($"solid_white")),
+                new SpriteRenderer.Segment(GetCurrentBodySprite() ?? AssetManager.GetSprite($"solid_white"), layer: baseRenderLayer),
 
                 //Base health bar
-                new SpriteRenderer.Segment(AssetManager.GetSprite($"solid_white"), new Vector2(1, 0.1), new Vector2(0, 0.25), new Vector4(0.929, 0.172, 0.219, 1.0), layer: 3000),
+                new SpriteRenderer.Segment(AssetManager.GetSprite($"solid_white"), new Vector2(1, 0.1), new Vector2(0, 0.25), new Vector4(0.929, 0.172, 0.219, 1.0), layer: baseRenderLayer + 2000),
 
                 //Green hp bar overlaying the red bar
-                new SpriteRenderer.Segment(AssetManager.GetSprite($"solid_white"), new Vector2(1, 0.1), new Vector2(0, 0.25), new Vector4(0.074, 0.705, 0.094, 1.0), layer: 3000),
+                new SpriteRenderer.Segment(AssetManager.GetSprite($"solid_white"), new Vector2(1, 0.1), new Vector2(0, 0.25), new Vector4(0.074, 0.705, 0.094, 1.0), layer: baseRenderLayer + 2000),
             }));
 
         }
