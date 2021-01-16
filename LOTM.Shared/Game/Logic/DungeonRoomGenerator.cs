@@ -237,15 +237,15 @@ namespace LOTM.Shared.Game.Logic
             {
                 case ObjectType.Enemy_Ogre_Small:
                 {
-                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Ogre_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.25, 0.5, 0.7, 0.5), 100);
+                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Ogre_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.25, 0.8, 0.6, 0.2), 100);
                 }
                 case ObjectType.Enemy_Skeleton_Small:
                 {
-                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Skeleton_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.2, 0.55, 0.6, 0.45), 100);
+                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Skeleton_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.2, 0.8, 0.6, 0.2), 100);
                 }
                 case ObjectType.Enemy_Blob_Small:
                 {
-                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Blob_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.1, 0.5, 0.8, 0.5), 100);
+                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Blob_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.2, 0.75, 0.65, 0.25), 100);
                 }
             }
 
