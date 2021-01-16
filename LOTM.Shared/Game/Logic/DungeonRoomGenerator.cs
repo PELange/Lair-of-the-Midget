@@ -274,10 +274,32 @@ namespace LOTM.Shared.Game.Logic
 
                 if (objectType == "pillar")
                 {
+                    if (objectCoords.Y == RoomStartCoords.Y - 32) continue;
+                    if (objectCoords.Y == RoomStartCoords.Y - (Height + 2) * 16) continue;
+                    if (objectCoords.X == RoomStartCoords.X + (WidthHalf - 1) * 16) continue;
+                    if (objectCoords.X == RoomStartCoords.X - WidthHalf * 16) continue;
+                    //if (objectCoords.Y == RoomStartCoords.Y - (Height + 16) * 16) continue;
+
+                    //for (int y = (int)objectCoords.Y - 16; y <= objectCoords.Y + 16; y += 16)
+                    //{
+                    //    for (int x = (int)objectCoords.X - 16; x <= objectCoords.X + 16; x += 16)
+                    //    {
+                    //        if (ListContainsVector(new Vector2(x, y))) continue;
+                    //    }
+                    //}
+                    // Between pillars should be at least one free tile
                     if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y - 16))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y + 16))) continue;
                     if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y - 16))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y + 16))) continue;
                     if (ListContainsVector(new Vector2(objectCoords.X, objectCoords.Y + 16))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y + 16))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y + 16))) continue;
                     if (ListContainsVector(new Vector2(objectCoords.X, objectCoords.Y - 16))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X + 16, objectCoords.Y - 16))) continue;
+                    if (ListContainsVector(new Vector2(objectCoords.X - 16, objectCoords.Y - 16))) continue;
                 }
 
                 return objectCoords;
