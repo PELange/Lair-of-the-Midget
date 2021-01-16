@@ -14,6 +14,9 @@ namespace LOTM.Client.Game.Objects
 {
     public class LivingObjectClient : LivingObject
     {
+        public int LastPostionUpdatePacketId { get; set; }
+        public int LastHealthUpdatePacketId { get; set; }
+
         private enum AnimationState
         {
             Idle,
@@ -77,18 +80,23 @@ namespace LOTM.Client.Game.Objects
             //1. Check for position changes and only apply the latest one
             if (networkSynchronization.PacketsInbound.Where(x => x is ObjectPositionUpdate).OrderByDescending(x => x.Id).FirstOrDefault() is ObjectPositionUpdate objectPositionUpdate)
             {
-                var transform = GetComponent<Transformation2D>();
-
-                transform.Position.X = objectPositionUpdate.PositionX;
-                transform.Position.Y = objectPositionUpdate.PositionY;
+                //Only accept the position update, if the packet id is larger than the last known update about it. This avoids retransmission issues.
+                if (objectPositionUpdate.Id > LastPostionUpdatePacketId)
+                {
+                    var transform = GetComponent<Transformation2D>();
+                    transform.Position.X = objectPositionUpdate.PositionX;
+                    transform.Position.Y = objectPositionUpdate.PositionY;
+                }
             }
 
             //2. Check for health updates and only apply the lastest one
             if (networkSynchronization.PacketsInbound.Where(x => x is ObjectHealthUpdate).OrderByDescending(x => x.Id).FirstOrDefault() is ObjectHealthUpdate objectHealthUpdate)
             {
-                var health = GetComponent<Health>();
-
-                health.CurrentHealth = objectHealthUpdate.Health;
+                //Only accept the health update, if the packet id is larger than the last known update about it. This avoids retransmission issues.
+                if (objectHealthUpdate.Id > LastPostionUpdatePacketId)
+                {
+                    GetComponent<Health>().CurrentHealth = objectHealthUpdate.Health;
+                }
             }
 
             networkSynchronization.PacketsInbound.Clear();

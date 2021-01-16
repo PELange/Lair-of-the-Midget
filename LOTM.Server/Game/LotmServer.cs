@@ -78,6 +78,13 @@ namespace LOTM.Server.Game
 
                         break;
                     }
+
+                    //A player wants to know the most recent data about a dungeom room he loads
+                    case DungeonRoomSyncRequest syncRequest:
+                    {
+                        SyncDungeonRoom(syncRequest);
+                        break;
+                    }
                 }
             }
 
@@ -284,6 +291,56 @@ namespace LOTM.Server.Game
                         AddDungeonRoom(LevelGenerator.AppendRoom(DungeonRooms.First(x => x.RoomNumber == highestActiveRoom.RoomNumber + nAbove - 1), (int)LobbySize, WorldSeed));
                     }
                 }
+            }
+        }
+
+        protected void SyncDungeonRoom(DungeonRoomSyncRequest syncRequest)
+        {
+            var dungeomRoom = DungeonRooms.Where(x => x.RoomNumber == syncRequest.RoomNumber).FirstOrDefault();
+
+            if (dungeomRoom == null) return; //Client asked for a room he should not even know about yet.
+
+            foreach (var enemy in dungeomRoom.Objects.Where(x => x is EnemyBaseServer).Select(x => x as EnemyBaseServer))
+            {
+                //Snyc position
+                var transform = enemy.GetComponent<Transformation2D>();
+                NetworkServer.SendPacketTo(new ObjectPositionUpdate
+                {
+                    RequiresAck = true, //Ensure client gets this packet
+                    ObjectId = enemy.ObjectId,
+                    PositionX = transform.Position.X,
+                    PositionY = transform.Position.Y,
+                }, syncRequest.Sender);
+
+                //Sync health
+                NetworkServer.SendPacketTo(new ObjectHealthUpdate
+                {
+                    RequiresAck = true, //Ensure client gets this packet
+                    ObjectId = enemy.ObjectId,
+                    Health = enemy.GetComponent<Health>().CurrentHealth
+                }, syncRequest.Sender);
+            }
+
+            foreach (var pickup in dungeomRoom.Objects.Where(x => x is PickupServer).Select(x => x as PickupServer))
+            {
+                NetworkServer.SendPacketTo(new PickupStateUpdate
+                {
+                    RequiresAck = true, //Ensure client gets this packet
+                    ObjectId = pickup.ObjectId,
+                    Active = pickup.Active,
+                }, syncRequest.Sender);
+            }
+
+            foreach (var door in dungeomRoom.Objects.Where(x => x is DungeonDoorServer).Select(x => x as DungeonDoorServer))
+            {
+                if (!door.Open) continue; //No need to sync closed doors, as that is assumed the default state
+
+                NetworkServer.SendPacketTo(new DoorStateUpdate
+                {
+                    RequiresAck = true, //Ensure client gets this packet
+                    ObjectId = door.ObjectId,
+                    Open = door.Open,
+                }, syncRequest.Sender);
             }
         }
     }

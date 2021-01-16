@@ -12,7 +12,8 @@ namespace LOTM.Shared.Engine.Network
         private const int MAX_ACK_TIMEOUT_MS = 1_000;
         private const int ACK_RETRANSMIT_COOLDOWN_MS = 250;
 
-        private int NEXT_PACKET_ID = 1;
+        //Start at 100 to avoid any accidients with default values e.g. -1, 0, 1 etc ...
+        private int NEXT_PACKET_ID = 100;
 
         private UdpSocket Socket { get; }
 

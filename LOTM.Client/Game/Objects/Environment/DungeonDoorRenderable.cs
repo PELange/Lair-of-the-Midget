@@ -13,6 +13,8 @@ namespace LOTM.Client.Game.Objects.Environment
 {
     class DungeonDoorRenderable : DungeonDoor
     {
+        public int LastStatePacketId { get; set; }
+
         public DungeonDoorRenderable(int id, ObjectType type, Vector2 position, bool open)
             : base(id, type, position, open)
         {
@@ -35,12 +37,16 @@ namespace LOTM.Client.Game.Objects.Environment
             //1. Check for state changes and only apply the latest one
             if (networkSynchronization.PacketsInbound.Where(x => x is DoorStateUpdate).OrderByDescending(x => x.Id).FirstOrDefault() is DoorStateUpdate doorStateUpdate)
             {
-                Open = doorStateUpdate.Open;
+                //Only accept the door state update, if the packet id is larger than the last known update about it. This avoids retransmission issues.
+                if (doorStateUpdate.Id > LastStatePacketId)
+                {
+                    Open = doorStateUpdate.Open;
 
-                GetComponent<Collider>().Active = !Open;
-                GetComponent<SpriteRenderer>().Segments[0].Active = !Open;
-                GetComponent<SpriteRenderer>().Segments[1].Active = Open;
-                GetComponent<SpriteRenderer>().Segments[2].Active = Open;
+                    GetComponent<Collider>().Active = !Open;
+                    GetComponent<SpriteRenderer>().Segments[0].Active = !Open;
+                    GetComponent<SpriteRenderer>().Segments[1].Active = Open;
+                    GetComponent<SpriteRenderer>().Segments[2].Active = Open;
+                }
             }
 
             networkSynchronization.PacketsInbound.Clear();

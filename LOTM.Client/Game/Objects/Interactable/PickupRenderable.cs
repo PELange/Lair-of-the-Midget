@@ -13,6 +13,8 @@ namespace LOTM.Client.Game.Objects.Interactable
 {
     class PickupRenderable : Pickup
     {
+        public int LastStatePacketId { get; set; }
+
         public PickupRenderable(int id, ObjectType type, Vector2 position)
             : base(id, type, position)
         {
@@ -45,10 +47,14 @@ namespace LOTM.Client.Game.Objects.Interactable
             //1. Check for state changes and only apply the latest one
             if (networkSynchronization.PacketsInbound.Where(x => x is PickupStateUpdate).OrderByDescending(x => x.Id).FirstOrDefault() is PickupStateUpdate pickupStateUpdate)
             {
-                Active = pickupStateUpdate.Active;
+                //Only accept the pickup state update, if the packet id is larger than the last known update about it. This avoids retransmission issues.
+                if (pickupStateUpdate.Id > LastStatePacketId)
+                {
+                    Active = pickupStateUpdate.Active;
 
-                GetComponent<Collider>().Active = Active;
-                GetComponent<SpriteRenderer>().Segments[0].Active = Active;
+                    GetComponent<Collider>().Active = Active;
+                    GetComponent<SpriteRenderer>().Segments[0].Active = Active;
+                }
             }
 
             networkSynchronization.PacketsInbound.Clear();

@@ -500,15 +500,21 @@ namespace LOTM.Client.Game
                 }
             }
 
-            dungeonRoom.Objects.ForEach(x => World.AddObject(x));
-
             //Add room label
             if (dungeonRoom.RoomNumber > 0)
             {
-                World.AddObject(new TextCanvas(dungeonRoom.RoomNumber * 10000, new Vector2(dungeonRoom.Position.X - 48, dungeonRoom.Position.Y - 86), $"Room {dungeonRoom.RoomNumber}"));
+                dungeonRoom.Objects.Add(new TextCanvas(dungeonRoom.RoomNumber * 10000, new Vector2(dungeonRoom.Position.X - 48, dungeonRoom.Position.Y - 86), $"Room {dungeonRoom.RoomNumber}"));
             }
 
+            //Add objects to world and remeber the room meta data
+            dungeonRoom.Objects.ForEach(x => World.AddObject(x));
             DungeonRooms.Add(dungeonRoom);
+
+            //Request network updates for any created room, unless its the spawnroom
+            if (dungeonRoom.RoomNumber > 0)
+            {
+                NetworkClient.SendPacket(new DungeonRoomSyncRequest { RequiresAck = true, RoomNumber = dungeonRoom.RoomNumber });
+            }
         }
 
         protected void MaintainDungeonRooomBuffer()
