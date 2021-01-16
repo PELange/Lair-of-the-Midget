@@ -1,5 +1,4 @@
 ﻿using LOTM.Shared.Engine.Controls;
-using LOTM.Shared.Engine.Network;
 using LOTM.Shared.Game.Network.Packets;
 using System;
 using System.Collections.Concurrent;
