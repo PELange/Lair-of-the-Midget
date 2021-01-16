@@ -5,14 +5,13 @@ using LOTM.Shared.Engine.World;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace LOTM.Server.Game.Objects.Living
 {
     public class EnemyBaseServer : LivingObjectServer
     {
-        protected GameObject AggroTarget { get; set; }
+        protected PlayerBaseServer AggroTarget { get; set; }
 
         public EnemyBaseServer(int objectId, ObjectType type, Vector2 position = default, Vector2 scale = default, Rectangle colliderInfo = default, double health = default)
             : base(objectId, type, position, scale, colliderInfo, health)
@@ -24,13 +23,14 @@ namespace LOTM.Server.Game.Objects.Living
             base.OnFixedUpdate(deltaTime, world);
 
             var transformation = GetComponent<Transformation2D>();
+            var posRect = GetComponent<Collider>().AsBoundingBoxes().First();
+            var enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
 
             if (AggroTarget == null)
             {
                 //Find new target
                 var viewRange = 16 * 3;
-                var center = new Vector2(transformation.Position.X + transformation.Scale.X / 2.0, transformation.Position.Y + transformation.Scale.Y / 2.0);
-                var visibleRect = new Rectangle(center.X - viewRange / 2.0, center.Y - viewRange / 2, viewRange, viewRange);
+                var visibleRect = new Rectangle(enemyCenter.X - viewRange / 2.0, enemyCenter.Y - viewRange / 2, viewRange, viewRange);
 
                 var visiblePlayers = new List<PlayerBaseServer>();
 
@@ -46,11 +46,11 @@ namespace LOTM.Server.Game.Objects.Living
                 {
                     var nearestPlayer = visiblePlayers.OrderBy(player =>
                     {
-                        var playerTransform = player.GetComponent<Transformation2D>();
+                        var playerCollider = player.GetComponent<Collider>().AsBoundingBoxes().First();
 
-                        var playerCenter = new Vector2(playerTransform.Position.X + playerTransform.Scale.X / 2.0, playerTransform.Position.Y + playerTransform.Scale.Y / 2.0);
+                        var playerCenter = new Vector2(playerCollider.X + playerCollider.Width / 2.0, playerCollider.Y + playerCollider.Height / 2.0);
 
-                        return DistanceMetrics.EuclideanSquared(center, playerCenter);
+                        return DistanceMetrics.EuclideanSquared(enemyCenter, playerCenter);
                     }).FirstOrDefault();
 
                     AggroTarget = nearestPlayer;
@@ -60,8 +60,11 @@ namespace LOTM.Server.Game.Objects.Living
             {
                 const int walkSpeed = 16;
 
-                var aggroTransform = AggroTarget.GetComponent<Transformation2D>();
-                var walkDirection = new Vector2(aggroTransform.Position.X - transformation.Position.X, aggroTransform.Position.Y - transformation.Position.Y);
+                var playerCollider = AggroTarget.GetComponent<Collider>().AsBoundingBoxes().First();
+                var targetCenter = new Vector2(playerCollider.X + playerCollider.Width / 2.0, playerCollider.Y + playerCollider.Height / 2.0);
+
+                var playerTransform = AggroTarget.GetComponent<Transformation2D>();
+                var walkDirection = new Vector2(targetCenter.X - enemyCenter.X, targetCenter.Y - enemyCenter.Y);
 
                 if (walkDirection.X == 0 && walkDirection.Y == 0)
                 {
@@ -76,26 +79,30 @@ namespace LOTM.Server.Game.Objects.Living
 
                 if (walkDirection.X > 0)
                 {
-                    nextPosition.X = System.Math.Min(aggroTransform.Position.X, nextPosition.X);
+                    nextPosition.X = System.Math.Min(playerTransform.Position.X, nextPosition.X);
                 }
                 else if (walkDirection.X < 0)
                 {
-                    nextPosition.X = System.Math.Max(aggroTransform.Position.X, nextPosition.X);
+                    nextPosition.X = System.Math.Max(playerTransform.Position.X, nextPosition.X);
                 }
 
                 if (walkDirection.Y > 0)
                 {
-                    nextPosition.Y = System.Math.Min(aggroTransform.Position.Y, nextPosition.Y);
+                    nextPosition.Y = System.Math.Min(playerTransform.Position.Y, nextPosition.Y);
                 }
                 else if (walkDirection.Y < 0)
                 {
-                    nextPosition.Y = System.Math.Max(aggroTransform.Position.Y, nextPosition.Y);
+                    nextPosition.Y = System.Math.Max(playerTransform.Position.Y, nextPosition.Y);
                 }
 
                 if (!TryMovePosition(nextPosition, world, false))
                 {
+                    //Get updated values after enemy movement
+                    posRect = GetComponent<Collider>().AsBoundingBoxes().First();
+                    enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
+
                     var missingStep = new Vector2(nextPosition.X - transformation.Position.X, nextPosition.Y - transformation.Position.Y);
-                    var remaininDirection = new Vector2(aggroTransform.Position.X - transformation.Position.X, aggroTransform.Position.Y - transformation.Position.Y);
+                    var remaininDirection = new Vector2(targetCenter.X - enemyCenter.X, targetCenter.Y - enemyCenter.Y);
 
                     System.Console.WriteLine($"{System.DateTime.Now} <{missingStep.X};{missingStep.Y}>");
 
