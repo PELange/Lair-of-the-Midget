@@ -6,7 +6,7 @@ namespace LOTM.Shared.Game.Network.Packets
 {
     public class ObjectBoundPacket : NetworkPacket
     {
-        public ObjectBoundPacket(IPEndPoint sender = default) : base(sender)
+        public ObjectBoundPacket(IPEndPoint sender = default, bool requiresAck = false) : base(sender, requiresAck)
         {
         }
 

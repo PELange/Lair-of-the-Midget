@@ -64,6 +64,10 @@ namespace LOTM.Shared.Game.Network
                     writer.Write(11);
                     break;
 
+                case PickupStateUpdate _:
+                    writer.Write(12);
+                    break;
+
                 default:
                     throw new Exception($"Tried to serialize packet with unknown type '{packet}'.");
             }
@@ -132,6 +136,10 @@ namespace LOTM.Shared.Game.Network
 
                 case 11:
                     networkPacket = new GameStateUpdate(sender);
+                    break;
+
+                case 12:
+                    networkPacket = new PickupStateUpdate(sender);
                     break;
 
                 default:

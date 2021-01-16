@@ -268,25 +268,15 @@ namespace LOTM.Client.Game
                         break;
                     }
 
-                    case ObjectPositionUpdate objectPositionUpdate:
+                    case ObjectPositionUpdate _:
+                    case ObjectHealthUpdate _:
+                    case PickupStateUpdate _:
                     {
-                        var gameObject = World.GetObjectById(objectPositionUpdate.ObjectId);
+                        var gameObject = World.GetObjectById((inbound as ObjectBoundPacket).ObjectId);
 
                         if (gameObject != null)
                         {
-                            gameObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(objectPositionUpdate);
-                        }
-
-                        break;
-                    }
-
-                    case ObjectHealthUpdate objectHealthUpdate:
-                    {
-                        var gameObject = World.GetObjectById(objectHealthUpdate.ObjectId);
-
-                        if (gameObject != null)
-                        {
-                            gameObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(objectHealthUpdate);
+                            gameObject.GetComponent<NetworkSynchronization>().PacketsInbound.Add(inbound);
                         }
 
                         break;
@@ -474,7 +464,7 @@ namespace LOTM.Client.Game
                 }
                 else if (obj is Pickup pickup)
                 {
-                    PickupRenderable.AddRenderable(pickup);
+                    dungeonRoom.Objects[nObject] = new PickupRenderable(pickup.ObjectId, pickup.Type, pickup.GetComponent<Transformation2D>().Position);
                 }
                 else if (obj is LivingObject livingObject)
                 {

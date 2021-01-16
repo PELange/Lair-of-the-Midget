@@ -1,8 +1,8 @@
-﻿using LOTM.Server.Game.Objects.Living;
-using LOTM.Shared.Engine.Math;
+﻿using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Engine.World;
+using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
 using LOTM.Shared.Game.Objects.Interactable;
@@ -65,6 +65,8 @@ namespace LOTM.Server.Game.Objects.Interactable
 
                 //Deactive pickup
                 Active = false;
+
+                GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new PickupStateUpdate { ObjectId = ObjectId, Active = Active });
             }
         }
     }
