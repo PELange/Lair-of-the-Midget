@@ -266,10 +266,13 @@ namespace LOTM.Shared.Game.Logic
                 if (objectType == "pillar")
                 {
                     // Pillars should not spawn directly at walls
+                    // Bottom
                     if (objectCoords.Y == RoomStartCoords.Y - 32) continue;
-                    if (objectCoords.Y == RoomStartCoords.Y - (Height + 2) * 16) continue;
-                    if (objectCoords.Y == RoomStartCoords.Y - (Height + 1) * 16) continue;
+                    // Top
+                    if (objectCoords.Y == RoomStartCoords.Y - Height * 16) continue;
+                    // Right
                     if (objectCoords.X == RoomStartCoords.X + (WidthHalf - 1) * 16) continue;
+                    // Left
                     if (objectCoords.X == RoomStartCoords.X - WidthHalf * 16) continue;
 
                     // Between pillars should be at least one free tile
@@ -293,7 +296,7 @@ namespace LOTM.Shared.Game.Logic
                 return objectCoords;
             }
 
-            return null;
+            return new Vector2(1000, 1000);
         }
 
         /// <summary>
