@@ -36,7 +36,7 @@ namespace LOTM.Server.Game
         protected List<DungeonRoom> DungeonRooms { get; }
 
         public LotmServer(string listenAddress, uint lobbySize)
-            : base(1.0 / 60, new LotmNetworkManagerServer(listenAddress))
+            : base(1.0 / 30, new LotmNetworkManagerServer(listenAddress))
         {
             NetworkServer = (LotmNetworkManagerServer)NetworkManager;
             NetworkServer.PacketSendFailure += (sender, args) => HandlePacketSendFailure(args);
