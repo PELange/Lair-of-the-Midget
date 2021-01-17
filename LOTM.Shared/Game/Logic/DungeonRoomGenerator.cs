@@ -223,19 +223,20 @@ namespace LOTM.Shared.Game.Logic
         /// <returns></returns>
         public GameObject GetRandomEnemy(Vector2 enemyCoords)
         {
+            int enemyHp = 100 + (RoomNumber - 1) * 10;
             switch ((ObjectType)Random.Next((int)ObjectType.Enemy_Ogre_Small, (int)ObjectType.Enemy_Blob_Small + 1))
             {
                 case ObjectType.Enemy_Ogre_Small:
                 {
-                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Ogre_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.25, 0.8, 0.6, 0.2), 100);
+                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Ogre_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.25, 0.8, 0.6, 0.2), enemyHp);
                 }
                 case ObjectType.Enemy_Skeleton_Small:
                 {
-                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Skeleton_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.2, 0.8, 0.6, 0.2), 100);
+                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Skeleton_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.2, 0.8, 0.6, 0.2), enemyHp);
                 }
                 case ObjectType.Enemy_Blob_Small:
                 {
-                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Blob_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.2, 0.75, 0.65, 0.25), 100);
+                    return new LivingObject(GetNextObjectId(), ObjectType.Enemy_Blob_Small, enemyCoords, new Vector2(16, 32), new Rectangle(0.2, 0.75, 0.65, 0.25), enemyHp);
                 }
             }
 
