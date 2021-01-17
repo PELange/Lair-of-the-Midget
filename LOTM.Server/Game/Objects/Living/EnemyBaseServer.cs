@@ -55,52 +55,38 @@ namespace LOTM.Server.Game.Objects.Living
                 {
                     //If it was not possible we must get closer to the target
                     var targetTransformation = AggroTarget.GetComponent<Transformation2D>();
-                    var playerCollider = AggroTarget.GetComponent<Collider>().AsBoundingBoxes().First();
-                    var targetCenter = new Vector2(playerCollider.X + playerCollider.Width / 2.0, playerCollider.Y + playerCollider.Height / 2.0);
                     var targetPosition = new Vector2(targetTransformation.Position.X, targetTransformation.Position.Y);
 
                     var transformation = GetComponent<Transformation2D>();
 
                     if (AxisMovementForce != null)
                     {
-                        var posRect = GetComponent<Collider>().AsBoundingBoxes().First();
-                        var enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
-
                         if (AxisMovementForce.X != 0)
                         {
-                            targetCenter.X = enemyCenter.X + AxisMovementForce.X;
                             targetPosition.X = transformation.Position.X + AxisMovementForce.X;
-
-                            targetCenter.Y = enemyCenter.Y;
                             targetPosition.Y = transformation.Position.Y;
                         }
                         else if (AxisMovementForce.Y != 0)
                         {
-                            targetCenter.X = enemyCenter.X;
                             targetPosition.X = transformation.Position.X;
-
-                            targetCenter.Y = enemyCenter.Y + AxisMovementForce.Y;
                             targetPosition.Y = transformation.Position.Y + AxisMovementForce.Y;
                         }
                     }
 
                     var posBefore = new Vector2(transformation.Position.X, transformation.Position.Y);
 
-                    if (!TryReachPosition(targetPosition, targetCenter, deltaTime, world, out var missingMovement))
+                    if (!TryReachPosition(targetPosition, deltaTime, world, out var missingMovement))
                     {
                         if (AxisMovementForce == null)
                         {
-                            var posRect = GetComponent<Collider>().AsBoundingBoxes().First();
-                            var enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
-
                             if (missingMovement.X != 0 && System.Math.Abs(missingMovement.X) > System.Math.Abs(missingMovement.Y))
                             {
-                                AxisMovementForce = new Vector2(0, targetCenter.Y > enemyCenter.Y ? 1 : -1);
+                                AxisMovementForce = new Vector2(0, targetPosition.Y > transformation.Position.Y ? 1 : -1);
                                 AxisMovementUnlockCondition = new Vector2(missingMovement.X > 0 ? 1 : -1, 0);
                             }
                             else if (missingMovement.Y != 0 && System.Math.Abs(missingMovement.Y) > System.Math.Abs(missingMovement.X))
                             {
-                                AxisMovementForce = new Vector2(targetCenter.X > enemyCenter.X ? 1 : -1, 0);
+                                AxisMovementForce = new Vector2(targetPosition.X > transformation.Position.X ? 1 : -1, 0);
                                 AxisMovementUnlockCondition = new Vector2(0, missingMovement.Y > 0 ? 1 : -1);
                             }
                         }
@@ -138,8 +124,8 @@ namespace LOTM.Server.Game.Objects.Living
 
         PlayerBaseServer FindTarget(GameWorld world)
         {
-            var posRect = GetComponent<Collider>().AsBoundingBoxes().First();
-            var enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
+            var transformation = GetComponent<Transformation2D>();
+            var enemyCenter = new Vector2(transformation.Position.X + transformation.Scale.X / 2.0, transformation.Position.Y + transformation.Scale.Y / 2.0);
             var visibleRect = new Rectangle(enemyCenter.X - AggroRadius / 2.0, enemyCenter.Y - AggroRadius / 2, AggroRadius, AggroRadius);
 
             var visibleValidTargets = new List<PlayerBaseServer>();
@@ -153,23 +139,19 @@ namespace LOTM.Server.Game.Objects.Living
 
             return visibleValidTargets.OrderBy(player =>
             {
-                var playerCollider = player.GetComponent<Collider>().AsBoundingBoxes().First();
-
-                var playerCenter = new Vector2(playerCollider.X + playerCollider.Width / 2.0, playerCollider.Y + playerCollider.Height / 2.0);
+                var playerTransformation = player.GetComponent<Transformation2D>();
+                var playerCenter = new Vector2(playerTransformation.Position.X + playerTransformation.Scale.X / 2.0, playerTransformation.Position.Y + playerTransformation.Scale.Y / 2.0);
 
                 return DistanceMetrics.EuclideanSquared(enemyCenter, playerCenter);
             }).FirstOrDefault();
         }
 
-        bool TryReachPosition(Vector2 targetPosition, Vector2 targetCenter, double deltaTime, GameWorld world, out Vector2 missingMovement)
+        bool TryReachPosition(Vector2 targetPosition, double deltaTime, GameWorld world, out Vector2 missingMovement)
         {
             missingMovement = Vector2.ZERO;
 
             var transformation = GetComponent<Transformation2D>();
-            var posRect = GetComponent<Collider>().AsBoundingBoxes().First();
-            var enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
-
-            var walkDirection = new Vector2(targetCenter.X - enemyCenter.X, targetCenter.Y - enemyCenter.Y);
+            var walkDirection = new Vector2(targetPosition.X - transformation.Position.X, targetPosition.Y - transformation.Position.Y);
 
             if (walkDirection.X == 0 && walkDirection.Y == 0)
             {
