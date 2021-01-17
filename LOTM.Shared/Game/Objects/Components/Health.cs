@@ -33,7 +33,7 @@ namespace LOTM.Shared.Game.Objects.Components
         }
 
 
-        public bool DeplateHealthTotal(double amount)
+        public bool DepleteHealthTotal(double amount)
         {
             if (CurrentHealth <= 0) return false;
 
@@ -48,9 +48,9 @@ namespace LOTM.Shared.Game.Objects.Components
         /// </summary>
         /// <param name="amount">Percentage between 0.0 and 1.0</param>
         /// <returns></returns>
-        public bool DeplateHealthPercentage(double amount)
+        public bool DepleteHealthPercentage(double amount)
         {
-            return DeplateHealthTotal(MaxHealth * amount);
+            return DepleteHealthTotal(MaxHealth * amount);
         }
 
         public bool IsDead()

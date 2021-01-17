@@ -168,7 +168,7 @@ namespace LOTM.Server.Game.Objects.Living
                         //Deplate target health 
                         var targetHealth = target.GetComponent<Health>();
 
-                        if (targetHealth.DeplateHealthPercentage(Damage * deltaTime))
+                        if (targetHealth.DepleteHealthPercentage(Damage * deltaTime))
                         {
                             target.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = target.ObjectId, Health = targetHealth.CurrentHealth });
                         }
