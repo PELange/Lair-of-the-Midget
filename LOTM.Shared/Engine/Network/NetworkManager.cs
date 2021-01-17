@@ -25,6 +25,8 @@ namespace LOTM.Shared.Engine.Network
         private ConcurrentQueue<(NetworkPacket, IPEndPoint)> SendQueue { get; }
         private ConcurrentDictionary<int, AwaitingAckEntry> AwaitingAck { get; }
 
+        public Func<(NetworkPacket, IPEndPoint), bool> PacketSendFailureCallback { get; set; }
+
         //private Random Random { get; } = new Random();
 
         private class AwaitingAckEntry
@@ -35,27 +37,15 @@ namespace LOTM.Shared.Engine.Network
             public DateTime LastAttemt { get; set; }
         }
 
-        public event EventHandler PacketSendFailure;
-
-        public class PacketSendFailureEventArgs : EventArgs
-        {
-            public NetworkPacket Packet { get; }
-            public IPEndPoint Recipient { get; }
-
-            public PacketSendFailureEventArgs(NetworkPacket packet, IPEndPoint recipient)
-            {
-                Packet = packet;
-                Recipient = recipient;
-            }
-        }
-
         private NetworkPacketSerializationProvider NetworkPacketSerializationProvider { get; }
 
         //private System.Timers.Timer DiagnosticsTimer { get; }
         //public int PacketsReceived { get; set; }
         //public int PacketsSent { get; set; }
 
-        public NetworkManager(UdpSocket socket, NetworkPacketSerializationProvider networkPacketSerializationProvider)
+        public NetworkManager(
+            UdpSocket socket,
+            NetworkPacketSerializationProvider networkPacketSerializationProvider)
         {
             Socket = socket;
             SendEvent = new AutoResetEvent(false);
@@ -155,10 +145,11 @@ namespace LOTM.Shared.Engine.Network
                 //Removed discarded packets from ack pending collection
                 foreach (var discard in discardIds)
                 {
-                    if (AwaitingAck.TryRemove(discard, out var discarded))
+                    //If there is a callback to control if the packet is dropped or continue being waited for, call it. Remove when the callback returns false
+                    if (AwaitingAck.TryGetValue(discard, out var discarded) && (PacketSendFailureCallback == null || !PacketSendFailureCallback((discarded.Packet, discarded.EndPoint))))
                     {
                         //System.Console.WriteLine($"{System.DateTime.Now} Ack for packet {discard} did not arrive in time. Discarded ...");
-                        PacketSendFailure?.Invoke(this, new PacketSendFailureEventArgs(discarded.Packet, discarded.EndPoint));
+                        AwaitingAck.TryRemove(discard, out var _);
                     }
                 }
 

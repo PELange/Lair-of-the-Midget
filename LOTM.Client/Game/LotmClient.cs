@@ -8,6 +8,7 @@ using LOTM.Client.Game.Objects.Environment;
 using LOTM.Client.Game.Objects.Interactable;
 using LOTM.Client.Game.Objects.Player;
 using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Network;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
@@ -18,8 +19,8 @@ using LOTM.Shared.Game.Objects.Interactable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using static LOTM.Client.Engine.Graphics.OrthographicCamera;
-using static LOTM.Shared.Engine.Network.NetworkManager;
 
 namespace LOTM.Client.Game
 {
@@ -43,7 +44,7 @@ namespace LOTM.Client.Game
             : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", new LotmNetworkManagerClient(connectionString))
         {
             NetworkClient = (LotmNetworkManagerClient)NetworkManager;
-            NetworkClient.PacketSendFailure += (sender, args) => HandlePacketSendFailure(args);
+            NetworkClient.PacketSendFailureCallback = HandlePacketSendFailure;
 
             PlayerGameObjectId = -1;
             DungeonRooms = new List<DungeonRoom>();
@@ -618,23 +619,20 @@ namespace LOTM.Client.Game
             }
         }
 
-        protected void HandlePacketSendFailure(EventArgs args)
+        protected bool HandlePacketSendFailure((NetworkPacket, IPEndPoint) packetInfo)
         {
-            if (!(args is PacketSendFailureEventArgs failureEventArgs)) return;
-
-            switch (failureEventArgs.Packet)
+            switch (packetInfo.Item1)
             {
                 case PlayerJoin _:
                 case DungeonRoomSyncRequest _:
                 {
-                    NetworkClient.SendPacket(failureEventArgs.Packet);
-                    break;
+                    return true;
                 }
 
                 default:
                 {
-                    Console.WriteLine($"Dropped outbound packet {failureEventArgs.Packet}");
-                    break;
+                    Console.WriteLine($"Dropped outbound packet {packetInfo.Item1}");
+                    return false;
                 }
             }
         }

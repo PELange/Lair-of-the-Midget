@@ -4,6 +4,7 @@ using LOTM.Server.Game.Objects.Environment;
 using LOTM.Server.Game.Objects.Interactable;
 using LOTM.Server.Game.Objects.Living;
 using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Network;
 using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Logic;
@@ -15,6 +16,7 @@ using LOTM.Shared.Game.Objects.Interactable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using static LOTM.Shared.Engine.Network.NetworkManager;
 
 namespace LOTM.Server.Game
@@ -39,7 +41,7 @@ namespace LOTM.Server.Game
             : base(1.0 / 30, new LotmNetworkManagerServer(listenAddress))
         {
             NetworkServer = (LotmNetworkManagerServer)NetworkManager;
-            NetworkServer.PacketSendFailure += (sender, args) => HandlePacketSendFailure(args);
+            NetworkServer.PacketSendFailureCallback = HandlePacketSendFailure;
 
             Players = new Dictionary<string, PlayerBaseServer>();
             DungeonRooms = new List<DungeonRoom>();
@@ -400,11 +402,9 @@ namespace LOTM.Server.Game
             }
         }
 
-        protected void HandlePacketSendFailure(EventArgs args)
+        protected bool HandlePacketSendFailure((NetworkPacket, IPEndPoint) packetInfo)
         {
-            if (!(args is PacketSendFailureEventArgs failureEventArgs)) return;
-
-            switch (failureEventArgs.Packet)
+            switch (packetInfo.Item1)
             {
                 case DoorStateUpdate _:
                 case GameStateUpdate _:
@@ -414,14 +414,13 @@ namespace LOTM.Server.Game
                 case PlayerCreation _:
                 case PlayerJoinAck _:
                 {
-                    NetworkServer.SendPacketTo(failureEventArgs.Packet, failureEventArgs.Recipient);
-                    break;
+                    return true;
                 }
 
                 default:
                 {
-                    Console.WriteLine($"Dropped outbound packet {failureEventArgs.Packet}");
-                    break;
+                    Console.WriteLine($"Dropped outbound packet {packetInfo.Item1}");
+                    return false;
                 }
             }
         }
