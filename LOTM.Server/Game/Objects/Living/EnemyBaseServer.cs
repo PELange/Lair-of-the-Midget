@@ -33,7 +33,11 @@ namespace LOTM.Server.Game.Objects.Living
 
         void HandleEnemyAi(double deltaTime, GameWorld world)
         {
-            if (AggroTarget == null) //No target, find one
+            if (GetComponent<Health>().IsDead())
+            {
+                AggroTarget = null; //Enemy died
+            }
+            else if (AggroTarget == null) //No target, find one
             {
                 AggroTarget = FindTarget(world);
             }
