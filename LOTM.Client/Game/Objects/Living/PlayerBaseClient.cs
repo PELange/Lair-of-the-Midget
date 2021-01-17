@@ -101,6 +101,9 @@ namespace LOTM.Client.Game.Objects.Player
         {
             base.OnUpdate(deltaTime);
 
+            var health = GetComponent<Health>();
+            var spriteRenderer = GetComponent<SpriteRenderer>();
+
             var deltaSinceAttackStart = (DateTime.Now - LastAttackTime).TotalMilliseconds;
 
             double attackAnimationTime = 250;
@@ -122,6 +125,19 @@ namespace LOTM.Client.Game.Objects.Player
             WeaponSegment.Offset.X = WeaponOffset.X * (IsLeft ? -1 : 1);
             WeaponSegment.RotationCenterOffset.X = WeaponRotationOffset.X * (IsLeft ? -1 : 1);
             WeaponSegment.VerticalFlip = IsLeft;
+
+            //Override dead appearance from base living object
+            WeaponSegment.Active = !health.IsDead();
+
+            //Show body
+            spriteRenderer.Segments[0].Active = true;
+            spriteRenderer.Segments[0].Color = health.IsDead() ? new Vector4(1, 1, 1, 0.3) : Vector4.ONE;
+
+            //Hide skull
+            spriteRenderer.Segments[3].Active = false;
+
+            //Hide name if dead
+            GetComponent<TextRenderer>().Segments[0].Active = !health.IsDead();
         }
 
         void TriggerAttackAnimation()

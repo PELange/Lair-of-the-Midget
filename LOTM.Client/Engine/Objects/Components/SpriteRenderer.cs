@@ -26,7 +26,7 @@ namespace LOTM.Client.Engine.Objects.Components
                 Size = size ?? new Vector2(1, 1);
                 Offset = offset ?? Vector2.ZERO;
                 Sprite = sprite;
-                Color = color ?? new Vector4(1, 1, 1, 1);
+                Color = color ?? Vector4.ONE;
                 VerticalFlip = verticalFlip;
                 Active = active;
 

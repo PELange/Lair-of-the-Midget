@@ -70,6 +70,9 @@ namespace LOTM.Client.Game.Objects
 
                 //Green hp bar overlaying the red bar
                 new SpriteRenderer.Segment(AssetManager.GetSprite($"solid_white"), new Vector2(1, 0.1), new Vector2(0, 0.25), new Vector4(0.074, 0.705, 0.094, 1.0), layer: baseRenderLayer + 2000),
+
+                //Skull when dead
+                new SpriteRenderer.Segment(AssetManager.GetSprite($"skull"), new Vector2(1, 0.5), new Vector2(0, 0.5), layer: baseRenderLayer - 100, active: false),
             }));
 
         }
@@ -143,9 +146,34 @@ namespace LOTM.Client.Game.Objects
             spriteRenderer.Segments[0].Sprite = GetCurrentBodySprite();
             spriteRenderer.Segments[0].VerticalFlip = IsLeft;
 
-            //3. Update health bar
+            //3. Update health related visuals
             var health = GetComponent<Health>();
+
             spriteRenderer.Segments[2].Size.X = health.CurrentHealth / health.MaxHealth;
+
+            if (!health.IsDead())
+            {
+                //Enable hp bar and main body sprite
+                spriteRenderer.Segments[0].Active = true;
+                spriteRenderer.Segments[1].Active = true;
+                spriteRenderer.Segments[2].Active = true;
+
+                //Hide skull
+                spriteRenderer.Segments[3].Active = false;
+            }
+            else
+            {
+                //Disable hp bar and main body
+                spriteRenderer.Segments[0].Active = false;
+                spriteRenderer.Segments[1].Active = false;
+                spriteRenderer.Segments[2].Active = false;
+
+                //Show skull
+                spriteRenderer.Segments[3].Active = true;
+            }
+
+            //Disable collider visuals when dead
+            GetComponent<Collider>().Active = !health.IsDead();
         }
 
         private Sprite GetCurrentBodySprite()

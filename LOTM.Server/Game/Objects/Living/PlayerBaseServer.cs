@@ -94,7 +94,10 @@ namespace LOTM.Server.Game.Objects
                 {
                     LastAttackTime = DateTime.Now;
 
-                    Attack(world);
+                    if (!GetComponent<Health>().IsDead()) //Dead players can not attack
+                    {
+                        Attack(world);
+                    }
                 }
             }
         }
