@@ -7,9 +7,7 @@ using LOTM.Client.Game.Objects;
 using LOTM.Client.Game.Objects.Environment;
 using LOTM.Client.Game.Objects.Interactable;
 using LOTM.Client.Game.Objects.Player;
-using LOTM.Shared.Engine.Controls;
 using LOTM.Shared.Engine.Math;
-using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
@@ -278,6 +276,7 @@ namespace LOTM.Client.Game
                     case ObjectHealthUpdate _:
                     case PickupStateUpdate _:
                     case DoorStateUpdate _:
+                    case AttackStateUpdate _:
                     {
                         var gameObject = World.GetObjectById((inbound as ObjectBoundPacket).ObjectId);
 
@@ -298,11 +297,6 @@ namespace LOTM.Client.Game
                 if (InputManager.UpdateControls(out var playerInput))
                 {
                     NetworkClient.SendPacket(playerInput);
-
-                    if ((playerInput.Inputs & InputType.ATTACK) != 0)
-                    {
-                        PlayerObject.TriggerAttack();
-                    }
                 }
 
                 //Run fixed simulation on all relevant world objects

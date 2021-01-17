@@ -176,13 +176,6 @@ namespace LOTM.Server.Game.Objects.Living
                             target.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = target.ObjectId, Health = targetHealth.CurrentHealth });
                         }
 
-                        //TEST TODO REMOVE Deplate own health
-                        var ownHealth = GetComponent<Health>();
-                        if (ownHealth.DepleteHealthPercentage(0.5 * deltaTime))
-                        {
-                            GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = ObjectId, Health = ownHealth.CurrentHealth });
-                        }
-
                         return true;
                     }
                 }

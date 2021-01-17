@@ -1,15 +1,22 @@
 ﻿using LOTM.Client.Engine;
+using LOTM.Client.Engine.Graphics;
 using LOTM.Client.Engine.Objects.Components;
 using LOTM.Shared.Engine.Math;
+using LOTM.Shared.Engine.Objects.Components;
+using LOTM.Shared.Engine.World;
+using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LOTM.Client.Game.Objects.Player
 {
     public class PlayerBaseClient : LivingObjectClient
     {
+        public int LastAttackStateUpdatePacketId { get; set; }
+
         protected DateTime LastAttackTime { get; set; }
         protected double AttackAnimationProgress { get; set; }
         protected SpriteRenderer.Segment WeaponSegment { get; }
@@ -71,13 +78,32 @@ namespace LOTM.Client.Game.Objects.Player
             }
         }
 
+        public override void OnFixedUpdate(double deltaTime, GameWorld world)
+        {
+            var networkSynchronization = GetComponent<NetworkSynchronization>();
+
+            //1. Check for position changes and only apply the latest one
+            if (networkSynchronization.PacketsInbound.Where(x => x is AttackStateUpdate).OrderByDescending(x => x.Id).FirstOrDefault() is AttackStateUpdate attackStateUpdate)
+            {
+                //Only accept the position update, if the packet id is larger than the last known update about it. This avoids retransmission issues.
+                if (attackStateUpdate.Id > LastAttackStateUpdatePacketId)
+                {
+                    LastAttackStateUpdatePacketId = attackStateUpdate.Id;
+
+                    if (attackStateUpdate.Attacking) TriggerAttackAnimation();
+                }
+            }
+
+            base.OnFixedUpdate(deltaTime, world);
+        }
+
         public override void OnUpdate(double deltaTime)
         {
             base.OnUpdate(deltaTime);
 
             var deltaSinceAttackStart = (DateTime.Now - LastAttackTime).TotalMilliseconds;
 
-            double attackAnimationTime = 500;
+            double attackAnimationTime = 250;
             double attackAnimationTotalSwingDegrees = 220 * (IsLeft ? -1 : 1);
             double attackAnimationSwingRotationOffser = -110 * (IsLeft ? -1 : 1);
 
@@ -98,7 +124,7 @@ namespace LOTM.Client.Game.Objects.Player
             WeaponSegment.VerticalFlip = IsLeft;
         }
 
-        public void TriggerAttack()
+        void TriggerAttackAnimation()
         {
             LastAttackTime = DateTime.Now;
         }

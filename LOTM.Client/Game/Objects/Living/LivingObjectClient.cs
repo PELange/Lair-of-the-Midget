@@ -86,6 +86,8 @@ namespace LOTM.Client.Game.Objects
                 //Only accept the position update, if the packet id is larger than the last known update about it. This avoids retransmission issues.
                 if (objectPositionUpdate.Id > LastPostionUpdatePacketId)
                 {
+                    LastPostionUpdatePacketId = objectPositionUpdate.Id;
+
                     var transform = GetComponent<Transformation2D>();
                     transform.Position.X = objectPositionUpdate.PositionX;
                     transform.Position.Y = objectPositionUpdate.PositionY;
@@ -96,8 +98,10 @@ namespace LOTM.Client.Game.Objects
             if (networkSynchronization.PacketsInbound.Where(x => x is ObjectHealthUpdate).OrderByDescending(x => x.Id).FirstOrDefault() is ObjectHealthUpdate objectHealthUpdate)
             {
                 //Only accept the health update, if the packet id is larger than the last known update about it. This avoids retransmission issues.
-                if (objectHealthUpdate.Id > LastPostionUpdatePacketId)
+                if (objectHealthUpdate.Id > LastHealthUpdatePacketId)
                 {
+                    LastHealthUpdatePacketId = objectHealthUpdate.Id;
+
                     GetComponent<Health>().CurrentHealth = objectHealthUpdate.Health;
                 }
             }

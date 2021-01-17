@@ -72,6 +72,10 @@ namespace LOTM.Shared.Game.Network
                     writer.Write(13);
                     break;
 
+                case AttackStateUpdate _:
+                    writer.Write(14);
+                    break;
+
                 default:
                     throw new Exception($"Tried to serialize packet with unknown type '{packet}'.");
             }
@@ -148,6 +152,10 @@ namespace LOTM.Shared.Game.Network
 
                 case 13:
                     networkPacket = new DungeonRoomSyncRequest(sender);
+                    break;
+
+                case 14:
+                    networkPacket = new AttackStateUpdate(sender);
                     break;
 
                 default:
