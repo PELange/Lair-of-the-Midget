@@ -28,6 +28,9 @@ namespace LOTM.Client.Game.Objects.Interactable
                 case ObjectType.Pickup_Health_Major:
                     pickupName = "pickup_pot_orange_big";
                     break;
+                case ObjectType.Pickup_Revive_Major:
+                    pickupName = "pickup_pot_green_big";
+                    break;
             }
 
             if (!string.IsNullOrEmpty(pickupName))

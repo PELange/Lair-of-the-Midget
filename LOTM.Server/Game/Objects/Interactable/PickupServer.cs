@@ -52,28 +52,66 @@ namespace LOTM.Server.Game.Objects.Interactable
                 }
             }
 
-            if (collidingObjets.OrderBy(x => x.Item2).Select(x => x.Item1).FirstOrDefault() is PlayerBaseServer playerBaseServer)
+            switch (Type)
             {
-                //Deactive pickup
-                Active = false;
-
-                GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new PickupStateUpdate { ObjectId = ObjectId, Active = Active });
-
-                //Add health to player
-                var playerHealth = playerBaseServer.GetComponent<Health>();
-
-                var healthAmount = Type switch
+                case ObjectType.Pickup_Health_Minor:
+                case ObjectType.Pickup_Health_Major:
                 {
-                    ObjectType.Pickup_Health_Minor => 0.25,
-                    ObjectType.Pickup_Health_Major => 0.50,
-                    _ => 0
-                };
+                    if (collidingObjets.OrderBy(x => x.Item2).Select(x => x.Item1).FirstOrDefault() is PlayerBaseServer playerBaseServer)
+                    {
+                        //Deactive pickup
+                        Active = false;
 
-                if (playerHealth.AddHealthPercentage(healthAmount))
+                        GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new PickupStateUpdate { ObjectId = ObjectId, Active = Active });
+
+                        //Add health to player
+                        var playerHealth = playerBaseServer.GetComponent<Health>();
+
+                        var healthAmount = Type switch
+                        {
+                            ObjectType.Pickup_Health_Minor => 0.25,
+                            ObjectType.Pickup_Health_Major => 0.50,
+                            _ => 0
+                        };
+
+                        if (playerHealth.AddHealthPercentage(healthAmount))
+                        {
+                            playerBaseServer.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = playerBaseServer.ObjectId, Health = playerHealth.CurrentHealth });
+                        }
+                    }
+
+                    break;
+                }
+
+                case ObjectType.Pickup_Revive_Major:
                 {
-                    playerBaseServer.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = playerBaseServer.ObjectId, Health = playerHealth.CurrentHealth });
+                    if (collidingObjets.Where(x => x.Item1.GetComponent<Health>().IsDead()).OrderBy(x => x.Item2).Select(x => x.Item1).FirstOrDefault() is PlayerBaseServer playerBaseServer)
+                    {
+                        //Deactive pickup
+                        Active = false;
+
+                        GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new PickupStateUpdate { ObjectId = ObjectId, Active = Active });
+
+                        //Add health to player
+                        var playerHealth = playerBaseServer.GetComponent<Health>();
+
+                        var healthAmount = Type switch
+                        {
+                            ObjectType.Pickup_Revive_Major => 0.50,
+                            _ => 0
+                        };
+
+                        if (playerHealth.AddHealthPercentage(healthAmount))
+                        {
+                            playerBaseServer.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = playerBaseServer.ObjectId, Health = playerHealth.CurrentHealth });
+                        }
+                    }
+
+                    break;
                 }
             }
+
+
         }
     }
 }

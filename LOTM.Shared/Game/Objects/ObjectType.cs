@@ -28,6 +28,7 @@
 
         Pickup_Health_Minor,
         Pickup_Health_Major,
+        Pickup_Revive_Major,
 
         Enemy_Ogre_Small,
         Enemy_Skeleton_Small,
