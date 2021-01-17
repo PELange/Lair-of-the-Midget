@@ -7,7 +7,7 @@ using static LOTM.Client.Engine.Objects.Components.TextRenderer;
 
 namespace LOTM.Client.Engine.Objects
 {
-    public class TextCanvas : GameObject
+    public class TextCanvas : GameObject, IMoveable
     {
         public string Text { get; set; }
         public bool Show { get; set; }
