@@ -133,42 +133,51 @@ namespace LOTM.Server.Game
 
         public void OnPlayerJoin(PlayerJoin playerJoin)
         {
-            System.Console.WriteLine($"{playerJoin.PlayerName}({playerJoin.Sender}) joined the server.");
+            var playerKey = playerJoin.Sender.ToString();
 
-            if (playerJoin.PlayerType < ObjectType.Player_Elf_Female || playerJoin.PlayerType > ObjectType.Player_Wizard_Male)
+            //Player was not yet on the server
+            if (!Players.ContainsKey(playerKey))
             {
-                playerJoin.PlayerType = ObjectType.Player_Knight_Male;
-            }
+                System.Console.WriteLine($"{playerJoin.PlayerName}({playerJoin.Sender}) joined the server.");
 
-            var spawnPos = new Vector2(-8, -116);
-            var spawnHp = 100;
-
-            var objectId = NextFreeEntityId--;
-            var playerObject = new PlayerBaseServer(objectId, playerJoin.PlayerName, playerJoin.PlayerType, spawnPos, spawnHp);
-
-            if (Players.Count > 0) //Check if there are any other players besides the one that now joined
-            {
-                //Send inital create packet for the player to clients that were already connected.
-                //Because this is the connect callback the new client is not yet part of the broadcast list
-                NetworkServer.Broadcast(new PlayerCreation
+                if (playerJoin.PlayerType < ObjectType.Player_Elf_Female || playerJoin.PlayerType > ObjectType.Player_Wizard_Male)
                 {
-                    RequiresAck = true, //Guaranteed delivery!
-                    ObjectId = playerObject.ObjectId,
-                    Type = playerObject.Type,
-                    PositionX = spawnPos.X,
-                    PositionY = spawnPos.Y,
-                    ScaleX = playerObject.GetComponent<Transformation2D>().Scale.X,
-                    ScaleY = playerObject.GetComponent<Transformation2D>().Scale.Y,
-                    Health = spawnHp,
-                    Name = playerJoin.PlayerName,
-                });
+                    playerJoin.PlayerType = ObjectType.Player_Knight_Male;
+                }
+
+                var spawnPos = new Vector2(-8, -116);
+                var spawnHp = 100;
+
+                var objectId = NextFreeEntityId--;
+                var playerObject = new PlayerBaseServer(objectId, playerJoin.PlayerName, playerJoin.PlayerType, spawnPos, spawnHp);
+
+                if (Players.Count > 0) //Check if there are any other players besides the one that now joined
+                {
+                    //Send inital create packet for the player to clients that were already connected.
+                    //Because this is the connect callback the new client is not yet part of the broadcast list
+                    NetworkServer.Broadcast(new PlayerCreation
+                    {
+                        RequiresAck = true, //Guaranteed delivery!
+                        ObjectId = playerObject.ObjectId,
+                        Type = playerObject.Type,
+                        PositionX = spawnPos.X,
+                        PositionY = spawnPos.Y,
+                        ScaleX = playerObject.GetComponent<Transformation2D>().Scale.X,
+                        ScaleY = playerObject.GetComponent<Transformation2D>().Scale.Y,
+                        Health = spawnHp,
+                        Name = playerJoin.PlayerName,
+                    });
+                }
+
+                //Store player object
+                Players[playerKey] = playerObject;
+
+                //Add to world
+                World.AddObject(playerObject);
+
+                //Register for network broadcasts
+                NetworkServer.AddConnectedPlayer(playerJoin.Sender);
             }
-
-            //Store player object
-            Players[playerJoin.Sender.ToString()] = playerObject;
-
-            //Add to world
-            World.AddObject(playerObject);
 
             //Send info about all player objects including his own player to the connecting client
             foreach (var existingPlayer in Players.Values)
@@ -180,8 +189,8 @@ namespace LOTM.Server.Game
                 NetworkServer.SendPacketTo(new PlayerCreation
                 {
                     RequiresAck = true, //Guaranteed delivery!
-                    ObjectId = playerObject.ObjectId,
-                    Type = playerObject.Type,
+                    ObjectId = existingPlayer.ObjectId,
+                    Type = existingPlayer.Type,
                     PositionX = playerObjTransform.Position.X,
                     PositionY = playerObjTransform.Position.Y,
                     ScaleX = playerObjTransform.Scale.X,
@@ -191,14 +200,12 @@ namespace LOTM.Server.Game
                 }, playerJoin.Sender);
             }
 
-            NetworkServer.AddConnectedPlayer(playerJoin.Sender);
-
             //Respond to client
             NetworkServer.SendPacketTo(new PlayerJoinAck
             {
                 RequiresAck = true, //Guarantee delivery
                 GameActive = GameActive,
-                PlayerObjectId = objectId,
+                PlayerObjectId = Players[playerKey].ObjectId,
                 WorldSeed = WorldSeed,
                 LobbySize = (int)LobbySize
             }, playerJoin.Sender);
