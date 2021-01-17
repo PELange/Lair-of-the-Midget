@@ -7,6 +7,7 @@ using LOTM.Client.Game.Objects;
 using LOTM.Client.Game.Objects.Environment;
 using LOTM.Client.Game.Objects.Interactable;
 using LOTM.Client.Game.Objects.Player;
+using LOTM.Shared.Engine.Controls;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects;
 using LOTM.Shared.Engine.Objects.Components;
@@ -28,7 +29,7 @@ namespace LOTM.Client.Game
         protected LotmNetworkManagerClient NetworkClient { get; set; }
 
         protected int PlayerGameObjectId { get; set; }
-        protected GameObject PlayerObject { get; set; }
+        protected PlayerBaseClient PlayerObject { get; set; }
         protected TextCanvas TextCanvas { get; set; }
 
         protected int LobbySize { get; set; }
@@ -201,6 +202,7 @@ namespace LOTM.Client.Game
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 11, 18, 12), "spear");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(21, 9, 21, 10), "staff");
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 2, 18, 4), "hammer_big");
+            AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(19, 9, 19, 10), "golden_sword");
 
             //Misc
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 20, 18, 20), "skull");
@@ -296,6 +298,11 @@ namespace LOTM.Client.Game
                 if (InputManager.UpdateControls(out var playerInput))
                 {
                     NetworkClient.SendPacket(playerInput);
+
+                    if ((playerInput.Inputs & InputType.ATTACK) != 0)
+                    {
+                        PlayerObject.TriggerAttack();
+                    }
                 }
 
                 //Run fixed simulation on all relevant world objects
@@ -369,7 +376,7 @@ namespace LOTM.Client.Game
             //Try find the player object if we did not already have it
             if (PlayerObject == null)
             {
-                PlayerObject = World.GetObjectById(PlayerGameObjectId);
+                PlayerObject = World.GetObjectById(PlayerGameObjectId) as PlayerBaseClient;
             }
 
             if (PlayerObject != null)

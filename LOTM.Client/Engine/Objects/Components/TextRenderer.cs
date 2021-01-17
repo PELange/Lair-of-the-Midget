@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace LOTM.Client.Engine.Objects.Components
 {
-    class TextRenderer : IComponent
+    public class TextRenderer : IComponent
     {
         public class Segment
         {

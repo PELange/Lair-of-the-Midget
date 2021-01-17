@@ -193,17 +193,19 @@ namespace LOTM.Client.Engine.Graphics
                         {
                             var vertex = quad[nVertex];
 
-                            if (transformation.Rotation != default)
+                            var totalRotation = transformation.Rotation + segment.Rotation;
+
+                            var rotationCenter = new Vector2(transformation.Position.X + (transformation.Scale.X / 2), transformation.Position.Y + (transformation.Scale.Y / 2));
+
+                            rotationCenter.X += transformation.Scale.X * segment.RotationCenterOffset.X;
+                            rotationCenter.Y += transformation.Scale.Y * segment.RotationCenterOffset.Y;
+
+                            if (totalRotation != default)
                             {
-                                var translate = glm.translate(
-                                    mat4.identity(),
-                                    new vec3(
-                                        (float)(transformation.Position.X + (transformation.Scale.X / 2)),
-                                        (float)(transformation.Position.Y + (transformation.Scale.Y / 2)),
-                                        0));
+                                var translate = glm.translate(mat4.identity(), new vec3((float)rotationCenter.X, (float)rotationCenter.Y, 0));
 
                                 var rotated = translate
-                                    * glm.rotate(glm.radians((float)transformation.Rotation), new vec3(0.0f, 0.0f, 1.0f))
+                                    * glm.rotate(glm.radians((float)totalRotation), new vec3(0.0f, 0.0f, 1.0f))
                                     * glm.inverse(translate)
                                     * new vec4(vertex.Position[0], vertex.Position[1], 0.0f, 1.0f);
 

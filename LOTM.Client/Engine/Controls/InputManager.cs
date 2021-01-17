@@ -54,6 +54,8 @@ namespace LOTM.Client.Engine.Controls
             if (controlType == InputType.WALK_LEFT && (KeyStates[GLFW_KEY_A] || ButtonPressedEvents.Where(x => x.Button == GLFW_KEY_A).Any())) return true;
             if (controlType == InputType.WALK_RIGHT && (KeyStates[GLFW_KEY_D] || ButtonPressedEvents.Where(x => x.Button == GLFW_KEY_D).Any())) return true;
 
+            if (controlType == InputType.ATTACK && (KeyStates[GLFW_KEY_SPACE] || ButtonPressedEvents.Where(x => x.Button == GLFW_KEY_SPACE).Any())) return true;
+
             return false;
         }
 
@@ -89,6 +91,11 @@ namespace LOTM.Client.Engine.Controls
             else if (WasControlPressed(InputType.WALK_DOWN) && !WasControlPressed(InputType.WALK_UP))
             {
                 inputs |= InputType.WALK_DOWN;
+            }
+
+            if (WasControlPressed(InputType.ATTACK))
+            {
+                inputs |= InputType.ATTACK;
             }
 
             //Clear all events such as button presses, as we processed them all for this frame.

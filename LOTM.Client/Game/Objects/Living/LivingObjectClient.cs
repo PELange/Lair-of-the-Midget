@@ -28,11 +28,14 @@ namespace LOTM.Client.Game.Objects
         private double AnimationTimer { get; set; }
         private string AnimationSpriteSet { get; set; }
 
+        protected bool IsLeft { get; set; }
         private Vector2 LastLocalPosition { get; }
 
         public LivingObjectClient(int objectId, ObjectType type, Vector2 position, Vector2 scale, Rectangle colliderInfo, double health)
             : base(objectId, type, position, scale, colliderInfo, health)
         {
+            IsLeft = true;
+
             LastLocalPosition = new Vector2(position.X, position.Y); //Copy not reference!!!
 
             CurrentAnimationPhase = 0;
@@ -134,6 +137,7 @@ namespace LOTM.Client.Game.Objects
 
             //2.2 Update primary body sprite
             spriteRenderer.Segments[0].Sprite = GetCurrentBodySprite();
+            spriteRenderer.Segments[0].VerticalFlip = IsLeft;
 
             //3. Update health bar
             var health = GetComponent<Health>();

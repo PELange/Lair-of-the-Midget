@@ -8,5 +8,6 @@
         WALK_DOWN = 0x02,
         WALK_LEFT = 0x04,
         WALK_RIGHT = 0x08,
+        ATTACK = 0x10,
     }
 }

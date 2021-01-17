@@ -17,6 +17,9 @@ namespace LOTM.Client.Engine.Objects.Components
             public bool VerticalFlip { get; set; }
             public bool Active { get; set; }
 
+            public Vector2 RotationCenterOffset { get; set; }
+            public double Rotation { get; set; }
+
             public Segment(Sprite sprite = null, Vector2 size = null, Vector2 offset = null, Vector4 color = null, bool verticalFlip = false, int layer = 1000, bool active = true)
             {
                 RenderLayer = layer;
@@ -26,6 +29,9 @@ namespace LOTM.Client.Engine.Objects.Components
                 Color = color ?? new Vector4(1, 1, 1, 1);
                 VerticalFlip = verticalFlip;
                 Active = active;
+
+                RotationCenterOffset = Vector2.ZERO;
+                Rotation = 0;
             }
         }
 
