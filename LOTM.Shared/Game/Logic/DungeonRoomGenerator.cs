@@ -180,6 +180,12 @@ namespace LOTM.Shared.Game.Logic
                 DungeonObjectList.Add(new Pickup(GetNextObjectId(), (ObjectType)Random.Next((int)ObjectType.Pickup_Health_Minor, (int)ObjectType.Pickup_Health_Major + 1), pickupCoords));
                 pickupCount--;
             }
+            if (RoomNumber % 3 == 0)
+            {
+                Vector2 pickupCoords = GetFreeObjectCoords();
+                ObjectCoordList.Add(pickupCoords);
+                DungeonObjectList.Add(new Pickup(GetNextObjectId(), ObjectType.Pickup_Revive_Major, pickupCoords));
+            }
         }
 
         public void CreatePillars()
