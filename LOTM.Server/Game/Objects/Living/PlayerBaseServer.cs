@@ -123,7 +123,7 @@ namespace LOTM.Server.Game.Objects
                 {
                     var enemyHealth = enemy.GetComponent<Health>();
 
-                    if (enemyHealth.DepleteHealthPercentage(0.1))
+                    if (enemyHealth.DepleteHealthTotal(25))
                     {
                         enemy.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = enemy.ObjectId, Health = enemyHealth.CurrentHealth });
                     }
