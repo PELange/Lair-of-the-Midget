@@ -23,8 +23,8 @@ namespace LOTM.Server.Game.Objects.Living
             : base(objectId, type, position, scale, colliderInfo, health)
         {
             WalkSpeed = 16;
-            AggroRadius = 16 * 3;
-            Damage = 0.1; //10% per second
+            AggroRadius = 16 * 4;
+            Damage = 0.25; //25% per second
         }
 
         public override void OnFixedUpdate(double deltaTime, GameWorld world)
