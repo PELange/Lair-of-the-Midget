@@ -36,13 +36,6 @@ namespace LOTM.Client.Game
 
         protected ObjectType DesiredPlayerType { get; set; }
 
-        protected enum GameState
-        {
-            Connecting,
-            Lobby,
-            Gameplay
-        }
-
         protected GameState State { get; set; }
 
         public LotmClient(int windowWidth, int windowHeight, string connectionString, string playerName, string desiredPlayerType)
@@ -235,7 +228,7 @@ namespace LOTM.Client.Game
 
                     case GameStateUpdate gameStateUpdate:
                     {
-                        ApplyGameStateUpdate(gameStateUpdate.Active);
+                        ApplyGameStateUpdate(gameStateUpdate);
                         break;
                     }
 
@@ -337,7 +330,7 @@ namespace LOTM.Client.Game
             else if (State != GameState.Gameplay) //Joined into the active game
             {
                 State = GameState.Gameplay;
-                ApplyGameStateUpdate(true);
+                OnGameStart();
             }
 
             PlayerGameObjectId = playerJoinAck.PlayerObjectId;
@@ -345,18 +338,38 @@ namespace LOTM.Client.Game
             AddDungeonRoom(LevelGenerator.AddSpawn(Vector2.ZERO));
         }
 
-        protected void ApplyGameStateUpdate(bool gameStarted)
+        protected void ApplyGameStateUpdate(GameStateUpdate gameStateUpdate)
         {
-            if (gameStarted && State != GameState.Gameplay)
+            if ((State == GameState.Connecting || State == GameState.Lobby) && gameStateUpdate.Active)
             {
                 State = GameState.Gameplay;
                 OnGameStart();
+            }
+
+            if (State == GameState.Gameplay && gameStateUpdate.Lost)
+            {
+                State = GameState.Finished;
+                OnGameLost(gameStateUpdate.HighestRoomNumber);
             }
         }
 
         protected void OnGameStart()
         {
             TextCanvas.Show = false;
+        }
+
+        protected void OnGameLost(int maxRoom)
+        {
+            //Free up the world
+            World.Resize(0, 0, 100, 100);
+
+            //End screen
+            Camera.SetViewport(new Viewport(new Vector2(0, 0), new Vector2(100, 100)));
+
+            //Title
+            World.AddObject(new TextCanvas(-20, new Vector2(50, 30), $"GAME OVER", 8, new Vector4(1, 0, 0, 1)));
+            World.AddObject(new TextCanvas(-30, new Vector2(50, 50), $"All players have been defeated."));
+            World.AddObject(new TextCanvas(-40, new Vector2(50, 60), $"You cleared { maxRoom } rooms."));
         }
 
         protected void UpdateSpectator()
@@ -387,6 +400,8 @@ namespace LOTM.Client.Game
 
         protected void DebugCollisions()
         {
+            if (State != GameState.Gameplay) return;
+
             foreach (var worldObject in World.GetAllObjects())
             {
                 if (worldObject.GetComponent<Collider>() is Collider collider)
@@ -537,6 +552,8 @@ namespace LOTM.Client.Game
 
         protected void MaintainDungeonRooomBuffer()
         {
+            if (State == GameState.Finished) return;
+
             if (PlayerObject == null) return;
 
             var transformation = PlayerObject.GetComponent<Transformation2D>();

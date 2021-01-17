@@ -48,7 +48,13 @@ namespace LOTM.Shared.Engine.World
 
             StaticObjects = new QuadTree(new Rectangle(x, y, width, height));
 
-            existingObjects.ForEach(x => StaticObjects.Add(x));
+            foreach (var existingObject in existingObjects)
+            {
+                if (!StaticObjects.TryAdd(existingObject))
+                {
+                    StaticObjectLookupCache.Remove(existingObject.ObjectId);
+                }
+            }
         }
 
         public void AddObject(GameObject gameObject)
@@ -60,7 +66,7 @@ namespace LOTM.Shared.Engine.World
             }
             else
             {
-                StaticObjects.Add(gameObject);
+                StaticObjects.TryAdd(gameObject);
                 StaticObjectLookupCache.Add(gameObject.ObjectId, gameObject);
             }
         }

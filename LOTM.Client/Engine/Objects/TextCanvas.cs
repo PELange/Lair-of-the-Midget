@@ -12,7 +12,7 @@ namespace LOTM.Client.Engine.Objects
         public string Text { get; set; }
         public bool Show { get; set; }
 
-        public TextCanvas(int id, Vector2 position, string text = "")
+        public TextCanvas(int id, Vector2 position, string text = "", int fontSize = 5, Vector4 color = null)
             : base(id, position)
         {
             Text = text;
@@ -20,7 +20,7 @@ namespace LOTM.Client.Engine.Objects
 
             AddComponent(new TextRenderer(new List<Segment>
             {
-                new Segment(text, "showcard_gothic", 5)
+                new Segment(text, "showcard_gothic", fontSize, color: color)
             }));
         }
 

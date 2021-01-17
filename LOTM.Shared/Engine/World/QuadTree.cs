@@ -70,7 +70,7 @@ namespace LOTM.Shared.Engine.World
                 if (destTree != this)
                 {
                     // Insert to the appropriate tree, remove the object, and back up one in the loop
-                    destTree.Add(Objects[i]);
+                    destTree.TryAdd(Objects[i]);
                     Objects.Remove(Objects[i]);
                     i--;
                 }
@@ -165,12 +165,12 @@ namespace LOTM.Shared.Engine.World
             }
         }
 
-        public void Add(GameObject item)
+        public bool TryAdd(GameObject item)
         {
             // If this quad doesn't intersect the items bounds, do nothing
             if (!BoundingRect.IntersectsWith(item.GetComponent<Transformation2D>().GetBoundingBox()))
             {
-                return; //Todo instead of skip, resize quadtree and rebuild it?
+                return false;
             }
 
             if (Objects == null || (ChildTL == null && Objects.Count + 1 < 4)) //As soon as we hit 3 items we subdevide
@@ -194,9 +194,11 @@ namespace LOTM.Shared.Engine.World
                 }
                 else
                 {
-                    destTree.Add(item);
+                    destTree.TryAdd(item);
                 }
             }
+
+            return true;
         }
 
         public List<GameObject> GetObjects(Rectangle rect)

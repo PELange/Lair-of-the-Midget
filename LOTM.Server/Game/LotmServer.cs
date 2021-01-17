@@ -27,7 +27,7 @@ namespace LOTM.Server.Game
 
         protected int WorldSeed { get; set; }
 
-        protected bool GameActive { get; set; }
+        protected GameState State { get; set; }
 
         protected uint LobbySize { get; }
 
@@ -41,6 +41,7 @@ namespace LOTM.Server.Game
             DungeonRooms = new List<DungeonRoom>();
             NextFreeEntityId = -1;
             LobbySize = lobbySize;
+            State = GameState.Lobby;
         }
 
         protected override void OnInit()
@@ -90,7 +91,9 @@ namespace LOTM.Server.Game
 
             MaintainDungeonRooomBuffer();
 
-            if (GameActive)
+            CheckFinish();
+
+            if (State == GameState.Gameplay)
             {
                 //Run fixed simulation on all relevant world objects
                 foreach (var worldObject in World.GetAllObjects())
@@ -109,12 +112,14 @@ namespace LOTM.Server.Game
                         }
                     }
                 }
+
+
             }
-            else if (!GameActive)
+            else if (State == GameState.Lobby)
             {
                 if (Players.Count >= LobbySize)
                 {
-                    GameActive = true;
+                    State = GameState.Gameplay;
                     NetworkServer.Broadcast(new GameStateUpdate { RequiresAck = true, Active = true });
                 }
             }
@@ -122,7 +127,7 @@ namespace LOTM.Server.Game
 
         protected override void OnUpdate(double deltaTime)
         {
-            if (GameActive)
+            if (State == GameState.Gameplay)
             {
                 foreach (var worldObject in World.GetAllObjects())
                 {
@@ -134,6 +139,8 @@ namespace LOTM.Server.Game
         public void OnPlayerJoin(PlayerJoin playerJoin)
         {
             var playerKey = playerJoin.Sender.ToString();
+
+            if (State == GameState.Finished) return; //Do not allow connection after game is over
 
             //Player was not yet on the server
             if (!Players.ContainsKey(playerKey))
@@ -204,7 +211,7 @@ namespace LOTM.Server.Game
             NetworkServer.SendPacketTo(new PlayerJoinAck
             {
                 RequiresAck = true, //Guarantee delivery
-                GameActive = GameActive,
+                GameActive = State == GameState.Gameplay,
                 PlayerObjectId = Players[playerKey].ObjectId,
                 WorldSeed = WorldSeed,
                 LobbySize = (int)LobbySize
@@ -364,6 +371,26 @@ namespace LOTM.Server.Game
                     ObjectId = door.ObjectId,
                     Open = door.Open,
                 }, syncRequest.Sender);
+            }
+        }
+
+        protected void CheckFinish()
+        {
+            if (State != GameState.Gameplay) return;
+
+            if (Players.Values.All(x => x.GetComponent<Health>().IsDead()))
+            {
+                NetworkServer.Broadcast(new GameStateUpdate
+                {
+                    RequiresAck = true,
+                    Active = true,
+                    Lost = true,
+                    HighestRoomNumber = DungeonRooms.Where(room => room.Objects.All(obj =>
+                    {
+                        if (obj is DungeonDoor door) return door.Open;
+                        return true;
+                    })).Select(x => x.RoomNumber).Max()
+                });
             }
         }
     }
