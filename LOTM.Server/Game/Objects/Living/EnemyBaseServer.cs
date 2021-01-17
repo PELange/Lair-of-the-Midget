@@ -16,8 +16,8 @@ namespace LOTM.Server.Game.Objects.Living
         protected double AggroRadius { get; set; }
         protected double Damage { get; set; }
 
-        public Vector2 TargetPositionOverride { get; set; }
-        public Vector2 TargetPositionCenterOverride { get; set; }
+        public Vector2 AxisMovementForce { get; set; }
+        public Vector2 AxisMovementUnlockCondition { get; set; }
 
         public EnemyBaseServer(int objectId, ObjectType type, Vector2 position = default, Vector2 scale = default, Rectangle colliderInfo = default, double health = default)
             : base(objectId, type, position, scale, colliderInfo, health)
@@ -39,7 +39,6 @@ namespace LOTM.Server.Game.Objects.Living
             if (GetComponent<Health>().IsDead())
             {
                 AggroTarget = null; //Enemy died
-                TargetPositionCenterOverride = null;
             }
             else if (AggroTarget == null) //No target, find one
             {
@@ -48,7 +47,6 @@ namespace LOTM.Server.Game.Objects.Living
             else if (AggroTarget.GetComponent<Health>().IsDead()) //Enemy has target but it died, find new one
             {
                 AggroTarget = null;
-                TargetPositionCenterOverride = null;
             }
             else
             {
@@ -56,43 +54,68 @@ namespace LOTM.Server.Game.Objects.Living
                 if (!TryHitTarget(AggroTarget, deltaTime))
                 {
                     //If it was not possible we must get closer to the target
+                    var targetTransformation = AggroTarget.GetComponent<Transformation2D>();
                     var playerCollider = AggroTarget.GetComponent<Collider>().AsBoundingBoxes().First();
                     var targetCenter = new Vector2(playerCollider.X + playerCollider.Width / 2.0, playerCollider.Y + playerCollider.Height / 2.0);
-                    var targetPosition = AggroTarget.GetComponent<Transformation2D>().Position;
+                    var targetPosition = new Vector2(targetTransformation.Position.X, targetTransformation.Position.Y);
 
-                    if (TargetPositionOverride != null && TargetPositionCenterOverride != null)
+                    var transformation = GetComponent<Transformation2D>();
+
+                    if (AxisMovementForce != null)
                     {
-                        targetCenter = TargetPositionCenterOverride;
-                        targetPosition = TargetPositionOverride;
+                        var posRect = GetComponent<Collider>().AsBoundingBoxes().First();
+                        var enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
 
-                        var transformation = GetComponent<Transformation2D>();
-
-                        if (transformation.Position.X == targetPosition.X && transformation.Position.Y == targetPosition.Y)
+                        if (AxisMovementForce.X != 0)
                         {
-                            TargetPositionOverride = null;
-                            TargetPositionCenterOverride = null;
+                            targetCenter.X = enemyCenter.X + AxisMovementForce.X;
+                            targetPosition.X = transformation.Position.X + AxisMovementForce.X;
+
+                            targetCenter.Y = enemyCenter.Y;
+                            targetPosition.Y = transformation.Position.Y;
+                        }
+                        else if (AxisMovementForce.Y != 0)
+                        {
+                            targetCenter.X = enemyCenter.X;
+                            targetPosition.X = transformation.Position.X;
+
+                            targetCenter.Y = enemyCenter.Y + AxisMovementForce.Y;
+                            targetPosition.Y = transformation.Position.Y + AxisMovementForce.Y;
                         }
                     }
 
                     if (!TryReachPosition(targetPosition, targetCenter, deltaTime, world, out var missingMovement))
                     {
-                        var transformation = GetComponent<Transformation2D>();
-                        var posRect = GetComponent<Collider>().AsBoundingBoxes().First();
-                        var enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
-
-                        if (missingMovement.X != 0 && System.Math.Abs(missingMovement.X) > System.Math.Abs(missingMovement.Y))
+                        if (AxisMovementForce == null)
                         {
-                            var moveY = targetCenter.Y > enemyCenter.Y ? 17 : -17;
+                            var posRect = GetComponent<Collider>().AsBoundingBoxes().First();
+                            var enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
 
-                            TargetPositionOverride = new Vector2(transformation.Position.X, transformation.Position.Y + moveY);
-                            TargetPositionCenterOverride = new Vector2(enemyCenter.X, enemyCenter.Y + moveY);
+                            if (missingMovement.X != 0 && System.Math.Abs(missingMovement.X) > System.Math.Abs(missingMovement.Y))
+                            {
+                                AxisMovementForce = new Vector2(0, targetCenter.Y > enemyCenter.Y ? 1 : -1);
+                                AxisMovementUnlockCondition = new Vector2(missingMovement.X > 0 ? 1 : -1, 0);
+                            }
+                            else if (missingMovement.Y != 0 && System.Math.Abs(missingMovement.Y) > System.Math.Abs(missingMovement.X))
+                            {
+                                AxisMovementForce = new Vector2(targetCenter.X > enemyCenter.X ? 1 : -1, 0);
+                                AxisMovementUnlockCondition = new Vector2(0, missingMovement.Y > 0 ? 1 : -1);
+                            }
                         }
-                        else if (missingMovement.Y != 0 && System.Math.Abs(missingMovement.Y) > System.Math.Abs(missingMovement.X))
-                        {
-                            var moveX = targetCenter.X > enemyCenter.X ? 17 : -17;
+                    }
 
-                            TargetPositionOverride = new Vector2(transformation.Position.X + moveX, transformation.Position.Y);
-                            TargetPositionCenterOverride = new Vector2(enemyCenter.X + moveX, enemyCenter.Y);
+                    if (AxisMovementForce != null)
+                    {
+                        var testUnlock = new Vector2(transformation.Position.X, transformation.Position.Y);
+
+                        testUnlock.X += AxisMovementUnlockCondition.X;
+                        testUnlock.Y += AxisMovementUnlockCondition.Y;
+
+                        //We were able to successfully move into the direction that is considered the unlock condition
+                        if (TryMovePosition(testUnlock, world, false))
+                        {
+                            AxisMovementForce = null;
+                            AxisMovementUnlockCondition = null;
                         }
                     }
                 }
