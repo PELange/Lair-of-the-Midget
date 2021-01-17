@@ -4,9 +4,11 @@ using LOTM.Client.Engine.Objects.Components;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Engine.World;
+using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -29,14 +31,22 @@ namespace LOTM.Client.Game.Objects
         private string AnimationSpriteSet { get; set; }
 
         protected bool IsLeft { get; set; }
-        private Vector2 LastLocalPosition { get; }
+        protected bool IsPlayer { get; set; }
+        private Vector2 LatestServerPosition { get; set; }
 
         public LivingObjectClient(int objectId, ObjectType type, Vector2 position, Vector2 scale, Rectangle colliderInfo, double health)
             : base(objectId, type, position, scale, colliderInfo, health)
         {
             IsLeft = true;
 
-            LastLocalPosition = new Vector2(position.X, position.Y); //Copy not reference!!!
+            IsPlayer = Type switch
+            {
+                ObjectType.Player_Elf_Female => true,
+                ObjectType.Player_Knight_Male => true,
+                ObjectType.Player_Wizard_Male => true,
+                _ => false
+            };
+
 
             CurrentAnimationPhase = 0;
             CurrentAnimationState = AnimationState.Idle;
@@ -91,9 +101,11 @@ namespace LOTM.Client.Game.Objects
                 {
                     LastPostionUpdatePacketId = objectPositionUpdate.Id;
 
-                    var transform = GetComponent<Transformation2D>();
-                    transform.Position.X = objectPositionUpdate.PositionX;
-                    transform.Position.Y = objectPositionUpdate.PositionY;
+                    LatestServerPosition = new Vector2(objectPositionUpdate.PositionX, objectPositionUpdate.PositionY);
+
+                    //var transform = GetComponent<Transformation2D>();
+                    //transform.Position.X = objectPositionUpdate.PositionX;
+                    //transform.Position.Y = objectPositionUpdate.PositionY;
                 }
             }
 
@@ -114,6 +126,8 @@ namespace LOTM.Client.Game.Objects
 
         public override void OnUpdate(double deltaTime)
         {
+            var transform = GetComponent<Transformation2D>();
+
             //1. Advance current animation phase
             AnimationTimer += deltaTime;
 
@@ -124,7 +138,44 @@ namespace LOTM.Client.Game.Objects
                 CurrentAnimationPhase = (CurrentAnimationPhase + 1) % 3;
             }
 
-            //2. Update animation states
+            //2. Interpolate positions
+            if (LatestServerPosition != null)
+            {
+                const int maxLerpDistance = 16 * 6;
+
+                //Target position is too far away for lerping. Make visual cut and teleport there
+                if (Math.Abs(LatestServerPosition.X - transform.Position.X) > maxLerpDistance ||
+                    Math.Abs(LatestServerPosition.Y - transform.Position.Y) > maxLerpDistance)
+                {
+                    transform.Position.X = LatestServerPosition.X;
+                    transform.Position.Y = LatestServerPosition.Y;
+                }
+                else if (transform.Position.X != LatestServerPosition.X || transform.Position.Y != LatestServerPosition.Y) //We are not yet where the server told us to be
+                {
+                    var newPosition = Vector2.Lerp(transform.Position, LatestServerPosition, deltaTime * (IsPlayer ? LotmGameConfig.PlayerMovementSpeed : LotmGameConfig.EnemyMovementSpeed));
+
+                    //Avoid X-axis extrapolation
+                    if (transform.Position.X < LatestServerPosition.X && newPosition.X > LatestServerPosition.X ||
+                        transform.Position.X > LatestServerPosition.X && newPosition.X < LatestServerPosition.X ||
+                        transform.Position.X == LatestServerPosition.X)
+                    {
+                        newPosition.X = LatestServerPosition.X;
+                    }
+
+                    //Avoid Y-axis extrapolation
+                    if (transform.Position.Y < LatestServerPosition.Y && newPosition.Y > LatestServerPosition.Y ||
+                        transform.Position.Y > LatestServerPosition.Y && newPosition.Y < LatestServerPosition.Y ||
+                        transform.Position.Y == LatestServerPosition.Y)
+                    {
+                        newPosition.Y = LatestServerPosition.Y;
+                    }
+
+                    transform.Position.X = newPosition.X;
+                    transform.Position.Y = newPosition.Y;
+                }
+            }
+
+            //3. Update animation states
 
             ////2.1 Detect position changes -> aka walking
             //var transform = GetComponent<Transformation2D>();
@@ -142,11 +193,11 @@ namespace LOTM.Client.Game.Objects
 
             var spriteRenderer = GetComponent<SpriteRenderer>();
 
-            //2.2 Update primary body sprite
+            //3.2 Update primary body sprite
             spriteRenderer.Segments[0].Sprite = GetCurrentBodySprite();
             spriteRenderer.Segments[0].VerticalFlip = IsLeft;
 
-            //3. Update health related visuals
+            //4. Update health related visuals
             var health = GetComponent<Health>();
 
             spriteRenderer.Segments[2].Size.X = health.CurrentHealth / health.MaxHealth;

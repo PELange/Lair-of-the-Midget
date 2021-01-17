@@ -1,6 +1,7 @@
 ﻿using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Engine.World;
+using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
@@ -12,7 +13,6 @@ namespace LOTM.Server.Game.Objects.Living
     public class EnemyBaseServer : LivingObjectServer
     {
         protected PlayerBaseServer AggroTarget { get; set; }
-        protected double WalkSpeed { get; set; }
         protected double AggroRadius { get; set; }
         protected double Damage { get; set; }
 
@@ -22,7 +22,6 @@ namespace LOTM.Server.Game.Objects.Living
         public EnemyBaseServer(int objectId, ObjectType type, Vector2 position = default, Vector2 scale = default, Rectangle colliderInfo = default, double health = default)
             : base(objectId, type, position, scale, colliderInfo, health)
         {
-            WalkSpeed = 16;
             AggroRadius = 16 * 4;
             Damage = 0.25; //25% per second
         }
@@ -162,7 +161,7 @@ namespace LOTM.Server.Game.Objects.Living
             //Normalize to be multiplyable by walkspeed and avoid faster movement diagonally
             walkDirection.Normalize();
 
-            var nextPosition = new Vector2(transformation.Position.X + walkDirection.X * WalkSpeed * deltaTime, transformation.Position.Y + walkDirection.Y * WalkSpeed * deltaTime);
+            var nextPosition = new Vector2(transformation.Position.X + walkDirection.X * LotmGameConfig.EnemyMovementSpeed * deltaTime, transformation.Position.Y + walkDirection.Y * LotmGameConfig.EnemyMovementSpeed * deltaTime);
 
             if (walkDirection.X > 0)
             {

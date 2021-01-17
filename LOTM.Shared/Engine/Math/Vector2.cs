@@ -65,5 +65,10 @@ namespace LOTM.Shared.Engine.Math
             X /= magnitude;
             Y /= magnitude;
         }
+
+        public static Vector2 Lerp(Vector2 v1, Vector2 v2, double time)
+        {
+            return new Vector2(v1.X + (v2.X - v1.X) * time, v1.Y + (v2.Y - v1.Y) * time);
+        }
     }
 }

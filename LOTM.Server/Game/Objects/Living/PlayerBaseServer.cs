@@ -3,6 +3,7 @@ using LOTM.Shared.Engine.Controls;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects.Components;
 using LOTM.Shared.Engine.World;
+using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
@@ -46,7 +47,6 @@ namespace LOTM.Server.Game.Objects
 
         protected void ApplyPlayerinput(PlayerInput playerInput, double deltaTime, GameWorld world)
         {
-            var walkSpeed = 50;
             var walkDirection = Vector2.ZERO;
 
             if ((playerInput.Inputs & InputType.WALK_UP) != 0)
@@ -73,7 +73,7 @@ namespace LOTM.Server.Game.Objects
                 walkDirection.Normalize();
 
                 var transformation = GetComponent<Transformation2D>();
-                var desiredPosition = new Vector2(transformation.Position.X + walkDirection.X * walkSpeed * deltaTime, transformation.Position.Y + walkDirection.Y * walkSpeed * deltaTime);
+                var desiredPosition = new Vector2(transformation.Position.X + walkDirection.X * LotmGameConfig.PlayerMovementSpeed * deltaTime, transformation.Position.Y + walkDirection.Y * LotmGameConfig.PlayerMovementSpeed * deltaTime);
 
                 if (TryMovePosition(desiredPosition, world))
                 {
