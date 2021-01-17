@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static LOTM.Client.Engine.Graphics.OrthographicCamera;
+using static LOTM.Shared.Engine.Network.NetworkManager;
 
 namespace LOTM.Client.Game
 {
@@ -42,6 +43,8 @@ namespace LOTM.Client.Game
             : base(windowWidth, windowHeight, "Lair of the Midget", "Game/Assets/Textures/icon.png", new LotmNetworkManagerClient(connectionString))
         {
             NetworkClient = (LotmNetworkManagerClient)NetworkManager;
+            NetworkClient.PacketSendFailure += (sender, args) => HandlePacketSendFailure(args);
+
             PlayerGameObjectId = -1;
             DungeonRooms = new List<DungeonRoom>();
             State = GameState.Connecting;
@@ -298,7 +301,7 @@ namespace LOTM.Client.Game
                 }
             }
 
-            MaintainDungeonRooomBuffer();
+            MaintainDungeonRoomBuffer();
         }
 
         protected override void OnUpdate(double deltaTime)
@@ -550,7 +553,7 @@ namespace LOTM.Client.Game
             }
         }
 
-        protected void MaintainDungeonRooomBuffer()
+        protected void MaintainDungeonRoomBuffer()
         {
             if (State == GameState.Finished) return;
 
@@ -611,6 +614,27 @@ namespace LOTM.Client.Game
                             AddDungeonRoom(LevelGenerator.PrependRoom(DungeonRooms.First(x => x.RoomNumber == currentRoom.RoomNumber - nBelow + 1), LobbySize, WorldSeed));
                         }
                     }
+                }
+            }
+        }
+
+        protected void HandlePacketSendFailure(EventArgs args)
+        {
+            if (!(args is PacketSendFailureEventArgs failureEventArgs)) return;
+
+            switch (failureEventArgs.Packet)
+            {
+                case PlayerJoin _:
+                case DungeonRoomSyncRequest _:
+                {
+                    NetworkClient.SendPacket(failureEventArgs.Packet);
+                    break;
+                }
+
+                default:
+                {
+                    Console.WriteLine($"Dropped outbound packet {failureEventArgs.Packet}");
+                    break;
                 }
             }
         }

@@ -12,8 +12,10 @@ using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
 using LOTM.Shared.Game.Objects.Environment;
 using LOTM.Shared.Game.Objects.Interactable;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using static LOTM.Shared.Engine.Network.NetworkManager;
 
 namespace LOTM.Server.Game
 {
@@ -37,6 +39,8 @@ namespace LOTM.Server.Game
             : base(1.0 / 60, new LotmNetworkManagerServer(listenAddress))
         {
             NetworkServer = (LotmNetworkManagerServer)NetworkManager;
+            NetworkServer.PacketSendFailure += (sender, args) => HandlePacketSendFailure(args);
+
             Players = new Dictionary<string, PlayerBaseServer>();
             DungeonRooms = new List<DungeonRoom>();
             NextFreeEntityId = -1;
@@ -391,6 +395,32 @@ namespace LOTM.Server.Game
                         return true;
                     })).Select(x => x.RoomNumber).Max()
                 });
+            }
+        }
+
+        protected void HandlePacketSendFailure(EventArgs args)
+        {
+            if (!(args is PacketSendFailureEventArgs failureEventArgs)) return;
+
+            switch (failureEventArgs.Packet)
+            {
+                case DoorStateUpdate _:
+                case GameStateUpdate _:
+                case ObjectHealthUpdate _:
+                case ObjectPositionUpdate _:
+                case PickupStateUpdate _:
+                case PlayerCreation _:
+                case PlayerJoinAck _:
+                {
+                    NetworkServer.SendPacketTo(failureEventArgs.Packet, failureEventArgs.Recipient);
+                    break;
+                }
+
+                default:
+                {
+                    Console.WriteLine($"Dropped outbound packet {failureEventArgs.Packet}");
+                    break;
+                }
             }
         }
     }
