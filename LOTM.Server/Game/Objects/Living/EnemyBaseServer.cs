@@ -84,6 +84,8 @@ namespace LOTM.Server.Game.Objects.Living
                         }
                     }
 
+                    var posBefore = new Vector2(transformation.Position.X, transformation.Position.Y);
+
                     if (!TryReachPosition(targetPosition, targetCenter, deltaTime, world, out var missingMovement))
                     {
                         if (AxisMovementForce == null)
@@ -102,6 +104,18 @@ namespace LOTM.Server.Game.Objects.Living
                                 AxisMovementUnlockCondition = new Vector2(0, missingMovement.Y > 0 ? 1 : -1);
                             }
                         }
+                    }
+
+                    if (transformation.Position.X == posBefore.X && transformation.Position.Y == posBefore.Y)
+                    {
+                        //System.Console.WriteLine($"{System.DateTime.Now} Stuck!");
+
+                        //Target got stuck. Without proper pathfinding it will be hard to get unstuck in a meaningful way.
+                        //We rather just wait and sit here and wait for the player to kill the enemey.
+                        //If he does not kill the enemy, he can not progress any further :)
+                        AggroTarget = null;
+                        AxisMovementForce = null;
+                        AxisMovementUnlockCondition = null;
                     }
 
                     if (AxisMovementForce != null)
