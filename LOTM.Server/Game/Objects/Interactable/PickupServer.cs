@@ -76,7 +76,7 @@ namespace LOTM.Server.Game.Objects.Interactable
 
                         if (playerHealth.AddHealthPercentage(healthAmount))
                         {
-                            playerBaseServer.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = playerBaseServer.ObjectId, Health = playerHealth.CurrentHealth });
+                            playerBaseServer.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = playerBaseServer.ObjectId, Health = (float)playerHealth.CurrentHealth });
                         }
                     }
 
@@ -103,7 +103,7 @@ namespace LOTM.Server.Game.Objects.Interactable
 
                         if (playerHealth.AddHealthPercentage(healthAmount))
                         {
-                            playerBaseServer.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = playerBaseServer.ObjectId, Health = playerHealth.CurrentHealth });
+                            playerBaseServer.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = playerBaseServer.ObjectId, Health = (float)playerHealth.CurrentHealth });
                         }
                     }
 

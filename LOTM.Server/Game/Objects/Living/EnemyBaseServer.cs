@@ -195,8 +195,8 @@ namespace LOTM.Server.Game.Objects.Living
             GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectPositionUpdate
             {
                 ObjectId = ObjectId,
-                PositionX = transformation.Position.X,
-                PositionY = transformation.Position.Y,
+                PositionX = (float)transformation.Position.X,
+                PositionY = (float)transformation.Position.Y,
             });
 
             return success;
@@ -216,7 +216,7 @@ namespace LOTM.Server.Game.Objects.Living
                         var targetHealth = target.GetComponent<Health>();
                         if (targetHealth.DepleteHealthPercentage(Damage * deltaTime))
                         {
-                            target.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = target.ObjectId, Health = targetHealth.CurrentHealth });
+                            target.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = target.ObjectId, Health = (float)targetHealth.CurrentHealth });
                         }
 
                         return true;

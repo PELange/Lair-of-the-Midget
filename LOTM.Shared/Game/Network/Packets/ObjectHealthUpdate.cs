@@ -9,13 +9,13 @@ namespace LOTM.Shared.Game.Network.Packets
         {
         }
 
-        public double Health { get; set; }
+        public float Health { get; set; }
 
         public override void ReadBytes(BinaryReader reader)
         {
             base.ReadBytes(reader);
 
-            Health = reader.ReadDouble();
+            Health = reader.ReadSingle();
         }
 
         public override void WriteBytes(BinaryWriter writer)

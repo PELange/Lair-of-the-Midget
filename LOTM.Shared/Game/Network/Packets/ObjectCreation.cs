@@ -11,20 +11,20 @@ namespace LOTM.Shared.Game.Network.Packets
         }
 
         public ObjectType Type { get; set; }
-        public double PositionX { get; set; }
-        public double PositionY { get; set; }
-        public double ScaleX { get; set; }
-        public double ScaleY { get; set; }
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
+        public float ScaleX { get; set; }
+        public float ScaleY { get; set; }
 
         public override void ReadBytes(BinaryReader reader)
         {
             base.ReadBytes(reader);
 
             Type = (ObjectType)reader.ReadInt16();
-            PositionX = reader.ReadDouble();
-            PositionY = reader.ReadDouble();
-            ScaleX = reader.ReadDouble();
-            ScaleY = reader.ReadDouble();
+            PositionX = reader.ReadSingle();
+            PositionY = reader.ReadSingle();
+            ScaleX = reader.ReadSingle();
+            ScaleY = reader.ReadSingle();
         }
 
         public override void WriteBytes(BinaryWriter writer)

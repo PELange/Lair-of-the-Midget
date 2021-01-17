@@ -171,10 +171,10 @@ namespace LOTM.Server.Game
                         RequiresAck = true, //Guaranteed delivery!
                         ObjectId = playerObject.ObjectId,
                         Type = playerObject.Type,
-                        PositionX = spawnPos.X,
-                        PositionY = spawnPos.Y,
-                        ScaleX = playerObject.GetComponent<Transformation2D>().Scale.X,
-                        ScaleY = playerObject.GetComponent<Transformation2D>().Scale.Y,
+                        PositionX = (float)spawnPos.X,
+                        PositionY = (float)spawnPos.Y,
+                        ScaleX = (float)playerObject.GetComponent<Transformation2D>().Scale.X,
+                        ScaleY = (float)playerObject.GetComponent<Transformation2D>().Scale.Y,
                         Health = spawnHp,
                         Name = playerJoin.PlayerName,
                     });
@@ -202,11 +202,11 @@ namespace LOTM.Server.Game
                     RequiresAck = true, //Guaranteed delivery!
                     ObjectId = existingPlayer.ObjectId,
                     Type = existingPlayer.Type,
-                    PositionX = playerObjTransform.Position.X,
-                    PositionY = playerObjTransform.Position.Y,
-                    ScaleX = playerObjTransform.Scale.X,
-                    ScaleY = playerObjTransform.Scale.Y,
-                    Health = playerObjHealth.CurrentHealth,
+                    PositionX = (float)playerObjTransform.Position.X,
+                    PositionY = (float)playerObjTransform.Position.Y,
+                    ScaleX = (float)playerObjTransform.Scale.X,
+                    ScaleY = (float)playerObjTransform.Scale.Y,
+                    Health = (float)playerObjHealth.CurrentHealth,
                     Name = playerObjInfo.Name,
                 }, playerJoin.Sender);
             }
@@ -343,15 +343,15 @@ namespace LOTM.Server.Game
                 {
                     RequiresAck = true, //Ensure client gets this packet
                     ObjectId = enemy.ObjectId,
-                    PositionX = transform.Position.X,
-                    PositionY = transform.Position.Y,
+                    PositionX = (float)transform.Position.X,
+                    PositionY = (float)transform.Position.Y,
                 }, syncRequest.Sender);
 
                 //Sync health
                 NetworkServer.SendPacketTo(new ObjectHealthUpdate
                 {
                     ObjectId = enemy.ObjectId,
-                    Health = enemy.GetComponent<Health>().CurrentHealth
+                    Health = (float)enemy.GetComponent<Health>().CurrentHealth
                 }, syncRequest.Sender);
             }
 

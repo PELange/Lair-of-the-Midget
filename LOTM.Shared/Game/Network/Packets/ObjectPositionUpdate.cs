@@ -9,15 +9,15 @@ namespace LOTM.Shared.Game.Network.Packets
         {
         }
 
-        public double PositionX { get; set; }
-        public double PositionY { get; set; }
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
 
         public override void ReadBytes(BinaryReader reader)
         {
             base.ReadBytes(reader);
 
-            PositionX = reader.ReadDouble();
-            PositionY = reader.ReadDouble();
+            PositionX = reader.ReadSingle();
+            PositionY = reader.ReadSingle();
         }
 
         public override void WriteBytes(BinaryWriter writer)

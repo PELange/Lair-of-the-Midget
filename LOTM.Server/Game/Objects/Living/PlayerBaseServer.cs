@@ -82,8 +82,8 @@ namespace LOTM.Server.Game.Objects
                     networkSynchronization.PacketsOutbound.Enqueue(new ObjectPositionUpdate
                     {
                         ObjectId = ObjectId,
-                        PositionX = transformation.Position.X,
-                        PositionY = transformation.Position.Y,
+                        PositionX = (float)transformation.Position.X,
+                        PositionY = (float)transformation.Position.Y,
                     });
                 }
             }
@@ -128,7 +128,7 @@ namespace LOTM.Server.Game.Objects
 
                     if (enemyHealth.DepleteHealthTotal(25))
                     {
-                        enemy.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = enemy.ObjectId, Health = enemyHealth.CurrentHealth });
+                        enemy.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = enemy.ObjectId, Health = (float)enemyHealth.CurrentHealth });
                     }
                 }
             }
