@@ -262,10 +262,27 @@ namespace LOTM.Server.Game
                 }
             }
 
+            DungeonRooms.Add(dungeonRoom);
+
+            //Resize world to make sure all rooms fit in it
+            var highestRoom = DungeonRooms.OrderByDescending(x => x.RoomNumber).FirstOrDefault();
+            var lowestRoom = DungeonRooms.OrderBy(x => x.RoomNumber).FirstOrDefault();
+
+            if (highestRoom != null && lowestRoom != null)
+            {
+                var left = highestRoom.Position.X - highestRoom.Size.X / 2.0;
+                var top = highestRoom.Position.Y - highestRoom.Size.Y - 16; //10 offset for top of the room
+
+                var right = lowestRoom.Position.X + lowestRoom.Size.X / 2.0;
+                var bottom = lowestRoom.Position.Y;
+
+                World.Resize(left, top, right - left, bottom - top);
+
+                //System.Console.WriteLine($"Resized world to {left}, {top}, {right - left}, {bottom - top}");
+            }
+
             //Add the relevant objects to the world
             dungeonRoom.Objects.ForEach(obj => World.AddObject(obj));
-
-            DungeonRooms.Add(dungeonRoom);
         }
 
         protected void MaintainDungeonRooomBuffer()

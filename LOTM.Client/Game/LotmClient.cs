@@ -205,7 +205,8 @@ namespace LOTM.Client.Game
             //Misc
             AssetManager.RegisterSpriteByGridIndex("dungeonTiles", 16, new Vector4Int(18, 20, 18, 20), "skull");
 
-            //Setup inital states
+            //Setup inital world
+            World.Resize(0, 0, 100, 100);
 
             //Join screen
             Camera.SetViewport(new Viewport(new Vector2(0, 0), new Vector2(100, 100)));
@@ -216,8 +217,6 @@ namespace LOTM.Client.Game
         protected override void OnBeforeUpdate()
         {
             base.OnBeforeUpdate();
-
-            //todo free up distant world object
         }
 
         protected override void OnFixedUpdate(double deltaTime)
@@ -507,9 +506,27 @@ namespace LOTM.Client.Game
                 dungeonRoom.Objects.Add(new TextCanvas(dungeonRoom.RoomNumber * 10000, new Vector2(dungeonRoom.Position.X - 48, dungeonRoom.Position.Y - 86), $"Room {dungeonRoom.RoomNumber}"));
             }
 
+            DungeonRooms.Add(dungeonRoom);
+
+            //Resize world to make sure all rooms fit in it
+            var highestRoom = DungeonRooms.OrderByDescending(x => x.RoomNumber).FirstOrDefault();
+            var lowestRoom = DungeonRooms.OrderBy(x => x.RoomNumber).FirstOrDefault();
+
+            if (highestRoom != null && lowestRoom != null)
+            {
+                var left = highestRoom.Position.X - highestRoom.Size.X / 2.0;
+                var top = highestRoom.Position.Y - highestRoom.Size.Y - 16; //10 offset for top of the room
+
+                var right = lowestRoom.Position.X + lowestRoom.Size.X / 2.0;
+                var bottom = lowestRoom.Position.Y;
+
+                World.Resize(left, top, right - left, bottom - top);
+
+                //System.Console.WriteLine($"Resized world to {left}, {top}, {right - left}, {bottom - top}");
+            }
+
             //Add objects to world and remeber the room meta data
             dungeonRoom.Objects.ForEach(x => World.AddObject(x));
-            DungeonRooms.Add(dungeonRoom);
 
             //Request network updates for any created room, unless its the spawnroom
             if (dungeonRoom.RoomNumber > 0)

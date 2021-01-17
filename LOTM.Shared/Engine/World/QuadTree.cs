@@ -21,6 +21,11 @@ namespace LOTM.Shared.Engine.World
             Objects = new List<GameObject>();
         }
 
+        public Rectangle GetDimenstions()
+        {
+            return BoundingRect;
+        }
+
         protected int Count
         {
             get

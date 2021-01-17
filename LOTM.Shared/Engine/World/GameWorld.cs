@@ -11,16 +11,44 @@ namespace LOTM.Shared.Engine.World
         protected List<GameObject> DynamicObjects { get; }
         protected Dictionary<int, GameObject> DynamicObjectLookupCache { get; }
 
-        protected QuadTree StaticObjects { get; }
+        protected QuadTree StaticObjects { get; set; }
         protected Dictionary<int, GameObject> StaticObjectLookupCache { get; }
 
         public GameWorld()
         {
             DynamicObjects = new List<GameObject>();
             DynamicObjectLookupCache = new Dictionary<int, GameObject>();
-
-            StaticObjects = new QuadTree(new Rectangle(-10_000, -10_000, 20_000, 20_000)); //Todo adjust quadtree to dungeon dimensions -> use world constructor parameter for this?
             StaticObjectLookupCache = new Dictionary<int, GameObject>();
+        }
+
+        public void Resize(double x, double y, double width, double height)
+        {
+            //Check if the new dimensions are different to the old ones
+            if (StaticObjects != null)
+            {
+                var oldDims = StaticObjects.GetDimenstions();
+
+                if (x == oldDims.X &&
+                    y == oldDims.Y &&
+                    width == oldDims.Width &&
+                    height == oldDims.Height)
+                {
+                    return;
+                }
+            }
+
+            //First time setting up quadtree
+            if (StaticObjects == null)
+            {
+                StaticObjects = new QuadTree(new Rectangle(x, y, width, height));
+                return;
+            }
+
+            var existingObjects = StaticObjects.GetAllObjects();
+
+            StaticObjects = new QuadTree(new Rectangle(x, y, width, height));
+
+            existingObjects.ForEach(x => StaticObjects.Add(x));
         }
 
         public void AddObject(GameObject gameObject)
