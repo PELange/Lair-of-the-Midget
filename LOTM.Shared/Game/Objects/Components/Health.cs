@@ -15,7 +15,7 @@ namespace LOTM.Shared.Game.Objects.Components
 
         public bool AddHealthTotal(double amount)
         {
-            if (CurrentHealth >= 1) return false;
+            if (CurrentHealth >= MaxHealth) return false;
 
             CurrentHealth = System.Math.Min(MaxHealth, CurrentHealth + amount);
 
