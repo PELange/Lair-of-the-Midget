@@ -57,7 +57,7 @@ namespace LOTM.Server.Game.Objects.Interactable
                 case ObjectType.Pickup_Health_Minor:
                 case ObjectType.Pickup_Health_Major:
                 {
-                    if (collidingObjets.OrderBy(x => x.Item2).Select(x => x.Item1).FirstOrDefault() is PlayerBaseServer playerBaseServer)
+                    if (collidingObjets.Where(x => !x.Item1.GetComponent<Health>().IsDead()).OrderBy(x => x.Item2).Select(x => x.Item1).FirstOrDefault() is PlayerBaseServer playerBaseServer)
                     {
                         //Deactive pickup
                         Active = false;
