@@ -14,7 +14,7 @@ namespace LOTM.Shared.Game.Objects
 
             Components.Add(new NetworkSynchronization());
 
-            Components.Add(new Health(100, health));
+            Components.Add(new Health(health, health));
         }
     }
 }
