@@ -25,6 +25,8 @@ namespace LOTM.Shared.Engine.Network
         private ConcurrentQueue<(NetworkPacket, IPEndPoint)> SendQueue { get; }
         private ConcurrentDictionary<int, AwaitingAckEntry> AwaitingAck { get; }
 
+        //private Random Random { get; } = new Random();
+
         private class AwaitingAckEntry
         {
             public NetworkPacket Packet { get; set; }
@@ -67,6 +69,12 @@ namespace LOTM.Shared.Engine.Network
             Socket.OnMessageReceived = (socket, packet) =>
             {
                 //PacketsReceived++;
+
+                ////Simulate packet loss
+                //if (Random.Next(0, 3) == 1)
+                //{
+                //    return;
+                //}
 
                 //Unpack the packet into NetworkPaket C# instance
                 var networkPacket = NetworkPacketSerializationProvider.DeserializePacket(packet.data, packet.senderEndpoint);
