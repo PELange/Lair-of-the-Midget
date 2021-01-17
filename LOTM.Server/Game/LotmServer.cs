@@ -384,6 +384,8 @@ namespace LOTM.Server.Game
 
             if (Players.Values.All(x => x.GetComponent<Health>().IsDead()))
             {
+                State = GameState.Finished;
+
                 NetworkServer.Broadcast(new GameStateUpdate
                 {
                     RequiresAck = true,
