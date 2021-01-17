@@ -16,6 +16,9 @@ namespace LOTM.Server.Game.Objects.Living
         protected double AggroRadius { get; set; }
         protected double Damage { get; set; }
 
+        public Vector2 TargetPositionOverride { get; set; }
+        public Vector2 TargetPositionCenterOverride { get; set; }
+
         public EnemyBaseServer(int objectId, ObjectType type, Vector2 position = default, Vector2 scale = default, Rectangle colliderInfo = default, double health = default)
             : base(objectId, type, position, scale, colliderInfo, health)
         {
@@ -36,6 +39,7 @@ namespace LOTM.Server.Game.Objects.Living
             if (GetComponent<Health>().IsDead())
             {
                 AggroTarget = null; //Enemy died
+                TargetPositionCenterOverride = null;
             }
             else if (AggroTarget == null) //No target, find one
             {
@@ -44,6 +48,7 @@ namespace LOTM.Server.Game.Objects.Living
             else if (AggroTarget.GetComponent<Health>().IsDead()) //Enemy has target but it died, find new one
             {
                 AggroTarget = null;
+                TargetPositionCenterOverride = null;
             }
             else
             {
@@ -51,7 +56,45 @@ namespace LOTM.Server.Game.Objects.Living
                 if (!TryHitTarget(AggroTarget, deltaTime))
                 {
                     //If it was not possible we must get closer to the target
-                    TryReachTarget(AggroTarget, deltaTime, world);
+                    var playerCollider = AggroTarget.GetComponent<Collider>().AsBoundingBoxes().First();
+                    var targetCenter = new Vector2(playerCollider.X + playerCollider.Width / 2.0, playerCollider.Y + playerCollider.Height / 2.0);
+                    var targetPosition = AggroTarget.GetComponent<Transformation2D>().Position;
+
+                    if (TargetPositionOverride != null && TargetPositionCenterOverride != null)
+                    {
+                        targetCenter = TargetPositionCenterOverride;
+                        targetPosition = TargetPositionOverride;
+
+                        var transformation = GetComponent<Transformation2D>();
+
+                        if (transformation.Position.X == targetPosition.X && transformation.Position.Y == targetPosition.Y)
+                        {
+                            TargetPositionOverride = null;
+                            TargetPositionCenterOverride = null;
+                        }
+                    }
+
+                    if (!TryReachPosition(targetPosition, targetCenter, deltaTime, world, out var missingMovement))
+                    {
+                        var transformation = GetComponent<Transformation2D>();
+                        var posRect = GetComponent<Collider>().AsBoundingBoxes().First();
+                        var enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
+
+                        if (missingMovement.X != 0 && System.Math.Abs(missingMovement.X) > System.Math.Abs(missingMovement.Y))
+                        {
+                            var moveY = targetCenter.Y > enemyCenter.Y ? 17 : -17;
+
+                            TargetPositionOverride = new Vector2(transformation.Position.X, transformation.Position.Y + moveY);
+                            TargetPositionCenterOverride = new Vector2(enemyCenter.X, enemyCenter.Y + moveY);
+                        }
+                        else if (missingMovement.Y != 0 && System.Math.Abs(missingMovement.Y) > System.Math.Abs(missingMovement.X))
+                        {
+                            var moveX = targetCenter.X > enemyCenter.X ? 17 : -17;
+
+                            TargetPositionOverride = new Vector2(transformation.Position.X + moveX, transformation.Position.Y);
+                            TargetPositionCenterOverride = new Vector2(enemyCenter.X + moveX, enemyCenter.Y);
+                        }
+                    }
                 }
             }
         }
@@ -81,16 +124,14 @@ namespace LOTM.Server.Game.Objects.Living
             }).FirstOrDefault();
         }
 
-        bool TryReachTarget(PlayerBaseServer target, double deltaTime, GameWorld world)
+        bool TryReachPosition(Vector2 targetPosition, Vector2 targetCenter, double deltaTime, GameWorld world, out Vector2 missingMovement)
         {
+            missingMovement = Vector2.ZERO;
+
             var transformation = GetComponent<Transformation2D>();
             var posRect = GetComponent<Collider>().AsBoundingBoxes().First();
             var enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
 
-            var playerCollider = target.GetComponent<Collider>().AsBoundingBoxes().First();
-            var targetCenter = new Vector2(playerCollider.X + playerCollider.Width / 2.0, playerCollider.Y + playerCollider.Height / 2.0);
-
-            var playerTransform = target.GetComponent<Transformation2D>();
             var walkDirection = new Vector2(targetCenter.X - enemyCenter.X, targetCenter.Y - enemyCenter.Y);
 
             if (walkDirection.X == 0 && walkDirection.Y == 0)
@@ -106,57 +147,40 @@ namespace LOTM.Server.Game.Objects.Living
 
             if (walkDirection.X > 0)
             {
-                nextPosition.X = System.Math.Min(playerTransform.Position.X, nextPosition.X);
+                nextPosition.X = System.Math.Min(targetPosition.X, nextPosition.X);
             }
             else if (walkDirection.X < 0)
             {
-                nextPosition.X = System.Math.Max(playerTransform.Position.X, nextPosition.X);
+                nextPosition.X = System.Math.Max(targetPosition.X, nextPosition.X);
             }
 
             if (walkDirection.Y > 0)
             {
-                nextPosition.Y = System.Math.Min(playerTransform.Position.Y, nextPosition.Y);
+                nextPosition.Y = System.Math.Min(targetPosition.Y, nextPosition.Y);
             }
             else if (walkDirection.Y < 0)
             {
-                nextPosition.Y = System.Math.Max(playerTransform.Position.Y, nextPosition.Y);
+                nextPosition.Y = System.Math.Max(targetPosition.Y, nextPosition.Y);
             }
+
+            var success = true;
 
             if (!TryMovePosition(nextPosition, world, false))
             {
-                //Get updated values after enemy movement
-                posRect = GetComponent<Collider>().AsBoundingBoxes().First();
-                enemyCenter = new Vector2(posRect.X + posRect.Width / 2.0, posRect.Y + posRect.Height / 2.0);
+                success = false;
 
-                var missingStep = new Vector2(nextPosition.X - transformation.Position.X, nextPosition.Y - transformation.Position.Y);
-                var remaininDirection = new Vector2(targetCenter.X - enemyCenter.X, targetCenter.Y - enemyCenter.Y);
-
-                //System.Console.WriteLine($"{System.DateTime.Now} <{missingStep.X};{missingStep.Y}>");
-
-                if (missingStep.Y != 0)
-                {
-                    nextPosition.X += 1 * WalkSpeed * deltaTime;
-                    nextPosition.Y = transformation.Position.Y;
-                }
-                else if (missingStep.X != 0)
-                {
-                    nextPosition.Y += 1 * WalkSpeed * deltaTime;
-                    nextPosition.X = transformation.Position.X;
-                }
-
-                TryMovePosition(nextPosition, world);
+                missingMovement = new Vector2(nextPosition.X - transformation.Position.X, nextPosition.Y - transformation.Position.Y);
             }
 
-            var networkSynchronization = GetComponent<NetworkSynchronization>();
-
-            networkSynchronization.PacketsOutbound.Enqueue(new ObjectPositionUpdate
+            //Sync the position change, be it partial success or full movement
+            GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectPositionUpdate
             {
                 ObjectId = ObjectId,
                 PositionX = transformation.Position.X,
                 PositionY = transformation.Position.Y,
             });
 
-            return true;
+            return success;
         }
 
         bool TryHitTarget(PlayerBaseServer target, double deltaTime)
