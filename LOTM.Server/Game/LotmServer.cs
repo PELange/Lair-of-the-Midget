@@ -45,8 +45,8 @@ namespace LOTM.Server.Game
 
         protected override void OnInit()
         {
-            //WorldSeed = new System.Random().Next(0, 100000);
-            WorldSeed = 120;
+            WorldSeed = new System.Random().Next(0, 100000);
+            //WorldSeed = 120;
 
             PreGenerateWorld();
         }
