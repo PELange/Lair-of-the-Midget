@@ -13,14 +13,49 @@ namespace LOTM.Shared.Game.Objects.Components
             CurrentHealth = currentHealth;
         }
 
-        public void DeplateHealthAbsolute(double amount)
+        public bool AddHealthTotal(double amount)
         {
-            CurrentHealth = System.Math.Max(0, CurrentHealth - amount);
+            if (CurrentHealth >= 1) return false;
+
+            CurrentHealth = System.Math.Min(MaxHealth, CurrentHealth + amount);
+
+            return true;
         }
 
-        public void AddHealthAbsolute(double amount)
+        /// <summary>
+        /// Adds health based on max hp
+        /// </summary>
+        /// <param name="amount">Percentage between 0.0 and 1.0</param>
+        /// <returns></returns>
+        public bool AddHealthPercentage(double amount)
         {
-            CurrentHealth = System.Math.Min(MaxHealth, CurrentHealth + amount);
+            return AddHealthTotal(MaxHealth * amount);
+        }
+
+
+        public bool DeplateHealthTotal(double amount)
+        {
+            if (CurrentHealth <= 0) return false;
+
+            CurrentHealth = System.Math.Max(0, CurrentHealth - amount);
+
+            return true;
+        }
+
+
+        /// <summary>
+        /// Adds health based on max hp
+        /// </summary>
+        /// <param name="amount">Percentage between 0.0 and 1.0</param>
+        /// <returns></returns>
+        public bool DeplateHealthPercentage(double amount)
+        {
+            return DeplateHealthTotal(MaxHealth * amount);
+        }
+
+        public bool IsDead()
+        {
+            return CurrentHealth <= 0;
         }
     }
 }

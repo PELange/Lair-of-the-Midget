@@ -54,19 +54,25 @@ namespace LOTM.Server.Game.Objects.Interactable
 
             if (collidingObjets.OrderBy(x => x.Item2).Select(x => x.Item1).FirstOrDefault() is PlayerBaseServer playerBaseServer)
             {
-                var healthAmount = Type switch
-                {
-                    ObjectType.Pickup_Health_Minor => 25,
-                    ObjectType.Pickup_Health_Major => 50,
-                    _ => 0
-                };
-
-                playerBaseServer.GetComponent<Health>().AddHealthAbsolute(healthAmount);
-
                 //Deactive pickup
                 Active = false;
 
                 GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new PickupStateUpdate { ObjectId = ObjectId, Active = Active });
+
+                //Add health to player
+                var playerHealth = playerBaseServer.GetComponent<Health>();
+
+                var healthAmount = Type switch
+                {
+                    ObjectType.Pickup_Health_Minor => 0.25,
+                    ObjectType.Pickup_Health_Major => 0.50,
+                    _ => 0
+                };
+
+                if (playerHealth.AddHealthPercentage(healthAmount))
+                {
+                    playerBaseServer.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = playerBaseServer.ObjectId, Health = playerHealth.CurrentHealth });
+                }
             }
         }
     }

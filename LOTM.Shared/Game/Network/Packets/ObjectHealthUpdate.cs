@@ -5,7 +5,7 @@ namespace LOTM.Shared.Game.Network.Packets
 {
     public class ObjectHealthUpdate : ObjectBoundPacket
     {
-        public ObjectHealthUpdate(IPEndPoint sender = default) : base(sender)
+        public ObjectHealthUpdate(IPEndPoint sender = default) : base(sender, true)
         {
         }
 

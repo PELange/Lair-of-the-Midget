@@ -315,7 +315,6 @@ namespace LOTM.Server.Game
                 //Sync health
                 NetworkServer.SendPacketTo(new ObjectHealthUpdate
                 {
-                    RequiresAck = true, //Ensure client gets this packet
                     ObjectId = enemy.ObjectId,
                     Health = enemy.GetComponent<Health>().CurrentHealth
                 }, syncRequest.Sender);
