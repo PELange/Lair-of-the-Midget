@@ -203,8 +203,8 @@ namespace LOTM.Shared.Game.Logic
         /// </summary>
         public void CreateEnemies()
         {
-            int maxEnemyCount = PlayerCount * 2;
-            int enemyCount = Random.Next(maxEnemyCount / 2, maxEnemyCount + 1);
+            int maxEnemyCount = PlayerCount * 2 + (int)RoomNumber / 3;
+            int enemyCount = Math.Min(Random.Next(maxEnemyCount / 2, maxEnemyCount + 1), (Width * Height) / 2);
 
             while (enemyCount > 0)
             {
@@ -304,7 +304,7 @@ namespace LOTM.Shared.Game.Logic
         {
             foreach (Vector2 vec in ObjectCoordList)
             {
-                if (vec.X == vector.X && vec.Y == vector.Y) return true;
+                if (vec == null || (vec.X == vector.X && vec.Y == vector.Y)) return true;
             }
             return false;
         }
