@@ -157,16 +157,9 @@ namespace LOTM.Server.Game
                 {
                     playerObject.OnFixedUpdate(deltaTime, World);
 
-                    var networkSynchronization = playerObject.GetComponent<NetworkSynchronization>();
-
-                    var relevantEndpoints = playerRects.Where(playerRect => playerRect.Item2.IntersectsWith(playerObject.GetComponent<Transformation2D>().GetBoundingBox())).Select(x => x.Item1).ToList();
-
-                    while (networkSynchronization.PacketsOutbound.TryDequeue(out var outbound))
+                    while (playerObject.GetComponent<NetworkSynchronization>().PacketsOutbound.TryDequeue(out var outbound))
                     {
-                        foreach (var playerReceiver in relevantEndpoints)
-                        {
-                            NetworkServer.SendPacketTo(outbound, playerReceiver);
-                        }
+                        NetworkServer.Broadcast(outbound);
                     }
                 }
             }
