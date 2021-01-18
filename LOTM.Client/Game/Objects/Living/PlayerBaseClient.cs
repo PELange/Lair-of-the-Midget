@@ -137,7 +137,11 @@ namespace LOTM.Client.Game.Objects.Player
 
             //Show body
             spriteRenderer.Segments[0].Active = true;
-            spriteRenderer.Segments[0].Color = health.IsDead() ? new Vector4(1, 1, 1, 0.3) : Vector4.ONE;
+
+            if (health.IsDead())
+            {
+                spriteRenderer.Segments[0].Color = new Vector4(1, 1, 1, 0.3);
+            }
 
             //Hide skull
             spriteRenderer.Segments[3].Active = false;

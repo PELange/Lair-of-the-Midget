@@ -34,6 +34,8 @@ namespace LOTM.Client.Game.Objects
         protected bool IsPlayer { get; set; }
         private Vector2 LatestServerPosition { get; set; }
 
+        private DateTime LastDamageTime { get; set; }
+
         public LivingObjectClient(int objectId, ObjectType type, Vector2 position, Vector2 scale, Rectangle colliderInfo, double health)
             : base(objectId, type, position, scale, colliderInfo, health)
         {
@@ -117,7 +119,14 @@ namespace LOTM.Client.Game.Objects
                 {
                     LastHealthUpdatePacketId = objectHealthUpdate.Id;
 
-                    GetComponent<Health>().CurrentHealth = objectHealthUpdate.Health;
+                    var health = GetComponent<Health>();
+
+                    if (objectHealthUpdate.Health < health.CurrentHealth)
+                    {
+                        LastDamageTime = DateTime.Now;
+                    }
+
+                    health.CurrentHealth = objectHealthUpdate.Health;
                 }
             }
 
@@ -196,6 +205,7 @@ namespace LOTM.Client.Game.Objects
             var spriteRenderer = GetComponent<SpriteRenderer>();
             spriteRenderer.Segments[0].Sprite = GetCurrentBodySprite();
             spriteRenderer.Segments[0].VerticalFlip = IsLeft;
+            spriteRenderer.Segments[0].Color = (DateTime.Now - LastDamageTime).TotalMilliseconds < 150 ? new Vector4(1, 0.2, 0.2, 1) : Vector4.ONE;
 
             //4. Update health related visuals
             var health = GetComponent<Health>();
