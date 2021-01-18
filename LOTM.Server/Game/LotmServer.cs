@@ -100,7 +100,6 @@ namespace LOTM.Server.Game
             if (State == GameState.Gameplay)
             {
                 var playerRects = new List<(string, Rectangle)>();
-                var allVisibleObjects = new HashSet<GameObject>();
 
                 foreach (var entry in Players)
                 {
@@ -109,36 +108,64 @@ namespace LOTM.Server.Game
                     var playerCenter = new Vector2(transformation.Position.X + transformation.Scale.X / 2.0, transformation.Position.Y + transformation.Scale.Y / 2.0);
 
                     var searchRect = new Rectangle(
-                        playerCenter.X - LotmGameConfig.MaxRenderDistance,
-                        playerCenter.Y - LotmGameConfig.MaxRenderDistance,
-                        LotmGameConfig.MaxRenderDistance * 2,
-                        LotmGameConfig.MaxRenderDistance * 2);
+                        playerCenter.X - LotmGameConfig.MaxSimulationDistance,
+                        playerCenter.Y - LotmGameConfig.MaxSimulationDistance,
+                        LotmGameConfig.MaxSimulationDistance * 2,
+                        LotmGameConfig.MaxSimulationDistance * 2);
 
                     playerRects.Add((entry.Key, searchRect));
-
-                    //Add objects that the player could see to overerall collection
-                    World.GetObjectsInArea(searchRect).ToList().ForEach(x => allVisibleObjects.Add(x));
                 }
 
-                //Run fixed simulation on all relevant world objects
-                foreach (var worldObject in allVisibleObjects)
+                //Go through all rooms
+                foreach (var room in DungeonRooms)
                 {
-                    worldObject.OnFixedUpdate(deltaTime, World);
-                }
+                    var roomRect = new Rectangle(
+                        room.Position.X - room.Size.X / 2.0,
+                        room.Position.Y - room.Size.Y,
+                        room.Size.X,
+                        room.Size.Y);
 
-                //Process broadcast all outbound packets
-                foreach (var gameObject in allVisibleObjects)
-                {
-                    if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
+                    var playersInRoom = playerRects.Where(x => x.Item2.IntersectsWith(roomRect)).ToList();
+
+                    //System.Console.WriteLine($"Room {room.RoomNumber}: {playersInRoom.Count} players.");
+
+                    //Any room that could be in simulation distance of a player has to be handled
+                    if (playersInRoom.Count > 0)
                     {
-                        var relevantEndpoints = playerRects.Where(playerRect => playerRect.Item2.IntersectsWith(gameObject.GetComponent<Transformation2D>().GetBoundingBox())).Select(x => x.Item1).ToList();
-
-                        while (networkSynchronization.PacketsOutbound.TryDequeue(out var outbound))
+                        foreach (var roomObject in room.Objects)
                         {
-                            foreach (var playerReceiver in relevantEndpoints)
+                            //Advance room object simulations
+                            roomObject.OnFixedUpdate(deltaTime, World);
+
+                            //Send updates about room objects to all players that were in range of this room
+                            if (roomObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
                             {
-                                NetworkServer.SendPacketTo(outbound, playerReceiver);
+                                while (networkSynchronization.PacketsOutbound.TryDequeue(out var outbound))
+                                {
+                                    foreach (var playerReceiver in playersInRoom.Select(x => x.Item1))
+                                    {
+                                        NetworkServer.SendPacketTo(outbound, playerReceiver);
+                                    }
+                                }
                             }
+                        }
+                    }
+                }
+
+                //Run fixed simulation for all players
+                foreach (var playerObject in Players.Values)
+                {
+                    playerObject.OnFixedUpdate(deltaTime, World);
+
+                    var networkSynchronization = playerObject.GetComponent<NetworkSynchronization>();
+
+                    var relevantEndpoints = playerRects.Where(playerRect => playerRect.Item2.IntersectsWith(playerObject.GetComponent<Transformation2D>().GetBoundingBox())).Select(x => x.Item1).ToList();
+
+                    while (networkSynchronization.PacketsOutbound.TryDequeue(out var outbound))
+                    {
+                        foreach (var playerReceiver in relevantEndpoints)
+                        {
+                            NetworkServer.SendPacketTo(outbound, playerReceiver);
                         }
                     }
                 }

@@ -294,16 +294,7 @@ namespace LOTM.Client.Game
                     NetworkClient.SendPacket(playerInput);
                 }
 
-                //Run fixed simulation on all relevant world objects
-                var viewPort = Camera.GetViewport();
-                var preloadPadding = 16 * 3;
-                var searchRect = new Rectangle(
-                    viewPort.TopLeft.X - preloadPadding,
-                    viewPort.TopLeft.Y - preloadPadding,
-                    System.Math.Abs(viewPort.BottomRight.X - viewPort.TopLeft.X) + preloadPadding * 2,
-                    System.Math.Abs(viewPort.BottomRight.Y - viewPort.TopLeft.Y) + preloadPadding * 2);
-
-                foreach (var worldObject in World.GetObjectsInArea(searchRect))
+                foreach (var worldObject in World.GetAllObjects())
                 {
                     worldObject.OnFixedUpdate(deltaTime, World);
                 }
@@ -317,16 +308,7 @@ namespace LOTM.Client.Game
 
         protected override void OnUpdate(double deltaTime)
         {
-            //Run onEachFrame simulation on all relevant world objects
-            var viewPort = Camera.GetViewport();
-            var preloadPadding = 16 * 3;
-            var searchRect = new Rectangle(
-                viewPort.TopLeft.X - preloadPadding,
-                viewPort.TopLeft.Y - preloadPadding,
-                System.Math.Abs(viewPort.BottomRight.X - viewPort.TopLeft.X) + preloadPadding * 2,
-                System.Math.Abs(viewPort.BottomRight.Y - viewPort.TopLeft.Y) + preloadPadding * 2);
-
-            foreach (var worldObject in World.GetObjectsInArea(searchRect))
+            foreach (var worldObject in World.GetAllObjects())
             {
                 worldObject.OnUpdate(deltaTime);
             }
@@ -400,7 +382,7 @@ namespace LOTM.Client.Game
             if (State != GameState.Gameplay) return;
 
             var cameraCenterPos = Vector2.ZERO;
-            var renderRadius = System.Math.Min(16 * 6, LotmGameConfig.MaxRenderDistance);
+            var renderRadius = System.Math.Min(16 * 6, LotmGameConfig.MaxSimulationDistance);
 
             //Try find the player object if we did not already have it
             if (PlayerObject == null)
