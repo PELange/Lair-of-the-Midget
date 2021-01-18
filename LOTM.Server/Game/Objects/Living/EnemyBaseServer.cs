@@ -5,6 +5,7 @@ using LOTM.Shared.Game.Logic;
 using LOTM.Shared.Game.Network.Packets;
 using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,15 +16,18 @@ namespace LOTM.Server.Game.Objects.Living
         protected PlayerBaseServer AggroTarget { get; set; }
         protected double AggroRadius { get; set; }
         protected double Damage { get; set; }
+        protected double AttackCooldown { get; set; }
+        protected DateTime LastAttack { get; set; }
 
-        public Vector2 AxisMovementForce { get; set; }
-        public Vector2 AxisMovementUnlockCondition { get; set; }
+        protected Vector2 AxisMovementForce { get; set; }
+        protected Vector2 AxisMovementUnlockCondition { get; set; }
 
         public EnemyBaseServer(int objectId, ObjectType type, Vector2 position = default, Vector2 scale = default, Rectangle colliderInfo = default, double health = default)
             : base(objectId, type, position, scale, colliderInfo, health)
         {
             AggroRadius = 16 * 4;
-            Damage = 0.25; //25% per second
+            AttackCooldown = 1000; //in ms
+            Damage = 10;
         }
 
         public override void OnFixedUpdate(double deltaTime, GameWorld world)
@@ -211,11 +215,16 @@ namespace LOTM.Server.Game.Objects.Living
                     {
                         //Enemy is in contact with the target and can now damage him
 
-                        //Deplate target health 
-                        var targetHealth = target.GetComponent<Health>();
-                        if (targetHealth.DepleteHealthPercentage(Damage * deltaTime))
+                        if ((DateTime.Now - LastAttack).TotalMilliseconds > AttackCooldown)
                         {
-                            target.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = target.ObjectId, Health = (float)targetHealth.CurrentHealth });
+                            LastAttack = DateTime.Now;
+
+                            //Deplate target health 
+                            var targetHealth = target.GetComponent<Health>();
+                            if (targetHealth.DepleteHealthTotal(Damage))
+                            {
+                                target.GetComponent<NetworkSynchronization>().PacketsOutbound.Enqueue(new ObjectHealthUpdate { ObjectId = target.ObjectId, Health = (float)targetHealth.CurrentHealth });
+                            }
                         }
 
                         return true;
