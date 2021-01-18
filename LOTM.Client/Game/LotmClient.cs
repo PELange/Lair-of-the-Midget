@@ -313,7 +313,7 @@ namespace LOTM.Client.Game
                 worldObject.OnUpdate(deltaTime);
             }
 
-            DebugCollisions();
+            //DebugCollisions();
 
             UpdateSpectator();
         }
