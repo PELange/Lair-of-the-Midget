@@ -29,8 +29,6 @@ namespace LOTM.Shared.Engine.Network
 
         public Func<(NetworkPacket, IPEndPoint), bool> PacketSendFailureCallback { get; set; }
 
-        //private Random Random { get; } = new Random();
-
         private class AwaitingAckEntry
         {
             public NetworkPacket Packet { get; set; }
@@ -41,6 +39,7 @@ namespace LOTM.Shared.Engine.Network
 
         private NetworkPacketSerializationProvider NetworkPacketSerializationProvider { get; }
 
+        //private Random Random { get; } = new Random();
         //private System.Timers.Timer DiagnosticsTimer { get; }
         //public int PacketsReceived { get; set; }
         //public int PacketsSent { get; set; }
@@ -63,11 +62,10 @@ namespace LOTM.Shared.Engine.Network
                 //PacketsReceived++;
 
                 ////Simulate packet loss
-                //if (Random.Next(0, 3) == 1)
+                //if (Random.Next(0, 5) == 1)
                 //{
                 //    return;
                 //}
-
 
                 //Split UDP packet into messages
                 using MemoryStream memoryStream = new MemoryStream(packet.data);
@@ -214,8 +212,6 @@ namespace LOTM.Shared.Engine.Network
                                 LastAttemt = DateTime.Now //Second timestamp = last time we tried sending
                             });
                         }
-
-                        //PacketsSent++;
                     }
                 }
 
@@ -256,6 +252,8 @@ namespace LOTM.Shared.Engine.Network
 
                         await Socket.SendAsync(memoryStream.ToArray(), receiver);
 
+                        //PacketsSent++;
+
                         //Remove handled messages
                         messages.RemoveAll(x => handled.Contains(x));
                     }
@@ -271,6 +269,8 @@ namespace LOTM.Shared.Engine.Network
                     writer.Write(message.Item1);
 
                     await Socket.SendAsync(memoryStream.ToArray(), message.Item2);
+
+                    //PacketsSent++;
                 }
             }
         }
