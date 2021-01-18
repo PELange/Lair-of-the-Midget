@@ -110,15 +110,22 @@ namespace LOTM.Client.Game.Objects.Player
             double attackAnimationTotalSwingDegrees = 220 * (IsLeft ? -1 : 1);
             double attackAnimationSwingRotationOffser = -110 * (IsLeft ? -1 : 1);
 
+            var oldProgress = AttackAnimationProgress;
             AttackAnimationProgress = Math.Max(0, Math.Min(1.0, deltaSinceAttackStart / attackAnimationTime));
 
-            if (AttackAnimationProgress >= 0 && AttackAnimationProgress <= 1.0)
+            if (AttackAnimationProgress >= 0 && AttackAnimationProgress <= 1.0 && oldProgress != 1.0)
             {
                 //From half of the animation start reversing it
                 var rotation = attackAnimationTotalSwingDegrees * 2 * (AttackAnimationProgress < 0.5 ? AttackAnimationProgress : 1 - AttackAnimationProgress) + attackAnimationSwingRotationOffser;
 
                 WeaponSegment.Rotation = rotation;
                 WeaponSegment.Rotation %= 360;
+
+                //WeaponSegment.Active = true;
+            }
+            else
+            {
+                //WeaponSegment.Active = false;
             }
 
             WeaponSegment.RenderLayer = GetComponent<SpriteRenderer>().Segments[0].RenderLayer + (IsLeft ? -1 : 1);
