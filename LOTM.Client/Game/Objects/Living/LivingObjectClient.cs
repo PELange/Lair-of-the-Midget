@@ -78,10 +78,10 @@ namespace LOTM.Client.Game.Objects
                 new SpriteRenderer.Segment(GetCurrentBodySprite() ?? AssetManager.GetSprite($"solid_white"), layer: baseRenderLayer),
 
                 //Base health bar
-                new SpriteRenderer.Segment(AssetManager.GetSprite($"solid_white"), new Vector2(1, 0.1), new Vector2(0, 0.25), new Vector4(0.929, 0.172, 0.219, 1.0), layer: baseRenderLayer + 2000),
+                new SpriteRenderer.Segment(AssetManager.GetSprite($"solid_white"), new Vector2(1, 0.1), new Vector2(0, 0.2), new Vector4(0.929, 0.172, 0.219, 1.0), layer: baseRenderLayer + 2000),
 
                 //Green hp bar overlaying the red bar
-                new SpriteRenderer.Segment(AssetManager.GetSprite($"solid_white"), new Vector2(1, 0.1), new Vector2(0, 0.25), new Vector4(0.074, 0.705, 0.094, 1.0), layer: baseRenderLayer + 2000),
+                new SpriteRenderer.Segment(AssetManager.GetSprite($"solid_white"), new Vector2(1, 0.1), new Vector2(0, 0.2), new Vector4(0.074, 0.705, 0.094, 1.0), layer: baseRenderLayer + 2000),
 
                 //Skull when dead
                 new SpriteRenderer.Segment(AssetManager.GetSprite($"skull"), new Vector2(1, 0.5), new Vector2(0, 0.5), layer: baseRenderLayer - 100, active: false),

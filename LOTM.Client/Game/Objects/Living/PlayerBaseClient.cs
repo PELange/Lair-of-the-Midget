@@ -29,7 +29,7 @@ namespace LOTM.Client.Game.Objects.Player
 
             AddComponent(new TextRenderer(new List<TextRenderer.Segment>
             {
-                new TextRenderer.Segment(name, "showcard_gothic", 5, new Vector2(0.5, 0.2))
+                new TextRenderer.Segment(name, "showcard_gothic", 5, new Vector2(0.5, 0.15))
             }));
 
             //Add Weapon
