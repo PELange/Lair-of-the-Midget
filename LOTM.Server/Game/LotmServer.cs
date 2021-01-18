@@ -128,6 +128,9 @@ namespace LOTM.Server.Game
                     NetworkServer.Broadcast(new GameStateUpdate { RequiresAck = true, Active = true });
                 }
             }
+
+            //Sends packets for this simulation step
+            NetworkServer.Flush();
         }
 
         protected override void OnUpdate(double deltaTime)
@@ -220,7 +223,7 @@ namespace LOTM.Server.Game
                 PlayerObjectId = Players[playerKey].ObjectId,
                 WorldSeed = WorldSeed,
                 LobbySize = (int)LobbySize
-            }, playerJoin.Sender);
+            }, playerJoin.Sender, true);
         }
 
         protected void PreGenerateWorld()

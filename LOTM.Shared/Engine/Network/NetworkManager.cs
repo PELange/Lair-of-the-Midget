@@ -73,6 +73,8 @@ namespace LOTM.Shared.Engine.Network
                 using MemoryStream memoryStream = new MemoryStream(packet.data);
                 using BinaryReader reader = new BinaryReader(memoryStream);
 
+                //System.Console.WriteLine("--- UDP PACKET START ---");
+
                 while (memoryStream.Position + sizeof(int) < packet.data.Length)
                 {
                     var messageLength = reader.ReadInt32();
@@ -85,6 +87,8 @@ namespace LOTM.Shared.Engine.Network
                     //Enqueue the result
                     if (networkPacket != null)
                     {
+                        //System.Console.WriteLine(networkPacket.ToString());
+
                         if (networkPacket is PacketAck packetAck)
                         {
                             //System.Console.WriteLine($"Recieved ack for packet id {packetAck.AckPacketId}");
@@ -103,6 +107,8 @@ namespace LOTM.Shared.Engine.Network
                         }
                     }
                 }
+
+                //System.Console.WriteLine("--- UDP PACKET END ---\n\n\n");
             };
 
             //Start sender thread
@@ -213,47 +219,47 @@ namespace LOTM.Shared.Engine.Network
                     }
                 }
 
-                ////Go through all receivers to bundle their messages together
-                //foreach (var receiver in receivers)
-                //{
-                //    //Remove messages that we could gather for this sender from generel outbound list
-                //    var messages = seralizedMessages.Where(x => x.Item2.Equals(receiver)).ToList();
-                //    seralizedMessages.RemoveAll(x => messages.Contains(x));
+                //Go through all receivers to bundle their messages together
+                foreach (var receiver in receivers)
+                {
+                    //Remove messages that we could gather for this sender from generel outbound list
+                    var messages = seralizedMessages.Where(x => x.Item2.Equals(receiver)).ToList();
+                    seralizedMessages.RemoveAll(x => messages.Contains(x));
 
-                //    const int maxPacketSize = 500; //500 bytes is considered "safe enough" for IP layer. Though delivery is not guaranteed it should not be split up or dropped because of size
+                    const int maxPacketSize = 500; //500 bytes is considered "safe enough" for IP layer. Even though this does not guarantee delivery, it should make sure the packet is not dropped or split because of size
 
-                //    //Start new buffer
-                //    while (messages.Count > 0)
-                //    {
-                //        var handled = new List<(byte[], IPEndPoint)>();
+                    //Start new buffer
+                    while (messages.Count > 0)
+                    {
+                        var handled = new List<(byte[], IPEndPoint)>();
 
-                //        var memoryStream = new MemoryStream();
-                //        var writer = new BinaryWriter(memoryStream);
+                        var memoryStream = new MemoryStream();
+                        var writer = new BinaryWriter(memoryStream);
 
-                //        for (int nMessage = 0; nMessage < messages.Count; nMessage++)
-                //        {
-                //            var message = messages[nMessage];
+                        for (int nMessage = 0; nMessage < messages.Count; nMessage++)
+                        {
+                            var message = messages[nMessage];
 
-                //            //Always write the first one or if there is still room for this message
-                //            if (nMessage == 0 || memoryStream.Length + sizeof(int) + message.Item1.Length <= maxPacketSize)
-                //            {
-                //                writer.Write(message.Item1.Length);
-                //                writer.Write(message.Item1);
+                            //Always write the first one or if there is still room for this message
+                            if (nMessage == 0 || memoryStream.Length + sizeof(int) + message.Item1.Length <= maxPacketSize)
+                            {
+                                writer.Write(message.Item1.Length);
+                                writer.Write(message.Item1);
 
-                //                handled.Add(message);
-                //            }
-                //            else //No more space, send and repeat process
-                //            {
-                //                await Socket.SendAsync(memoryStream.ToArray(), receiver);
+                                handled.Add(message);
+                            }
+                            else //No more space, send and repeat process
+                            {
+                                break;
+                            }
+                        }
 
-                //                break;
-                //            }
-                //        }
+                        await Socket.SendAsync(memoryStream.ToArray(), receiver);
 
-                //        //Remove handled messages
-                //        messages.RemoveAll(x => handled.Contains(x));
-                //    }
-                //}
+                        //Remove handled messages
+                        messages.RemoveAll(x => handled.Contains(x));
+                    }
+                }
 
                 //Left over messages
                 foreach (var message in seralizedMessages)
@@ -274,10 +280,16 @@ namespace LOTM.Shared.Engine.Network
             return ReceiveQueue.TryDequeue(out packet);
         }
 
-        protected void SendPacket(NetworkPacket packet, IPEndPoint receiver)
+        protected void SendPacket(NetworkPacket packet, IPEndPoint receiver, bool sendNow = false)
         {
             packet.Id = NEXT_PACKET_ID++;
             SendQueue.Enqueue((packet, receiver));
+
+            if (sendNow) SendEvent.Set();
+        }
+
+        public void Flush()
+        {
             SendEvent.Set();
         }
     }

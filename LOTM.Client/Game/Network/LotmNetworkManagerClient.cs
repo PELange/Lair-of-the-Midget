@@ -15,9 +15,9 @@ namespace LOTM.Client.Game.Network
             ServerEndpoint = IPEndPoint.Parse(serverAddress);
         }
 
-        public void SendPacket(NetworkPacket packet)
+        public void SendPacket(NetworkPacket packet, bool sendNow = false)
         {
-            SendPacket(packet, ServerEndpoint);
+            SendPacket(packet, ServerEndpoint, sendNow);
         }
 
         public string CurrentServer => ServerEndpoint.ToString();

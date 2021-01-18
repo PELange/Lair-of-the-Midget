@@ -60,7 +60,7 @@ namespace LOTM.Client.Game
                     "wizard" => ObjectType.Player_Wizard_Male,
                     _ => ObjectType.Player_Knight_Male
                 }
-            });
+            }, true);
         }
 
         protected override void OnInit()
@@ -303,6 +303,9 @@ namespace LOTM.Client.Game
             }
 
             MaintainDungeonRoomBuffer();
+
+            //Sends packets for this simulation step
+            NetworkClient.Flush();
         }
 
         protected override void OnUpdate(double deltaTime)

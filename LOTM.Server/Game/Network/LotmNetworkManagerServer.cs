@@ -28,9 +28,9 @@ namespace LOTM.Server.Game.Network
             }
         }
 
-        public void SendPacketTo(NetworkPacket packet, IPEndPoint receiver)
+        public void SendPacketTo(NetworkPacket packet, IPEndPoint receiver, bool sendNow = false)
         {
-            SendPacket(packet, receiver);
+            SendPacket(packet, receiver, sendNow);
         }
     }
 }
