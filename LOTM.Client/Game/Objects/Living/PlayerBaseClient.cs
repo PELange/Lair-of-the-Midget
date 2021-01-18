@@ -1,5 +1,4 @@
 ﻿using LOTM.Client.Engine;
-using LOTM.Client.Engine.Graphics;
 using LOTM.Client.Engine.Objects.Components;
 using LOTM.Shared.Engine.Math;
 using LOTM.Shared.Engine.Objects.Components;
@@ -113,7 +112,7 @@ namespace LOTM.Client.Game.Objects.Player
             var oldProgress = AttackAnimationProgress;
             AttackAnimationProgress = Math.Max(0, Math.Min(1.0, deltaSinceAttackStart / attackAnimationTime));
 
-            if (AttackAnimationProgress >= 0 && AttackAnimationProgress <= 1.0 && oldProgress != 1.0)
+            if (AttackAnimationProgress >= 0 && AttackAnimationProgress <= 1.0/* && oldProgress != 1.0*/)
             {
                 //From half of the animation start reversing it
                 var rotation = attackAnimationTotalSwingDegrees * 2 * (AttackAnimationProgress < 0.5 ? AttackAnimationProgress : 1 - AttackAnimationProgress) + attackAnimationSwingRotationOffser;
