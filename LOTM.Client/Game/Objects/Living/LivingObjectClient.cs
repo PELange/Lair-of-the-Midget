@@ -139,6 +139,8 @@ namespace LOTM.Client.Game.Objects
             }
 
             //2. Interpolate positions
+            var movementResult = Vector2.ZERO;
+
             if (LatestServerPosition != null)
             {
                 const int maxLerpDistance = 16 * 6;
@@ -170,30 +172,28 @@ namespace LOTM.Client.Game.Objects
                         newPosition.Y = LatestServerPosition.Y;
                     }
 
+                    movementResult.X = newPosition.X - transform.Position.X;
+                    movementResult.Y = newPosition.Y - transform.Position.Y;
+
                     transform.Position.X = newPosition.X;
                     transform.Position.Y = newPosition.Y;
                 }
             }
 
             //3. Update animation states
+            CurrentAnimationState = (Math.Abs(movementResult.X) > 0.01 || Math.Abs(movementResult.Y) > 0.01) ? AnimationState.Walk : AnimationState.Idle;
 
-            ////2.1 Detect position changes -> aka walking
-            //var transform = GetComponent<Transformation2D>();
-            //if (LastLocalPosition.X != transform.Position.X || LastLocalPosition.Y != transform.Position.Y)
-            //{
-            //    LastLocalPosition.X = transform.Position.X;
-            //    LastLocalPosition.Y = transform.Position.Y;
-
-            //    CurrentAnimationState = AnimationState.Walk;
-            //}
-            //else
-            //{
-            //    //CurrentAnimationState = AnimationState.Idle;
-            //}
-
-            var spriteRenderer = GetComponent<SpriteRenderer>();
+            if (movementResult.X > 0)
+            {
+                IsLeft = false;
+            }
+            else if (movementResult.X < 0)
+            {
+                IsLeft = true;
+            }
 
             //3.2 Update primary body sprite
+            var spriteRenderer = GetComponent<SpriteRenderer>();
             spriteRenderer.Segments[0].Sprite = GetCurrentBodySprite();
             spriteRenderer.Segments[0].VerticalFlip = IsLeft;
 
