@@ -16,7 +16,6 @@ using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
 using LOTM.Shared.Game.Objects.Environment;
 using LOTM.Shared.Game.Objects.Interactable;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -296,7 +295,15 @@ namespace LOTM.Client.Game
                 }
 
                 //Run fixed simulation on all relevant world objects
-                foreach (var worldObject in World.GetAllObjects())
+                var viewPort = Camera.GetViewport();
+                var preloadPadding = 16 * 3;
+                var searchRect = new Rectangle(
+                    viewPort.TopLeft.X - preloadPadding,
+                    viewPort.TopLeft.Y - preloadPadding,
+                    System.Math.Abs(viewPort.BottomRight.X - viewPort.TopLeft.X) + preloadPadding * 2,
+                    System.Math.Abs(viewPort.BottomRight.Y - viewPort.TopLeft.Y) + preloadPadding * 2);
+
+                foreach (var worldObject in World.GetObjectsInArea(searchRect))
                 {
                     worldObject.OnFixedUpdate(deltaTime, World);
                 }
@@ -310,7 +317,16 @@ namespace LOTM.Client.Game
 
         protected override void OnUpdate(double deltaTime)
         {
-            foreach (var worldObject in World.GetAllObjects())
+            //Run onEachFrame simulation on all relevant world objects
+            var viewPort = Camera.GetViewport();
+            var preloadPadding = 16 * 3;
+            var searchRect = new Rectangle(
+                viewPort.TopLeft.X - preloadPadding,
+                viewPort.TopLeft.Y - preloadPadding,
+                System.Math.Abs(viewPort.BottomRight.X - viewPort.TopLeft.X) + preloadPadding * 2,
+                System.Math.Abs(viewPort.BottomRight.Y - viewPort.TopLeft.Y) + preloadPadding * 2);
+
+            foreach (var worldObject in World.GetObjectsInArea(searchRect))
             {
                 worldObject.OnUpdate(deltaTime);
             }
@@ -324,7 +340,7 @@ namespace LOTM.Client.Game
         {
             if (State != GameState.Connecting) return; //Ignore join packet if we are already connected.
 
-            Console.WriteLine($"Successfully joined {NetworkClient.CurrentServer}");
+            System.Console.WriteLine($"Successfully joined {NetworkClient.CurrentServer}");
 
             WorldSeed = playerJoinAck.WorldSeed;
             LobbySize = playerJoinAck.LobbySize;
@@ -384,7 +400,7 @@ namespace LOTM.Client.Game
             if (State != GameState.Gameplay) return;
 
             var cameraCenterPos = Vector2.ZERO;
-            var viewportPadding = 16 * 6;
+            var renderRadius = System.Math.Min(16 * 6, LotmGameConfig.MaxRenderDistance);
 
             //Try find the player object if we did not already have it
             if (PlayerObject == null)
@@ -396,13 +412,13 @@ namespace LOTM.Client.Game
             {
                 var transformation = PlayerObject.GetComponent<Transformation2D>();
 
-                cameraCenterPos.X += transformation.Position.X + transformation.Scale.X / 2;
-                cameraCenterPos.Y += transformation.Position.Y + transformation.Scale.Y / 2;
+                cameraCenterPos.X += transformation.Position.X + transformation.Scale.X / 2.0;
+                cameraCenterPos.Y += transformation.Position.Y + transformation.Scale.Y / 2.0;
             }
 
             Camera.SetViewport(new Viewport(
-                new Vector2(cameraCenterPos.X - viewportPadding, cameraCenterPos.Y - viewportPadding),
-                new Vector2(cameraCenterPos.X + viewportPadding, cameraCenterPos.Y + viewportPadding)));
+                new Vector2(cameraCenterPos.X - renderRadius, cameraCenterPos.Y - renderRadius),
+                new Vector2(cameraCenterPos.X + renderRadius, cameraCenterPos.Y + renderRadius)));
         }
 
         protected void DebugCollisions()
@@ -634,7 +650,7 @@ namespace LOTM.Client.Game
 
                 default:
                 {
-                    Console.WriteLine($"Dropped outbound packet {packetInfo.Item1}");
+                    System.Console.WriteLine($"Dropped outbound packet {packetInfo.Item1}");
                     return false;
                 }
             }

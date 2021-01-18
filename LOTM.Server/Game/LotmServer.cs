@@ -13,7 +13,6 @@ using LOTM.Shared.Game.Objects;
 using LOTM.Shared.Game.Objects.Components;
 using LOTM.Shared.Game.Objects.Environment;
 using LOTM.Shared.Game.Objects.Interactable;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -100,25 +99,49 @@ namespace LOTM.Server.Game
 
             if (State == GameState.Gameplay)
             {
+                var playerRects = new List<(string, Rectangle)>();
+                var allVisibleObjects = new HashSet<GameObject>();
+
+                foreach (var entry in Players)
+                {
+                    var transformation = entry.Value.GetComponent<Transformation2D>();
+
+                    var playerCenter = new Vector2(transformation.Position.X + transformation.Scale.X / 2.0, transformation.Position.Y + transformation.Scale.Y / 2.0);
+
+                    var searchRect = new Rectangle(
+                        playerCenter.X - LotmGameConfig.MaxRenderDistance,
+                        playerCenter.Y - LotmGameConfig.MaxRenderDistance,
+                        LotmGameConfig.MaxRenderDistance * 2,
+                        LotmGameConfig.MaxRenderDistance * 2);
+
+                    playerRects.Add((entry.Key, searchRect));
+
+                    //Add objects that the player could see to overerall collection
+                    World.GetObjectsInArea(searchRect).ToList().ForEach(x => allVisibleObjects.Add(x));
+                }
+
                 //Run fixed simulation on all relevant world objects
-                foreach (var worldObject in World.GetAllObjects())
+                foreach (var worldObject in allVisibleObjects)
                 {
                     worldObject.OnFixedUpdate(deltaTime, World);
                 }
 
                 //Process broadcast all outbound packets
-                foreach (var gameObject in World.GetAllObjects())
+                foreach (var gameObject in allVisibleObjects)
                 {
                     if (gameObject.GetComponent<NetworkSynchronization>() is NetworkSynchronization networkSynchronization)
                     {
+                        var relevantEndpoints = playerRects.Where(playerRect => playerRect.Item2.IntersectsWith(gameObject.GetComponent<Transformation2D>().GetBoundingBox())).Select(x => x.Item1).ToList();
+
                         while (networkSynchronization.PacketsOutbound.TryDequeue(out var outbound))
                         {
-                            NetworkServer.Broadcast(outbound);
+                            foreach (var playerReceiver in relevantEndpoints)
+                            {
+                                NetworkServer.SendPacketTo(outbound, playerReceiver);
+                            }
                         }
                     }
                 }
-
-
             }
             else if (State == GameState.Lobby)
             {
@@ -131,17 +154,6 @@ namespace LOTM.Server.Game
 
             //Sends packets for this simulation step
             NetworkServer.Flush();
-        }
-
-        protected override void OnUpdate(double deltaTime)
-        {
-            if (State == GameState.Gameplay)
-            {
-                foreach (var worldObject in World.GetAllObjects())
-                {
-                    worldObject.OnUpdate(deltaTime);
-                }
-            }
         }
 
         public void OnPlayerJoin(PlayerJoin playerJoin)
@@ -421,7 +433,7 @@ namespace LOTM.Server.Game
 
                 default:
                 {
-                    Console.WriteLine($"Dropped outbound packet {packetInfo.Item1}");
+                    System.Console.WriteLine($"Dropped outbound packet {packetInfo.Item1}");
                     return false;
                 }
             }

@@ -32,5 +32,13 @@ namespace LOTM.Server.Game.Network
         {
             SendPacket(packet, receiver, sendNow);
         }
+
+        public void SendPacketTo(NetworkPacket packet, string receiverAddress, bool sendNow = false)
+        {
+            if (ConnectedPlayers.TryGetValue(receiverAddress, out var receiver))
+            {
+                SendPacket(packet, receiver, sendNow);
+            }
+        }
     }
 }
