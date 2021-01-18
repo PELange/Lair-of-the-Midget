@@ -109,7 +109,7 @@ namespace LOTM.Client.Game.Objects.Player
             double attackAnimationTotalSwingDegrees = 220 * (IsLeft ? -1 : 1);
             double attackAnimationSwingRotationOffser = -110 * (IsLeft ? -1 : 1);
 
-            var oldProgress = AttackAnimationProgress;
+            //var oldProgress = AttackAnimationProgress;
             AttackAnimationProgress = Math.Max(0, Math.Min(1.0, deltaSinceAttackStart / attackAnimationTime));
 
             if (AttackAnimationProgress >= 0 && AttackAnimationProgress <= 1.0/* && oldProgress != 1.0*/)
