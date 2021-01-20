@@ -1,0 +1,19 @@
+1. Projektmappe laden
+
+2. Im Projekt-Explorer
+	-> Rechtsclick auf LOTM.Client
+	-> Ganz unten Eigenschaften 
+	-> zum Tab "Debuggen" wechseln 
+	-> Arbeitsverzeichnis auf z.B C:\Users\MeinBenutzer\Desktop\GT3\LOTM\LOTM.Client setzen
+
+	Macht man dies nicht kann er die Assets nicht finden
+
+3. Im Projekt-Explorer
+	-> Rechtsclick auf die LOTM Projektmappe
+	-> Eigenschaften
+	-> Allgemein / Startprojekt
+	-> Mehrere Startprojekte
+	-> LOTM.Client und LOTM.Server auf starten stellen
+	-> Ok
+
+4. Debugging starten

@@ -1,0 +1,27 @@
+- Client-Server-Anwendung (mindestens zwei, besser mehr Clients und dedizierter Server)
+LOTM\LOTM.Shared\Engine\Network\*
+LOTM\LOTM.Server\Game\Network\*
+LOTM\LOTM.Client\Game\Network\*
+Beliebig viele Spieler/Clients werden unterstützt
+
+
+- Mehrbenutzerfähig mit Interaktionsmöglichkeit zwischen den Benutzern (ggf. auch nicht direkt, sondern über die Welt)
+Ergibt sich aus dem Gameplay: Gemeinsamer Kampf gegen Feinde, Konkurrenz um Pickups, etc.
+
+
+- Ein-/Ausgabe auf Clientseite
+LOTM\LOTM.Client\Engine\Controls\InputManager.cs
+LOTM\LOTM.Client\Engine\Graphics\Renderer2D.cs
+
+
+- Welt in einer Datenstruktur aus der Vorlesung oder sonstiger (ggf. nach Rücksprache) mit technischer Unterstützung für "beliebige Größe" (wahlweise generiert)
+LOTM\LOTM.Shared\Engine\World\GameWorld.cs -> Ab Zeile 24
+LOTM\LOTM.Shared\Engine\World\QuadTree.cs
+
+
+- Interaktionsmöglichkeiten mit der Welt (Objekte einsammeln, platzieren, bewegen...)
+LOTM\LOTM.Server\Game\Objects\Interactable\PickupServer.cs -> Ab Zeile 21
+
+
+- Minimale KI
+LOTM\LOTM.Server\Game\Objects\Living\EnemyBaseServer.cs -> Ab Zeile 40
