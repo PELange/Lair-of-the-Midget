@@ -1,11 +1,11 @@
-![image](https://github.com/PELange/Lair-of-the-Midget/assets/63419814/f76c3d6e-d906-4052-8905-c067791f2846)
+![title](https://github.com/PELange/Lair-of-the-Midget/assets/63419814/d5f31549-0820-43b8-a20c-6799d4ffc36c)
 
 # Lair-of-the-Midget
 Lair of the Midget - a top down dungeon fighter
 
 Team up with your friends and fight you way through the endless dungon through progressively chellanging enemies.
 
-![scene_damage_combined_v3](https://github.com/PELange/Lair-of-the-Midget/assets/63419814/70f9f35f-8af6-4b13-a8f9-1e66a2ccae3b)
+![scene_damage_combined_v4](https://github.com/PELange/Lair-of-the-Midget/assets/63419814/ef1cfa84-b395-4fd3-9152-17f74b270009)
 1. Different enemies
 2. Player
 3. Minor and major health potions
